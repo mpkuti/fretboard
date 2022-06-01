@@ -1,5 +1,5 @@
 const dataset = [10, 20, 30];
-const w = 700;
+const w = 1500;
 const h = 250;
 const padding = 15;
 const no_frets = 13; // number of frets
@@ -9,7 +9,30 @@ const fretboard_colour = 'BurlyWood';
 const fret_colour      = 'DimGray';
 const string_colour    = 'DarkGoldenRod';
 
-const notes = [ 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B' ];
+function rotateRight(arr){
+  let last = arr.pop();
+  arr.unshift(last);
+  return arr;
+}
+function rotateLeft(arr){
+  let first = arr.shift();
+  arr.push(first);
+  return arr;
+}
+
+const notes_a = ['A', 'A#/Bb', 'B', 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab'];
+const notes_as = rotateLeft(notes_a);
+const notes_b = rotateLeft(notes_as);
+const notes_c = rotateLeft(notes_b);
+const notes_cs = rotateLeft(notes_c);
+const notes_d = rotateLeft(notes_cs);
+const notes_ds = rotateLeft(notes_d);
+const notes_e = rotateLeft(notes_ds);
+const notes_f = rotateLeft(notes_e);
+const notes_fs = rotateLeft(notes_f);
+const notes_g = rotateLeft(notes_fs);
+const notes_gs = rotateLeft(notes_g);
+//const notes = [ 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B' ];
 const intervals = [ "1", "p2", "S2", "p3", "S3", "4", '-5', "5", "p6", "S6", "p7", "S7" ];
 const dots = [3, 5, 7, 9, 15, 17, 19, 21];
 const double_dots = [12, 24];
@@ -59,14 +82,14 @@ svg.append("g")
 .attr("cx", (d) => padding + 0.5 * fret_w + (d-1) * fret_w);
 
 // DOUBLE DOTS 1
-svg.append("g")
+doubledot_group = svg.append("g")
 .selectAll("circle")
 .data(double_dots)
 .enter()
 .append("circle")
 .attr("r", 10)
 .attr("cy", padding + (h - 2*padding) / 3)
-.attr("cx", (d) => padding + 0.5 * fret_w + 11 * fret_w);
+.attr("cx", (d) => padding + (d - 0.5) * fret_w);
 
 // DOUBLE DOTS 2
 svg.append("g")
@@ -76,7 +99,7 @@ svg.append("g")
 .append("circle")
 .attr("r", 10)
 .attr("cy", padding + 2 * (h - 2*padding) / 3)
-.attr("cx", (d) => padding + 0.5 * fret_w + 11 * fret_w);
+.attr("cx", (d) => padding + (d - 0.5) * fret_w);
 
 // FRETS
 for ( var x=0; x<=no_frets; x++){
