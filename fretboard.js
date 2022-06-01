@@ -65,7 +65,7 @@ svg.append("g")
 .enter()
 .append("circle")
 .attr("r", 10)
-.attr("cy", h / 3)
+.attr("cy", padding + (h - 2*padding) / 3)
 .attr("cx", (d) => padding + 0.5 * fret_w + 11 * fret_w);
 
 // DOUBLE DOTS 2
@@ -75,7 +75,7 @@ svg.append("g")
 .enter()
 .append("circle")
 .attr("r", 10)
-.attr("cy", 2 * h / 3)
+.attr("cy", padding + 2 * (h - 2*padding) / 3)
 .attr("cx", (d) => padding + 0.5 * fret_w + 11 * fret_w);
 
 // FRETS
