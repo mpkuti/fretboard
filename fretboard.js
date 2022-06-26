@@ -1,8 +1,8 @@
 const dataset = [10, 20, 30];
-const w = 1500;
+const w = 960;
 const h = 250;
 const padding = 15;
-const no_frets = 13; // number of frets
+const no_frets = 12; // number of frets
 
 // COLOURS
 const fretboard_colour = "BurlyWood";
@@ -147,21 +147,18 @@ svg
   .attr("cx", (d) => padding + (d - 0.5) * fret_w);
 
 // FRETS
-for (var x = 0; x <= no_frets; x++) {
-  const x_coord = padding + x * fret_w;
-  const line = svg
-    .append("line")
-    .attr("x1", x_coord)
-    .attr("x2", x_coord)
-    .attr("y1", padding)
-    .attr("y2", h - padding)
-    .attr("stroke", fret_colour)
-    .attr("stroke-width", 4);
-  // NUT IS BIGGER
-  if (x == 0) {
-    line.attr("stroke-width", 8);
-  }
-}
+const fret_xscale = d3.scaleLinear([0, no_frets],[padding, w-padding]);
+const frets = svg.selectAll(".fret")
+  .data(d3.range(no_frets+1))
+  .join("line")
+  .classed("fret", true)
+  .attr("x1", (d) => fret_xscale(d))
+  .attr("x2", (d) => fret_xscale(d))
+  .attr("y1", padding)
+  .attr("y2", h - padding)
+  .attr("stroke", fret_colour)
+  .attr("stroke-width", 5);
+
 
 // STRINGS
 for (y = 0; y < 6; y++) {
