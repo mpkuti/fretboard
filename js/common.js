@@ -1,5 +1,5 @@
 // Parameters:
-export const NO_FRETS = 5; // number of frets
+export const NO_FRETS = 12; // number of frets
 export const G_WIDTH = 400; // width of the guitar neck
 export const G_HEIGHT = 200; // height of the guitar neck
 export const G_COLOR = "brown"; // color of the guitar neck
@@ -30,6 +30,9 @@ export const notes = [
     "G#",
   ];
 
+// Global variable for base note, has to be visible to all functions
+export let base_note = "C";
+
 export const intervals = [
     "1",
     "p2",
@@ -44,6 +47,9 @@ export const intervals = [
     "p7",
     "S7",
 ];
+
+// Calculate the smallest multiple of 12 that is greater than or equal to NO_FRETS + 2
+let note_row_length = Math.ceil((NO_FRETS + 2) / 12) * 12;
 
 // Create lists of all the notes in every string
 // Range is from 0 to NO_FRETS
@@ -61,7 +67,7 @@ for (let j = 0; j < stringNotes.length; j++) {
     const startIndex = notes.indexOf(stringNote);
     const currentNotes = [];
 
-    for (let i = 0; i < NO_FRETS + 2; i++) {
+    for (let i = 0; i < note_row_length; i++) {
         currentNotes.push(notes[(startIndex + i) % 12]);
     }
 
@@ -98,7 +104,7 @@ export const all_guitar_notes = all_guitar_notes_work;
 // The second dimension represents the fret number
 // The value represents the note
 // const all_guitar_notes = [notes_e, notes_b, notes_g, notes_d, notes_a, notes_e];
-console.log("all_guitar_notes: ", all_guitar_notes);
+// console.log("all_guitar_notes: ", all_guitar_notes);
 
 // console.log(notes_e);
 // console.log(notes_a);
@@ -118,6 +124,11 @@ export const noteScale = function(i) {
     return 2 * G_WIDTH * (1 - Math.pow(2, -(i - 0.5) / NO_FRETS));
 }
 
+// Create a scale to map string numbers to positions
+export const stringScale = d3.scaleLinear()
+    .domain([0, 5])
+    .range([G_HEIGHT/12, G_HEIGHT-G_HEIGHT/12]);
+
 // Create a list of x positions for notes using 3d.range
 export const noteXPositions = d3.range(NO_FRETS+2);
 
@@ -133,11 +144,18 @@ export const noteYCoordinates = d3.range( G_HEIGHT/12, G_HEIGHT, G_HEIGHT/6 );
 export const all_note_coordinates = [];
 for (let i = 0; i < 6; i++) {
     const currentNotePositions = [];
-    for (let j = 0; j < NO_FRETS + 2; j++) {
+    // Create noteObjects for each fret
+    // There should be a multiple of 12 notes,
+    // minimum should be NO_FRETS + 2
+
+    // Calculate the smallest multiple of 12 that is greater than or equal to NO_FRETS + 2
+    let iterations = Math.ceil((NO_FRETS + 2) / 12) * 12;
+
+    for (let j = 0; j < iterations; j++) {
         // Create the note object
         const noteObject = {
-            x: noteXCoordinates[j],
-            y: noteYCoordinates[i],
+            x: noteScale(j),
+            y: stringScale(i),
             note: all_guitar_notes[i][j]
         };
         currentNotePositions.push(noteObject);
@@ -145,7 +163,7 @@ for (let i = 0; i < 6; i++) {
     all_note_coordinates.push(currentNotePositions);
 }
 console.log("all_note_coordinates: ", all_note_coordinates);
-console.log(all_note_coordinates[1][1].x);
+// console.log(all_note_coordinates[1][1].x);
 
 
 // Find the smallest distance between the frets
@@ -160,3 +178,14 @@ var stringThicknesses_ = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 5];
 // multiply stringThicknesses by 3 to make them more visible
 stringThicknesses_ = stringThicknesses_.map(x => x * 3);
 export const stringThicknesses = stringThicknesses_;
+
+// Function to return a list of notes in a pentatonic scale
+// The parameter is the base note
+// The function returns a list of notes in the pentatonic scale
+export function pentatonic(base) {
+    console.log("notes: ", notes);
+    console.log("base: ", base);
+    const baseIndex = notes.indexOf(base);
+    console.log("baseIndex: ", baseIndex);
+    return [0, 2, 4, 7, 9].map(x => notes[(baseIndex + x) % 12]);
+}

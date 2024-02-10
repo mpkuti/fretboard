@@ -132,3 +132,20 @@ export function drawBackground(svg) {
 
 
 }
+
+// Function to make text labels for each note visible or invisible instantly
+export function setNoteTextOpacity(opacity) {
+    d3.selectAll("text")
+        .transition()
+        .duration(0)
+        .style("opacity", opacity);
+}
+
+window.toggleNoteNames = function() {
+    var checkbox = document.getElementById('noteNamesCheckbox');
+    if (checkbox.checked) {
+      setNoteTextOpacity(1); // Show note names
+    } else {
+      setNoteTextOpacity(0); // Hide note names
+    }
+  };
