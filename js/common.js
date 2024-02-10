@@ -34,12 +34,37 @@ export const notes = [
 let _base_note = "C";
 
 export function setBaseNote(newNote) {
+    console.log("Setting base note to " + newNote);
     // Check if the note is valid
     if (!notes.includes(newNote)) {
         throw new Error("Invalid note");
     }
     else
     _base_note = newNote;
+}
+
+export function raiseBaseNote() {
+    console.log("Raising base note");
+    let index = notes.indexOf(_base_note);
+    if (index === 11) {
+        _base_note = notes[0];
+    }
+    else {
+        _base_note = notes[index + 1];
+    }
+    console.log("New basenote: " + _base_note);
+}
+
+export function lowerBaseNote() {
+    console.log("Lowering base note");
+    let index = notes.indexOf(_base_note);
+    if (index === 0) {
+        _base_note = notes[11];
+    }
+    else {
+        _base_note = notes[index - 1];
+    }
+    console.log("New basenote: " + _base_note);
 }
 
 export function getBaseNote() {

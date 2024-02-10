@@ -130,6 +130,14 @@ export function moveSlider(event) {
     if (!transitionInProgress) {
         transitionInProgress = true;
 
+        if (direction < 0) {
+            console.log("lowerBaseNote");
+            common.lowerBaseNote();
+        } else {
+            console.log("raiseBaseNote");
+            common.raiseBaseNote();
+        }
+
         objectsInSliderGroup.transition()
         .duration(1000) // duration of the animation in milliseconds
         .attr("cx", function(d, i, nodes) {
