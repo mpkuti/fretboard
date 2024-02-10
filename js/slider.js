@@ -217,11 +217,11 @@ export function setAllColor(color) {
 // note: the note to select, should be included in common.notes
 // color_all: the color to set for all circles
 // color_selected: the color to set for the selected note
-export function colorBasenote(note, color_all, color_selected) {
+export function colorBasenote(highlight_color, color_all) {
     // Set the color of all circles
     setAllColor(color_all);
     // Set the color of the selected note
-    setColor(note, color_selected);
+    setColor(common.getBaseNote(), highlight_color);
 }
 
 // Function to color the circles based on the argument list
@@ -230,10 +230,15 @@ export function colorBasenote(note, color_all, color_selected) {
 // color: the color to set
 export function colorNotes(notes, color) {
     // Set the color of the selected notes
-    console.log("notes: ", notes);
-    notes.forEach(function(note) {
-        setColor(note, color);
-    });
+    console.log("color notes: ", notes);
+    console.log("color: ", color);
+    if (Array.isArray(notes)) {
+        notes.forEach(function(note) {
+            setColor(note, color);
+        });
+    } else {
+        setColor(notes, color);
+    };
 }
 
 // Function to color the circles for pentatonic scale
@@ -241,9 +246,11 @@ export function colorNotes(notes, color) {
 // base: the base note
 // colorHighlight: the color to set for the highlighted notes
 // colorAll: the color to set for all circles
-export function colorPentatonic(base, colorHighlight, colorAll) {
+export function colorPentatonic(colorHighlight, colorAll) {
+    console.log("colorPentatonic: ", colorHighlight, colorAll);
+    console.log("common.pentatonic(common.getBaseNote()): ", common.pentatonic(common.getBaseNote()));
     // Set the color of all circles
     setAllColor(colorAll);
     // Set the color of the selected notes
-    colorNotes(common.pentatonic(base), colorHighlight);
+    colorNotes(common.pentatonic(common.getBaseNote()), colorHighlight);
 }

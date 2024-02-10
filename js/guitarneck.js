@@ -6,6 +6,7 @@ import { drawBackground, setNoteTextOpacity } from './background.js';
 import { drawSlider, moveSlider, setColor, setOpacity, colorBasenote, colorNotes, setAllColor, colorPentatonic } from './slider.js';
 
 window.changeBaseNote = changeBaseNote;
+window.selectHighlightMode = selectHighlightMode;
 
 // Select the SVG container
 var svg = d3.select("#container")
@@ -36,6 +37,35 @@ setNoteTextOpacity(1);
 // Function to change base note
 function changeBaseNote(newBaseNote) {
   console.log("Changing base note to " + newBaseNote);
-  var baseNote = newBaseNote;
-  colorBasenote(baseNote, "red", "blue");
+  common.setBaseNote(newBaseNote);
+  // Set the color of the circles
+  switch (common.getHighlightMode()) {
+    case "NONE":
+      setAllColor("blue");
+      break;
+    case "BASENOTE":
+      setAllColor("red");
+      colorNotes(common.getBaseNote(), "blue")
+      break;
+    case "PENTATONIC":
+      colorPentatonic("blue", "red");
+      selectHighlightMode("PENTATONIC");
+      break;
+  }
 }
+
+// Function to select highlight mode
+// NONE: no highlight
+// BASENOTE: highlight the base note
+// PENTATONIC: highlight the pentatonic scale
+function selectHighlightMode(highlightMode) {
+  console.log("Highlight mode: " + highlightMode);
+  if (highlightMode == "BASENOTE") {
+    setAllColor("red");
+    colorNotes(common.getBaseNote(), "blue")
+  } else if (highlightMode == "PENTATONIC") {
+    let pentatonicNotes = common.pentatonic(common.getBaseNote());
+    setAllColor("red");
+    colorNotes(pentatonicNotes, "blue");
+  }
+};

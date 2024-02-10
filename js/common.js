@@ -31,7 +31,36 @@ export const notes = [
   ];
 
 // Global variable for base note, has to be visible to all functions
-export let base_note = "C";
+let _base_note = "C";
+
+export function setBaseNote(newNote) {
+    // Check if the note is valid
+    if (!notes.includes(newNote)) {
+        throw new Error("Invalid note");
+    }
+    else
+    _base_note = newNote;
+}
+
+export function getBaseNote() {
+    return _base_note;
+}
+
+// Global variable for highlight mode, has to be visible to all functions
+let _highlight_mode = "BASENOTE";
+
+export function setHighlightMode(newMode) {
+    // Check if the mode is valid
+    if (!["NONE", "BASENOTE", "PENTATONIC"].includes(newMode)) {
+        throw new Error("Invalid mode");
+    }
+    else
+    _highlight_mode = newMode;
+}
+
+export function getHighlightMode() {
+    return _highlight_mode;
+}
 
 export const intervals = [
     "1",
@@ -162,7 +191,7 @@ for (let i = 0; i < 6; i++) {
     }
     all_note_coordinates.push(currentNotePositions);
 }
-console.log("all_note_coordinates: ", all_note_coordinates);
+// console.log("all_note_coordinates: ", all_note_coordinates);
 // console.log(all_note_coordinates[1][1].x);
 
 
@@ -182,10 +211,8 @@ export const stringThicknesses = stringThicknesses_;
 // Function to return a list of notes in a pentatonic scale
 // The parameter is the base note
 // The function returns a list of notes in the pentatonic scale
-export function pentatonic(base) {
-    console.log("notes: ", notes);
-    console.log("base: ", base);
-    const baseIndex = notes.indexOf(base);
-    console.log("baseIndex: ", baseIndex);
+export function pentatonic(baseNote) {
+    console.log("pentatonic base: ", baseNote);
+    const baseIndex = notes.indexOf(baseNote);
     return [0, 2, 4, 7, 9].map(x => notes[(baseIndex + x) % 12]);
 }
