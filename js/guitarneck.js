@@ -44,11 +44,9 @@ function changeBaseNote(newBaseNote) {
       setAllColor("blue");
       break;
     case "BASENOTE":
-      setAllColor("red");
-      colorNotes(common.getBaseNote(), "blue")
+      selectHighlightMode("BASENOTE");
       break;
     case "PENTATONIC":
-      colorPentatonic("blue", "red");
       selectHighlightMode("PENTATONIC");
       break;
   }
@@ -60,6 +58,7 @@ function changeBaseNote(newBaseNote) {
 // PENTATONIC: highlight the pentatonic scale
 function selectHighlightMode(highlightMode) {
   console.log("Highlight mode: " + highlightMode);
+  common.setHighlightMode(highlightMode);
   if (highlightMode == "BASENOTE") {
     setAllColor("red");
     colorNotes(common.getBaseNote(), "blue")
