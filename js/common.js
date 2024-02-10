@@ -41,16 +41,18 @@ export function setBaseNote(newNote) {
     }
     else
     _base_note = newNote;
+    // You can use JavaScript to set the selected option like this:
+    document.getElementById('baseNoteSelectDropdown').value = _base_note;
 }
 
 export function raiseBaseNote() {
     console.log("Raising base note");
     let index = notes.indexOf(_base_note);
     if (index === 11) {
-        _base_note = notes[0];
+        setBaseNote(notes[0]);
     }
     else {
-        _base_note = notes[index + 1];
+        setBaseNote(notes[index + 1]);
     }
     console.log("New basenote: " + _base_note);
 }
@@ -59,10 +61,10 @@ export function lowerBaseNote() {
     console.log("Lowering base note");
     let index = notes.indexOf(_base_note);
     if (index === 0) {
-        _base_note = notes[11];
+        setBaseNote(notes[11]);
     }
     else {
-        _base_note = notes[index - 1];
+        setBaseNote(notes[index - 1]);
     }
     console.log("New basenote: " + _base_note);
 }
