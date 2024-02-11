@@ -140,6 +140,17 @@ export function setNoteTextOpacity(opacity) {
         .duration(0)
         .style("opacity", opacity);
 }
+export function showAllNotes() {
+    common.showNoteNames();
+    setNoteTextOpacity(1);
+    console.log("Notes show: ", common.get__noteNamesVisibility());
+}
+export function hideAllNotes() {
+    common.hideNoteNames();
+    setNoteTextOpacity(0);
+    console.log("Notes show: ", common.get__noteNamesVisibility());
+
+}
 
 window.toggleNoteNames = function() {
     var checkbox = document.getElementById('noteNamesCheckbox');

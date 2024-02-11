@@ -89,6 +89,22 @@ export function getHighlightMode() {
     return _highlight_mode;
 }
 
+// Show note names
+let _showNoteNames = true; // default is true
+export function showNoteNames() {
+    _showNoteNames = true;
+}
+export function hideNoteNames() {
+    _showNoteNames = false;
+}
+export function get__noteNamesVisibility() {
+    return _showNoteNames;
+}
+export function toggle_noteNamesVisibility() {
+    _showNoteNames = !_showNoteNames;
+}
+
+
 export const intervals = [
     "1",
     "p2",

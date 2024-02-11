@@ -2,9 +2,10 @@
 import * as common from './common.js';
 
 // Import the functions from the other files
-import { drawBackground, setNoteTextOpacity } from './background.js';
-import { drawSlider, moveSlider, setColor, setOpacity, colorBasenote, colorNotes, setAllColor, colorPentatonic } from './slider.js';
+import { drawBackground, showAllNotes, hideAllNotes } from './background.js';
+import { drawSlider, moveSlider, setColor, setOpacity, colorNotes, setAllColor } from './slider.js';
 
+window.toggleNoteNames = toggleNoteNames;
 window.changeBaseNote = changeBaseNote;
 window.selectHighlightMode = selectHighlightMode;
 
@@ -20,19 +21,42 @@ drawSlider(svg);
 // Attach the click event handler to the SVG container
 svg.on("click", moveSlider);
 
-window.toggleNoteNames = function() {
+// window.toggleNoteNames = function() {
+//   var checkbox = document.getElementById('noteNamesCheckbox');
+//   if (checkbox.checked) {
+//     setNoteTextOpacity(1); // Show note names
+//   } else {
+//     setNoteTextOpacity(0); // Hide note names
+//   }
+// };
+function toggleNoteNames() {
   var checkbox = document.getElementById('noteNamesCheckbox');
   if (checkbox.checked) {
-    setNoteTextOpacity(1); // Show note names
+    showAllNotes();
+    localStorage.setItem('showNoteNames', 'true');
   } else {
-    setNoteTextOpacity(0); // Hide note names
+    hideAllNotes();
+    localStorage.setItem('showNoteNames', 'false');
   }
-};
+}
+
+// After the page has loaded, check the local storage for the note names visibility
+window.onload = function() {
+  var showNoteNames = localStorage.getItem('showNoteNames');
+  var checkbox = document.getElementById('noteNamesCheckbox');
+  if (showNoteNames === 'true') {
+      checkbox.checked = true;
+      showAllNotes();
+  } else if (showNoteNames === 'false') {
+      checkbox.checked = false;
+      hideAllNotes();
+  }
+}
 
 // Default setup
 setOpacity(0.4);
 changeBaseNote("C");
-setNoteTextOpacity(1);
+showAllNotes();
 
 // Function to change base note
 function changeBaseNote(newBaseNote) {
