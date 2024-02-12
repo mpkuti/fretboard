@@ -9,6 +9,7 @@ window.toggleNoteNames = toggleNoteNames;
 window.changeBaseNote = changeBaseNote;
 window.selectHighlightMode = selectHighlightMode;
 
+
 // Select the SVG container
 var svg = d3.select("#container")
             .append("svg")
@@ -18,17 +19,15 @@ var svg = d3.select("#container")
 drawBackground(svg);
 drawSlider(svg);
 
+
+// Default setup
+setOpacity(0.4);
+// changeBaseNote("C");
+showAllNotes();
+
 // Attach the click event handler to the SVG container
 svg.on("click", moveSlider);
 
-// window.toggleNoteNames = function() {
-//   var checkbox = document.getElementById('noteNamesCheckbox');
-//   if (checkbox.checked) {
-//     setNoteTextOpacity(1); // Show note names
-//   } else {
-//     setNoteTextOpacity(0); // Hide note names
-//   }
-// };
 function toggleNoteNames() {
   var checkbox = document.getElementById('noteNamesCheckbox');
   if (checkbox.checked) {
@@ -42,6 +41,8 @@ function toggleNoteNames() {
 
 // After the page has loaded, check the local storage for the note names visibility
 window.onload = function() {
+
+  // NOTE LABEL TEXT VISIBILITY
   var showNoteNames = localStorage.getItem('showNoteNames');
   var checkbox = document.getElementById('noteNamesCheckbox');
   if (showNoteNames === 'true') {
@@ -51,12 +52,17 @@ window.onload = function() {
       checkbox.checked = false;
       hideAllNotes();
   }
+
+  // BASE NOTE
+  // Get _base_note from localStorage
+  var storedBaseNote = localStorage.getItem('baseNote');
+  if (storedBaseNote) {
+    common.setBaseNote(storedBaseNote);
+    changeBaseNote(storedBaseNote);
+  }
 }
 
-// Default setup
-setOpacity(0.4);
-changeBaseNote("C");
-showAllNotes();
+
 
 // Function to change base note
 function changeBaseNote(newBaseNote) {

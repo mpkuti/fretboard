@@ -104,7 +104,7 @@ export function moveSlider(event) {
         var _newXIndex = (_xIndex + direction + common.sliderLength) % common.sliderLength;
         var _newCx = common.noteXCoordinates[_newXIndex];
 
-        console.log("X coordinate ", _currentCx , " -> ", _newCx, " (", _xIndex, " -> ", _newXIndex, ")");
+        // console.log("X coordinate ", _currentCx , " -> ", _newCx, " (", _xIndex, " -> ", _newXIndex, ")");
 
         return _newCx;
     })

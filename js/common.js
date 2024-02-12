@@ -31,7 +31,7 @@ export const notes = [
   ];
 
 // Global variable for base note, has to be visible to all functions
-let _base_note = "C";
+let _base_note;
 
 export function setBaseNote(newNote) {
     console.log("Setting base note to " + newNote);
@@ -41,7 +41,9 @@ export function setBaseNote(newNote) {
     }
     else
     _base_note = newNote;
-    // You can use JavaScript to set the selected option like this:
+    // Store _base_note in localStorage, so it stays after page reload
+    localStorage.setItem('baseNote', _base_note);
+    // Set the HTTP dropdown menu to new base note:
     document.getElementById('baseNoteSelectDropdown').value = _base_note;
 }
 
