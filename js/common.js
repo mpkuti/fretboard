@@ -168,7 +168,8 @@ export const stringScale = d3.scaleLinear()
     .range([G_HEIGHT/12, G_HEIGHT-G_HEIGHT/12]);
 
 // Create a list of x positions for notes using 3d.range
-export const noteXPositions = d3.range(NO_FRETS+2);
+// export const noteXPositions = d3.range(NO_FRETS+2);
+export const noteXPositions = d3.range(note_row_length);
 
 // Create a list of x coordinates for notes using 3d.range
 export const noteXCoordinates = noteXPositions.map(noteScale);

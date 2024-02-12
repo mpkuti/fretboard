@@ -4,8 +4,6 @@ import * as common from './common.js';
 // Define slider_group in a common scope
 var slider_group;
 
-var _sliderLength;
-
 export function drawSlider(svg) {
 
     slider_group = svg.append("g")
@@ -39,17 +37,6 @@ export function drawSlider(svg) {
             color: "blue" // color of the circle
         };
     });
-
-    // Create the circles (1st version, dots for development purposes)
-    var circles = svg.selectAll(".slider")
-        .data(circleData)
-        .enter()
-        .append("circle")
-        .attr("class", "slider")
-        .attr("cx", function(d) { return d.cx; }) // x position of the circle
-        .attr("cy", 250) // y position of the circle
-        .attr("r", common.DOT_SIZE/2) // radius of the circle
-        .attr("fill", function(d) { return d.color; });
 
     // Create the text labels
     var labels = svg.selectAll(".slider-text")
@@ -87,6 +74,8 @@ export function moveSlider(event) {
     // Select all the objects in the slider_group
     var objectsInSliderGroup = slider_group.selectAll("*");
 
+    // console.log("objectsInSliderGroup: ", objectsInSliderGroup);
+
     // Move everything in the class .slider
     // Direction is determined by the position of the click
     // Movement is determined according to list noteXCoordinates
@@ -106,16 +95,13 @@ export function moveSlider(event) {
     objectsInSliderGroup.transition()
     .duration(1000) // duration of the animation in milliseconds
     .attr("cx", function(d, i, nodes) {
-        
-        _sliderLength = common.all_note_coordinates[0].length;
-        console.log("sliderLength: ", _sliderLength);
 
         // Get the current cx value and convert it to a number
         var _currentCx = parseFloat(d3.select(nodes[i]).attr("cx"));
         // Get the X index (fret) of the current node
         var _xIndex = common.noteXCoordinates.indexOf(_currentCx);
 
-        var _newXIndex = (_xIndex + direction + _sliderLength) % _sliderLength;
+        var _newXIndex = (_xIndex + direction + common.sliderLength) % common.sliderLength;
         var _newCx = common.noteXCoordinates[_newXIndex];
 
         console.log("X coordinate ", _currentCx , " -> ", _newCx, " (", _xIndex, " -> ", _newXIndex, ")");
