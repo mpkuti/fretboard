@@ -1,6 +1,6 @@
 // Parameters:
-export const NO_FRETS = 4; // number of frets
-export const G_WIDTH = 200; // width of the guitar neck
+export const NO_FRETS = 12; // number of frets
+export const G_WIDTH = 500; // width of the guitar neck
 export const G_HEIGHT = 200; // height of the guitar neck
 export const G_COLOR = "brown"; // color of the guitar neck
 export const C_WIDTH = 50; 
