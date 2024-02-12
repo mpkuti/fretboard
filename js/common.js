@@ -1,6 +1,6 @@
 // Parameters:
-export const NO_FRETS = 12; // number of frets
-export const G_WIDTH = 400; // width of the guitar neck
+export const NO_FRETS = 4; // number of frets
+export const G_WIDTH = 200; // width of the guitar neck
 export const G_HEIGHT = 200; // height of the guitar neck
 export const G_COLOR = "brown"; // color of the guitar neck
 export const C_WIDTH = 50; 
@@ -122,6 +122,8 @@ export const intervals = [
 
 // Calculate the smallest multiple of 12 that is greater than or equal to NO_FRETS + 2
 let note_row_length = Math.ceil((NO_FRETS + 2) / 12) * 12;
+export const sliderLength = note_row_length;
+console.log("sliderLength: ", note_row_length);
 
 // Create lists of all the notes in every string
 // Range is from 0 to NO_FRETS
@@ -144,45 +146,9 @@ for (let j = 0; j < stringNotes.length; j++) {
     }
 
     all_guitar_notes_work[j] = currentNotes;
-
-    // switch (j) {
-    //     case 0:
-    //         notes_e_work = currentNotes;
-    //         break;
-    //     case 1:
-    //         notes_a_work = currentNotes;
-    //         break;
-    //     case 2:
-    //         notes_d_work = currentNotes;
-    //         break;
-    //     case 3:
-    //         notes_g_work = currentNotes;
-    //         break;
-    //     case 4:
-    //         notes_b_work = currentNotes;
-    //         break;
-    // }
 }
 
-// export const notes_e = notes_e_work;
-// export const notes_a = notes_a_work;
-// export const notes_d = notes_d_work;
-// export const notes_g = notes_g_work;
-// export const notes_b = notes_b_work;
 export const all_guitar_notes = all_guitar_notes_work;
-
-// Create a two-dimensional array of notes representing all the notes in the guitar neck
-// The first dimension represents the string number
-// The second dimension represents the fret number
-// The value represents the note
-// const all_guitar_notes = [notes_e, notes_b, notes_g, notes_d, notes_a, notes_e];
-// console.log("all_guitar_notes: ", all_guitar_notes);
-
-// console.log(notes_e);
-// console.log(notes_a);
-// console.log(notes_d);
-// console.log(notes_g);
-// console.log(notes_b);
 
 // Create a scale to map fret numbers to positions
 // fretScale(i) returns the x-coordinate of the ith fret
@@ -209,11 +175,19 @@ export const noteXCoordinates = noteXPositions.map(noteScale);
 
 export const noteYCoordinates = d3.range( G_HEIGHT/12, G_HEIGHT, G_HEIGHT/6 );
 
+// Create a two-dimensional list of all the note coordinates and note values
+// The first dimension represents the string number
+// The second dimension represents the fret number
+// The value represents the coordinates of the note and the note
+//     x: X Coordinate
+//     y: Y Coordinate
+//     note: Note
+export const all_note_coordinates = [];
+
 // Create a list of all the note positions
 // The first dimension represents the string number
 // The second dimension represents the fret number
 // The value represents the coordinates of the note and the note
-export const all_note_coordinates = [];
 for (let i = 0; i < 6; i++) {
     const currentNotePositions = [];
     // Create noteObjects for each fret
@@ -236,7 +210,6 @@ for (let i = 0; i < 6; i++) {
 }
 // console.log("all_note_coordinates: ", all_note_coordinates);
 // console.log(all_note_coordinates[1][1].x);
-
 
 // Find the smallest distance between the frets
 export const DOT_SIZE = Math.min(G_HEIGHT/6, fretScale(NO_FRETS+1) - fretScale(NO_FRETS));
