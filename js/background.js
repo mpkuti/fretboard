@@ -143,11 +143,13 @@ export function setNoteTextOpacity(opacity) {
 export function showAllNotes() {
     common.showNoteNames();
     setNoteTextOpacity(1);
+    localStorage.setItem('showNoteNames', 'true');
     console.log("Notes show: ", common.get__noteNamesVisibility());
 }
 export function hideAllNotes() {
     common.hideNoteNames();
     setNoteTextOpacity(0);
+    localStorage.setItem('showNoteNames', 'false');
     console.log("Notes show: ", common.get__noteNamesVisibility());
 
 }
@@ -155,8 +157,8 @@ export function hideAllNotes() {
 window.toggleNoteNames = function() {
     var checkbox = document.getElementById('noteNamesCheckbox');
     if (checkbox.checked) {
-      setNoteTextOpacity(1); // Show note names
+        showAllNotes();
     } else {
-      setNoteTextOpacity(0); // Hide note names
+        hideAllNotes();
     }
   };

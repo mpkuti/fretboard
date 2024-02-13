@@ -5,6 +5,10 @@ import * as common from './common.js';
 import { drawBackground, showAllNotes, hideAllNotes } from './background.js';
 import { drawSlider, moveSlider, setColor, setOpacity, colorNotes, setAllColor } from './slider.js';
 
+// Set a default setting for the base note and highlight mode
+var defaultBaseNote = "C";
+var defaultHighlightMode = "BASENOTE";
+
 window.toggleNoteNames = toggleNoteNames;
 window.changeBaseNote = changeBaseNote;
 window.selectHighlightMode = selectHighlightMode;
@@ -19,49 +23,58 @@ var svg = d3.select("#container")
 drawBackground(svg);
 drawSlider(svg);
 
-
-// Default setup
-setOpacity(0.4);
-// changeBaseNote("C");
-showAllNotes();
-
 // Attach the click event handler to the SVG container
 svg.on("click", moveSlider);
 
-function toggleNoteNames() {
-  var checkbox = document.getElementById('noteNamesCheckbox');
-  if (checkbox.checked) {
-    showAllNotes();
-    localStorage.setItem('showNoteNames', 'true');
-  } else {
-    hideAllNotes();
-    localStorage.setItem('showNoteNames', 'false');
-  }
-}
+
+// ******************** START FUNCTIONS ********************
+
 
 // After the page has loaded, check the local storage for the note names visibility
 window.onload = function() {
+  initializeView();
+}
+
+
+// Function to initialize the settings at page load and reload
+// This function is called when the settings change or when the page is loaded
+// It checks the local storage for the settings and applies them
+function initializeView() {
+
+  // Default opacity
+  setOpacity(0.4);
 
   // NOTE LABEL TEXT VISIBILITY
   var showNoteNames = localStorage.getItem('showNoteNames');
-  var checkbox = document.getElementById('noteNamesCheckbox');
-  if (showNoteNames === 'true') {
-      checkbox.checked = true;
-      showAllNotes();
-  } else if (showNoteNames === 'false') {
-      checkbox.checked = false;
+  if (showNoteNames === 'false') {
+      // Value is 'false'
       hideAllNotes();
+  } else {
+      // Value is either 'true' or null
+      showAllNotes();
+      showNoteNames = 'true';
   }
+  // Set the checked property of the checkbox based on storedShowNoteNames
+  document.getElementById('noteNamesCheckbox').checked = (showNoteNames === 'true');
 
   // BASE NOTE
   // Get _base_note from localStorage
   var storedBaseNote = localStorage.getItem('baseNote');
   if (storedBaseNote) {
-    common.setBaseNote(storedBaseNote);
     changeBaseNote(storedBaseNote);
+  } else {
+    changeBaseNote(defaultBaseNote);
+  }
+
+  // HIGHLIGHT MODE
+  // Get the highlight mode from localStorage
+  var storedHighlightMode = localStorage.getItem('highlightMode');
+  if (storedHighlightMode) {
+    selectHighlightMode(storedHighlightMode);
+  } else {
+    selectHighlightMode(defaultHighlightMode);
   }
 }
-
 
 
 // Function to change base note
@@ -81,6 +94,7 @@ function changeBaseNote(newBaseNote) {
       break;
   }
 }
+
 
 // Function to select highlight mode
 // NONE: no highlight
