@@ -5,53 +5,33 @@ import * as common from './common.js';
 var slider_group;
 
 export function drawSlider(svg) {
-
+    // Create a group for the slider
     slider_group = svg.append("g")
 
-    // Create the circles
-    // i: string number (0-5)
-    for (let i = 0; i < common.all_note_coordinates.length; i++) {
-
-        // Create a new group for each set of circles
-        // Append the group to the slider_group
-        let oneStringCircleGroup = slider_group.append("g");
-
-        oneStringCircleGroup.selectAll("circle")
-            .data(common.all_note_coordinates[i])
-            .enter()
-            .append("circle")
-            .attr("cx", function(d) { return d.x; }) // x position of the circle
-            .attr("cy", function(d) { return d.y; }) // y position of the circle
-            .attr("r", common.DOT_SIZE/2) // radius of the circle
-            .attr("fill", "red")
-            .attr("string", function(_, i) { return i; }) // string number
-            .attr("note", function(d) { return d.note; }) // note attribute
-            ;
-    }
-
-    // Define an array of objects to store circle data
-    var circleData = common.noteXPositions.map(function(d, i) {
-        return {
-            x: common.all_note_coordinates[0][i], // x coordinate of the circle
-            label: common.intervals[i], // label of the circle
-            color: "blue" // color of the circle
-        };
-    });
-
-    // Create the text labels
-    var labels = svg.selectAll(".slider-text")
-    .data(circleData)
-    .enter()
-    .append("text")
-    .attr("class", "slider-text")
-    .attr("class", "slider")
-    .attr("x", function(d) { return d.cx; })
-    .attr("y", 250)
-    .text(function(d) { return d.label; })
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "middle")
-    .attr("fill", "white");
+    // Create circles for the slider group
+    slider_group.selectAll("circle")
+        .data(common.all_note_coordinates)
+        .enter()
+        .append("circle")
+        .attr("cx", function(d) { return d.x; }) // x position of the circle
+        .attr("cy", function(d) { return d.y; }) // y position of the circle
+        .attr("r", common.DOT_SIZE/2) // radius of the circle
+        .attr("fill", "red")
+        .attr("string", function(d) { return d.string; }) // string number
+        .attr("fret", function(d) { return d.fret; }) // fret number (0 - common.sliderLength-1)
+        .attr("note", function(d) { return d.note; }) // note attribute
+        ;
 }
+
+// Function to update all notes of the slider_group position
+// Get the X and Y position of every note in the slider_group
+// Then update each note value using common.getNote(stringNumber, fretNumber)
+export function updateSliderNotes() {
+    slider_group.selectAll("circle")
+        .attr("note", function(d) {
+            return common.getNote(d.string, d.fret);
+        });
+} 
 
 // Flag to indicate whether a transition is in progress
 var transitionInProgress = false;
@@ -65,48 +45,33 @@ export function moveSlider(event) {
     transitionInProgress = true;
 
     // Get the x position of the click
-    var x = event.pageX;
-    // Determine the direction based on the click position
-    var direction = x < common.G_WIDTH/2 ? -1 : 1;
+    var _clickX = event.pageX;
+    var direction = _clickX < common.G_WIDTH/2 ? -1 : 1;
 
-    // Select all the objects with the .slider class
-    // var sliders = d3.selectAll(".slider");
     // Select all the objects in the slider_group
     var objectsInSliderGroup = slider_group.selectAll("*");
 
-    // console.log("objectsInSliderGroup: ", objectsInSliderGroup);
-
-    // Move everything in the class .slider
-    // Direction is determined by the position of the click
-    // Movement is determined according to list noteXCoordinates
-    // Old x position is the current x position of each circle
-    // New x position is the next or previous x position of the circle in the list noteXCoordinates
-
-    // Animate the objects
-
     if (direction < 0) {
         console.log("lowerBaseNote");
-        common.lowerBaseNote();
+        // common.lowerBaseNote();
+        // lowerNotes();
     } else {
         console.log("raiseBaseNote");
-        common.raiseBaseNote();
+        // common.raiseBaseNote();
+        // raiseNotes();
     }
 
-    objectsInSliderGroup.transition()
-    .duration(1000) // duration of the animation in milliseconds
+    objectsInSliderGroup.transition()    .duration(1000) // duration of the animation in milliseconds
     .attr("cx", function(d, i, nodes) {
-
-        // Get the current cx value and convert it to a number
-        var _currentCx = parseFloat(d3.select(nodes[i]).attr("cx"));
-        // Get the X index (fret) of the current node
-        var _xIndex = common.noteXCoordinates.indexOf(_currentCx);
-
-        var _newXIndex = (_xIndex + direction + common.sliderLength) % common.sliderLength;
-        var _newCx = common.noteXCoordinates[_newXIndex];
-
-        // console.log("X coordinate ", _currentCx , " -> ", _newCx, " (", _xIndex, " -> ", _newXIndex, ")");
-
-        return _newCx;
+        // Determine the new x position based on the direction
+        d.fret = (d.fret + direction + common.sliderLength) % common.sliderLength;
+        // Update the note attribute
+        var oldNote = d.note;
+        // Based on the direction, call commont.raiseNote or common.lowerNote
+        d.note = direction < 0 ? common.lowerNote(d.note) : common.raiseNote(d.note);
+        // d.note = common.getNote(d.string, d.fret);
+        // console.log("Old note: " + oldNote + ", New note: " + d.note);
+        return common.noteScale(d.fret);
     })
     .on("end", function() {
         transitionInProgress = false;
@@ -126,6 +91,8 @@ export function setOpacity(opacity) {
 // note: the note of the circle
 // color: the color to set
 export function setColor(note, color) {
+    updateSliderNotes();
+    console.log("setColor: ", note, color); //  DEBUG
     slider_group.selectAll("circle")
         .filter(function() {
             return d3.select(this).attr("note") === note;
@@ -156,4 +123,33 @@ export function colorNotes(notes, color) {
     } else {
         setColor(notes, color);
     };
+}
+
+// Function to change the note attribute of a circle in slider_group
+// Arguments:
+// oldNote: the old note of the circle
+// newNote: the new note to set
+export function changeNoteAttribute(oldNote, newNote) {
+    console.log("changeNoteAttribute: ", oldNote, " -> ", newNote); //  DEBUG
+    slider_group.selectAll("circle")
+        .filter(function() {
+            return d3.select(this).attr("note") === oldNote;
+        })
+        .attr("note", newNote);
+}
+
+// Function to rise every note in slider_group by a half step
+export function raiseNotes() {
+    slider_group.selectAll("circle")
+        .attr("note", function(d) {
+            return common.raiseNote(d.note);
+        });
+}
+
+// Function to lower every note in slider_group by a half step
+export function lowerNotes() {
+    slider_group.selectAll("circle")
+        .attr("note", function(d) {
+            return common.lowerNote(d.note);
+        });
 }

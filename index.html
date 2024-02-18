@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My D3.js Project</title>
+    <title>Fretboard</title>
 </head>
 <body>
-    <div id="container"></div>
+    <div id="fretboard_container"></div>
     <script src="js/d3.v7.min.js"></script>
     <script type="module" src="js/guitarneck.js"></script> <!-- Your D3.js code -->
     
@@ -24,14 +24,18 @@
       </select>
 
     <label>
-        <input type="checkbox" id="noteNamesCheckbox" onclick="toggleNoteNames()" checked> Show Note Names </label>
+        <input type="checkbox" id="noteNamesCheckbox" onclick="toggleNoteNames()" checked>
+        Show Note Names
+    </label>
 
     <h3>Select Highlight</h3>
     <label>
-        <input type="radio" name="highlightMode" value="basenote" onclick="selectHighlightMode('BASENOTE')" checked> Basenote
+        <input type="radio" name="highlightMode" value="basenote" onclick="selectHighlightMode('BASENOTE')" checked>
+        Basenote
     </label>
     <label>
-        <input type="radio" name="highlightMode" value="pentatonicScale" onclick="selectHighlightMode('PENTATONIC')"> Pentatonic Scale
+        <input type="radio" name="highlightMode" value="pentatonicScale" onclick="selectHighlightMode('PENTATONIC')">
+        Pentatonic Scale
     </label>
 </body>
 </html>

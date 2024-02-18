@@ -1,6 +1,6 @@
 // Parameters:
 export const NO_FRETS = 12; // number of frets
-export const G_WIDTH = 500; // width of the guitar neck
+export const G_WIDTH = 600; // width of the guitar neck
 export const G_HEIGHT = 200; // height of the guitar neck
 export const G_COLOR = "brown"; // color of the guitar neck
 export const C_WIDTH = 50; 
@@ -11,10 +11,10 @@ export const padding = 15;
 // COLORS
 export const fretboard_color = "BurlyWood"; // color of the guitar neck
 export const fret_color = "DimGray";
-//export const string_color = "DarkGoldenRod";
+// export const string_color = "DarkGoldenRod";
 export const string_color = "black";
 
-// Notes
+// Notes in ascending list
 export const notes = [
     "A",
     "A#",
@@ -30,53 +30,65 @@ export const notes = [
     "G#",
   ];
 
-// Global variable for base note, has to be visible to all functions
-let _base_note;
+// ******************** GLOBAL VARIABLES ********************
+// Set the default values
+let _base_note = "C";
+let _highlight_mode = "BASENOTE";
+let _showNoteNames = true;
+// **********************************************************
+
+
+// ******************** BASE NOTE SETTERS/GETTERS ********************
 
 export function setBaseNote(newNote) {
-    console.log("Setting base note to " + newNote);
     // Check if the note is valid
     if (!notes.includes(newNote)) {
         throw new Error("Invalid note");
     }
-    else
-    _base_note = newNote;
-    // Store _base_note in localStorage, so it stays after page reload
-    localStorage.setItem('baseNote', _base_note);
-    // Set the HTTP dropdown menu to new base note:
-    document.getElementById('baseNoteSelectDropdown').value = _base_note;
+    else {
+        _base_note = newNote;
+        localStorage.setItem('baseNote', _base_note);
+
+        // Set the HTTP dropdown menu to new base note:
+        document.getElementById('baseNoteSelectDropdown').value = _base_note;
+        console.log("New basenote: " + _base_note);
+    }
 }
 
 export function raiseBaseNote() {
-    console.log("Raising base note");
-    let index = notes.indexOf(_base_note);
-    if (index === 11) {
-        setBaseNote(notes[0]);
-    }
-    else {
-        setBaseNote(notes[index + 1]);
-    }
-    console.log("New basenote: " + _base_note);
+    setBaseNote(raiseNote(_base_note));
 }
 
 export function lowerBaseNote() {
-    console.log("Lowering base note");
-    let index = notes.indexOf(_base_note);
-    if (index === 0) {
-        setBaseNote(notes[11]);
-    }
-    else {
-        setBaseNote(notes[index - 1]);
-    }
-    console.log("New basenote: " + _base_note);
+    setBaseNote(lowerNote(_base_note));
 }
 
 export function getBaseNote() {
     return _base_note;
 }
 
-// Global variable for highlight mode, has to be visible to all functions
-let _highlight_mode = "BASENOTE";
+export function raiseNote(note) {
+    let index = notes.indexOf(note);
+    if (index === 11) {
+        return notes[0];
+    }
+    else {
+        return notes[index + 1];
+    }
+}
+
+export function lowerNote(note) {
+    let index = notes.indexOf(note);
+    if (index === 0) {
+        return notes[11];
+    }
+    else {
+        return notes[index - 1];
+    }
+}
+
+
+// ******************** HIGHLIGHT MODE SETTERS/GETTERS ********************
 
 export function setHighlightMode(newMode) {
     // Check if the mode is valid
@@ -85,25 +97,67 @@ export function setHighlightMode(newMode) {
     }
     else
     _highlight_mode = newMode;
+    localStorage.setItem('highlightMode', _highlight_mode);
 }
 
 export function getHighlightMode() {
     return _highlight_mode;
 }
 
-// Show note names
-let _showNoteNames = true; // default is true
+
+// ******************** NOTENAME VISIBILITY SETTERS/GETTERS ********************
+
 export function showNoteNames() {
+    // Set the local and storage variable to true
     _showNoteNames = true;
+    localStorage.setItem('showNoteNames', 'true');
+    console.log("showNoteNames 1: ", _showNoteNames);
+    console.log("showNoteNames 2: ", localStorage.getItem('showNoteNames'));
 }
+
 export function hideNoteNames() {
     _showNoteNames = false;
+    localStorage.setItem('showNoteNames', 'false');
+    console.log("hideNoteNames 1: ", _showNoteNames);
+    console.log("hideNoteNames 2: ", localStorage.getItem('showNoteNames'));
 }
-export function get__noteNamesVisibility() {
-    return _showNoteNames;
+
+export function setNoteNamesVisibility(visibility) {
+    if (visibility) {
+        showNoteNames();
+    } else {
+        hideNoteNames();
+    }
 }
-export function toggle_noteNamesVisibility() {
-    _showNoteNames = !_showNoteNames;
+
+export function initializeNoteNamesVisibility() {
+    // Get the value from localStorage
+    // let showNoteNames = localStorage.getItem('showNoteNames');
+    if (localStorage.getItem('showNoteNames') === 'false') {
+        hideNoteNames();
+    } else {
+        // Value is either 'true' or null
+        showNoteNames();
+    }
+}
+
+export function toggleNoteNamesVisibility() {
+    if (_showNoteNames) {
+        hideNoteNames();
+    } else {
+        showNoteNames();
+    }
+}
+
+export function getNoteNamesVisibility() {
+    // If there is value in localStorage, return it as a string,
+    // otherwise return the default value (local variable) as a string
+    if (localStorage.getItem('showNoteNames')) {
+        // Return a boolean value
+        return JSON.parse(localStorage.getItem('showNoteNames'));
+    } else {
+        return _showNoteNames;
+    }
 }
 
 
@@ -150,7 +204,12 @@ for (let j = 0; j < stringNotes.length; j++) {
     all_guitar_notes_work[j] = currentNotes;
 }
 
-export const all_guitar_notes = all_guitar_notes_work;
+// Create a list of all the notes in the guitar neck
+// The first dimension represents the string number
+// The second dimension represents the fret number
+// The value represents the note
+// This is immutable, and should not be changed.
+export const all_guitar_notes = Object.freeze(all_guitar_notes_work.map(Object.freeze));
 
 // Create a scale to map fret numbers to positions
 // fretScale(i) returns the x-coordinate of the ith fret
@@ -205,13 +264,16 @@ for (let i = 0; i < 6; i++) {
         const noteObject = {
             x: noteScale(j),
             y: stringScale(i),
+            string: i,
+            fret: j,
             note: all_guitar_notes[i][j]
         };
-        currentNotePositions.push(noteObject);
+        all_note_coordinates.push(noteObject);
+        // currentNotePositions.push(noteObject);
     }
-    all_note_coordinates.push(currentNotePositions);
+    // all_note_coordinates.push(currentNotePositions);
 }
-// console.log("all_note_coordinates: ", all_note_coordinates);
+console.log("all_note_coordinates: ", all_note_coordinates);
 // console.log(all_note_coordinates[1][1].x);
 
 // Find the smallest distance between the frets
@@ -234,4 +296,32 @@ export function pentatonic(baseNote) {
     console.log("pentatonic base: ", baseNote);
     const baseIndex = notes.indexOf(baseNote);
     return [0, 2, 4, 7, 9].map(x => notes[(baseIndex + x) % 12]);
+}
+
+// Function to return the note on the guitar neck
+// The parameters are the string number and the fret number
+export function getNote(stringNumber, fretNumber) {
+    // console.log("getNote (string, fret): ", stringNumber, ", ", fretNumber);
+    // Iterate through the two-dimensional array all_guitar_notes
+    // and return the note of the string and fret number
+    // Check if the inputs are valid
+    if (stringNumber < 0 || stringNumber > 5) {
+        throw new Error("Invalid string number ", stringNumber);
+    }
+    if (fretNumber < 0 || fretNumber > note_row_length) {
+        throw new Error("Invalid fret number ", fretNumber);
+    }
+    return all_guitar_notes[stringNumber][fretNumber];
+}
+
+// Function to return all the notes of a string
+// The parameter is the string number
+export function getStringNotes(stringNumber) {
+    return all_note_coordinates[stringNumber].map(x => x.note);
+}
+
+// Function to return all note coordinates and notes of a string
+// The parameter is the string number
+export function getStringNoteCoordinates(stringNumber) {
+    return all_note_coordinates[stringNumber];
 }

@@ -2,8 +2,8 @@
 import * as common from './common.js';
 
 // Import the functions from the other files
-import { drawBackground, showAllNotes, hideAllNotes } from './background.js';
-import { drawSlider, moveSlider, setColor, setOpacity, colorNotes, setAllColor } from './slider.js';
+import { drawBackground, showAllNotes, hideAllNotes, setNoteNamesVisibility } from './background.js';
+import { drawSlider, moveSlider, setColor, setOpacity, colorNotes, setAllColor, updateSliderNotes } from './slider.js';
 
 // Set a default setting for the base note and highlight mode
 var defaultBaseNote = "C";
@@ -13,9 +13,8 @@ window.toggleNoteNames = toggleNoteNames;
 window.changeBaseNote = changeBaseNote;
 window.selectHighlightMode = selectHighlightMode;
 
-
 // Select the SVG container
-var svg = d3.select("#container")
+var svg = d3.select("#fretboard_container")
             .append("svg")
             .attr("width", common.G_WIDTH)
             .attr("height", common.G_HEIGHT);
@@ -29,7 +28,6 @@ svg.on("click", moveSlider);
 
 // ******************** START FUNCTIONS ********************
 
-
 // After the page has loaded, check the local storage for the note names visibility
 window.onload = function() {
   initializeView();
@@ -40,22 +38,17 @@ window.onload = function() {
 // This function is called when the settings change or when the page is loaded
 // It checks the local storage for the settings and applies them
 function initializeView() {
+  console.log("*****     Initializing view     *****");
 
   // Default opacity
   setOpacity(0.4);
 
   // NOTE LABEL TEXT VISIBILITY
-  var showNoteNames = localStorage.getItem('showNoteNames');
-  if (showNoteNames === 'false') {
-      // Value is 'false'
-      hideAllNotes();
-  } else {
-      // Value is either 'true' or null
-      showAllNotes();
-      showNoteNames = 'true';
-  }
+  common.initializeNoteNamesVisibility();
   // Set the checked property of the checkbox based on storedShowNoteNames
-  document.getElementById('noteNamesCheckbox').checked = (showNoteNames === 'true');
+  console.log("Stored note names visibility (should be set to the checkbox): " + common.getNoteNamesVisibility());
+  document.getElementById('noteNamesCheckbox').checked = JSON.parse(common.getNoteNamesVisibility());  // Show/hide the actual text labels on the screen
+  setNoteNamesVisibility();
 
   // BASE NOTE
   // Get _base_note from localStorage
@@ -69,11 +62,14 @@ function initializeView() {
   // HIGHLIGHT MODE
   // Get the highlight mode from localStorage
   var storedHighlightMode = localStorage.getItem('highlightMode');
+  console.log("Stored highlight mode: " + storedHighlightMode);
   if (storedHighlightMode) {
     selectHighlightMode(storedHighlightMode);
   } else {
     selectHighlightMode(defaultHighlightMode);
   }
+  console.log("*****     Initializing view END     *****");
+
 }
 
 
@@ -101,14 +97,15 @@ function changeBaseNote(newBaseNote) {
 // BASENOTE: highlight the base note
 // PENTATONIC: highlight the pentatonic scale
 function selectHighlightMode(highlightMode) {
-  console.log("Highlight mode: " + highlightMode);
+  console.log("New highlight mode: " + highlightMode);
   common.setHighlightMode(highlightMode);
+  // updateSliderNotes();
+  setAllColor("red");
   if (highlightMode == "BASENOTE") {
-    setAllColor("red");
+    console.log("Changing to BASENOTE highlight mode, basenote: ", common.getBaseNote());
     colorNotes(common.getBaseNote(), "blue")
   } else if (highlightMode == "PENTATONIC") {
     let pentatonicNotes = common.pentatonic(common.getBaseNote());
-    setAllColor("red");
     colorNotes(pentatonicNotes, "blue");
   }
 };

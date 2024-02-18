@@ -118,17 +118,27 @@ export function drawBackground(svg) {
     // x: all_note_coordinates[i][j].x
     // y: all_note_coordinates[i][j].y
     // note: all_note_coordinates[i][j].note
-    for (let i = 0; i < 6; i++) {
-        for (let j = 0; j < common.NO_FRETS + 2; j++) {
+    svg.selectAll(".note-labels")
+        .data(common.all_note_coordinates)
+        .enter()
+        .append("text")
+        .attr("class", "note-labels")
+        .attr("x", (d) => d.x)
+        .attr("y", (d) => d.y)
+        .attr("dy", "0.35em") // vertical alignment
+        .text((d) => d.note)
+        .attr("text-anchor", "middle");
+    // for (let i = 0; i < 6; i++) {
+    //     for (let j = 0; j < common.NO_FRETS + 2; j++) {
             
-            svg.append("text")
-                .attr("x", common.all_note_coordinates[i][j].x)
-                .attr("y", common.all_note_coordinates[i][j].y)
-                .attr("dy", "0.35em") // vertical alignment
-                .text(common.all_note_coordinates[i][j].note)
-                .attr("text-anchor", "middle");
-        }
-    }
+    //         svg.append("text")
+    //             .attr("x", common.all_note_coordinates[i][j].x)
+    //             .attr("y", common.all_note_coordinates[i][j].y)
+    //             .attr("dy", "0.35em") // vertical alignment
+    //             .text(common.all_note_coordinates[i][j].note)
+    //             .attr("text-anchor", "middle");
+    //     }
+    // }
 
 
 }
@@ -143,22 +153,29 @@ export function setNoteTextOpacity(opacity) {
 export function showAllNotes() {
     common.showNoteNames();
     setNoteTextOpacity(1);
-    localStorage.setItem('showNoteNames', 'true');
-    console.log("Notes show: ", common.get__noteNamesVisibility());
 }
 export function hideAllNotes() {
     common.hideNoteNames();
     setNoteTextOpacity(0);
-    localStorage.setItem('showNoteNames', 'false');
-    console.log("Notes show: ", common.get__noteNamesVisibility());
-
 }
-
+export function setNoteNamesVisibility() {
+    // This needs a boolean value
+    if (common.getNoteNamesVisibility()) {
+        console.log("showing notes");
+        showAllNotes();
+    } else {
+        console.log("hiding notes");
+        hideAllNotes();
+    }
+}
 window.toggleNoteNames = function() {
+    // Get the checkbox state from web page
     var checkbox = document.getElementById('noteNamesCheckbox');
+    // Save the checkbox state to local storage as a string
+    localStorage.setItem('showNoteNames', checkbox.checked.toString());
     if (checkbox.checked) {
         showAllNotes();
     } else {
         hideAllNotes();
     }
-  };
+};
