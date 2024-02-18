@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="Permissions-Policy" content="interest-cohort=()"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An interactive guitar fretboard diagram.">
+    <meta name="keywords" content="guitar, music">
+    <meta name="author" content="Mika Kutila">
     <title>Fretboard</title>
 </head>
 <body>
     <div id="fretboard_container"></div>
-    <script src="js/d3.v7.min.js"></script>
-    <script type="module" src="js/guitarneck.js"></script> <!-- Your D3.js code -->
-    
+   
     <select id="baseNoteSelectDropdown" onchange="changeBaseNote(this.value)">
         <option value="C">C</option>
         <option value="C#">C#</option>
@@ -37,5 +41,7 @@
         <input type="radio" name="highlightMode" value="pentatonicScale" onclick="selectHighlightMode('PENTATONIC')">
         Pentatonic Scale
     </label>
+    <script src="js/d3.v7.min.js"></script>
+    <script type="module" src="js/guitarneck.js"></script>
 </body>
 </html>

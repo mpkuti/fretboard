@@ -51,7 +51,7 @@ export function setBaseNote(newNote) {
 
         // Set the HTTP dropdown menu to new base note:
         document.getElementById('baseNoteSelectDropdown').value = _base_note;
-        console.log("New basenote: " + _base_note);
+        console.log("New base note: " + _base_note);
     }
 }
 
@@ -111,15 +111,11 @@ export function showNoteNames() {
     // Set the local and storage variable to true
     _showNoteNames = true;
     localStorage.setItem('showNoteNames', 'true');
-    console.log("showNoteNames 1: ", _showNoteNames);
-    console.log("showNoteNames 2: ", localStorage.getItem('showNoteNames'));
 }
 
 export function hideNoteNames() {
     _showNoteNames = false;
     localStorage.setItem('showNoteNames', 'false');
-    console.log("hideNoteNames 1: ", _showNoteNames);
-    console.log("hideNoteNames 2: ", localStorage.getItem('showNoteNames'));
 }
 
 export function setNoteNamesVisibility(visibility) {
@@ -179,7 +175,6 @@ export const intervals = [
 // Calculate the smallest multiple of 12 that is greater than or equal to NO_FRETS + 2
 let note_row_length = Math.ceil((NO_FRETS + 2) / 12) * 12;
 export const sliderLength = note_row_length;
-console.log("sliderLength: ", note_row_length);
 
 // Create lists of all the notes in every string
 // Range is from 0 to NO_FRETS
@@ -273,7 +268,7 @@ for (let i = 0; i < 6; i++) {
     }
     // all_note_coordinates.push(currentNotePositions);
 }
-console.log("all_note_coordinates: ", all_note_coordinates);
+// console.log("all_note_coordinates: ", all_note_coordinates);
 // console.log(all_note_coordinates[1][1].x);
 
 // Find the smallest distance between the frets
@@ -293,7 +288,7 @@ export const stringThicknesses = stringThicknesses_;
 // The parameter is the base note
 // The function returns a list of notes in the pentatonic scale
 export function pentatonic(baseNote) {
-    console.log("pentatonic base: ", baseNote);
+    // console.log("pentatonic base: ", baseNote);
     const baseIndex = notes.indexOf(baseNote);
     return [0, 2, 4, 7, 9].map(x => notes[(baseIndex + x) % 12]);
 }
@@ -301,7 +296,6 @@ export function pentatonic(baseNote) {
 // Function to return the note on the guitar neck
 // The parameters are the string number and the fret number
 export function getNote(stringNumber, fretNumber) {
-    // console.log("getNote (string, fret): ", stringNumber, ", ", fretNumber);
     // Iterate through the two-dimensional array all_guitar_notes
     // and return the note of the string and fret number
     // Check if the inputs are valid
