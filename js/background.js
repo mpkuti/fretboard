@@ -144,7 +144,7 @@ export function drawBackground(svg) {
 }
 
 // Function to make text labels for each note visible or invisible instantly
-export function setNoteTextOpacity(opacity) {
+function setNoteTextOpacity(opacity) {
     d3.selectAll("text")
         .transition()
         .duration(0)
@@ -168,14 +168,3 @@ export function setNoteNamesVisibility() {
         hideAllNotes();
     }
 }
-window.toggleNoteNames = function() {
-    // Get the checkbox state from web page
-    var checkbox = document.getElementById('noteNamesCheckbox');
-    // Save the checkbox state to local storage as a string
-    localStorage.setItem('showNoteNames', checkbox.checked.toString());
-    if (checkbox.checked) {
-        showAllNotes();
-    } else {
-        hideAllNotes();
-    }
-};

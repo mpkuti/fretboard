@@ -34,7 +34,10 @@ export const notes = [
 // Set the default values
 let _base_note = "C";
 let _highlight_mode = "BASENOTE";
+const validHighlightModes = ["NONE", "BASENOTE", "PENTATONIC"];
 let _showNoteNames = true;
+var defaultBaseNote = "C";
+var defaultHighlightMode = "BASENOTE";
 // **********************************************************
 
 
@@ -92,20 +95,28 @@ export function lowerNote(note) {
 
 export function setHighlightMode(newMode) {
     // Check if the mode is valid
-    if (!["NONE", "BASENOTE", "PENTATONIC"].includes(newMode)) {
+    if (!validHighlightModes.includes(newMode)) {
         throw new Error("Invalid mode");
     }
-    else
-    _highlight_mode = newMode;
-    localStorage.setItem('highlightMode', _highlight_mode);
+    else {
+        _highlight_mode = newMode; // local variable
+        localStorage.setItem('highlightMode', _highlight_mode); // localStorage
+    }
 }
 
 export function getHighlightMode() {
-    return _highlight_mode;
+    const localStorageHighlightMode = localStorage.getItem('highlightMode');
+    if (localStorageHighlightMode) {
+        return localStorageHighlightMode;
+    } else {
+        return _highlight_mode;
+    }
 }
 
 
 // ******************** NOTENAME VISIBILITY SETTERS/GETTERS ********************
+
+// Try to use the localStorage value, if it exists.
 
 export function showNoteNames() {
     // Set the local and storage variable to true
@@ -114,10 +125,14 @@ export function showNoteNames() {
 }
 
 export function hideNoteNames() {
+    // Set the local and storage variable to false
     _showNoteNames = false;
     localStorage.setItem('showNoteNames', 'false');
 }
 
+// Set the visibility of the note names
+// Arguments:
+// - visibility: a boolean value
 export function setNoteNamesVisibility(visibility) {
     if (visibility) {
         showNoteNames();
@@ -126,13 +141,15 @@ export function setNoteNamesVisibility(visibility) {
     }
 }
 
+// Initialize the visibility of the note names
+// If localStorage has a value, use it, otherwise use the local variable value
 export function initializeNoteNamesVisibility() {
-    // Get the value from localStorage
-    // let showNoteNames = localStorage.getItem('showNoteNames');
+    // loacalStorage.getItem returns a string, check if it is "false"
     if (localStorage.getItem('showNoteNames') === 'false') {
         hideNoteNames();
     } else {
-        // Value is either 'true' or null
+        // Value is either "true" or null
+        // Default is to show note names
         showNoteNames();
     }
 }
@@ -144,6 +161,7 @@ export function toggleNoteNamesVisibility() {
         showNoteNames();
     }
 }
+
 
 export function getNoteNamesVisibility() {
     // If there is value in localStorage, return it as a string,

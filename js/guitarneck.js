@@ -6,10 +6,10 @@ import { drawBackground, showAllNotes, hideAllNotes, setNoteNamesVisibility } fr
 import { drawSlider, moveSlider, setColor, setOpacity, colorNotes, setAllColor, updateSliderNotes } from './slider.js';
 
 // Set a default setting for the base note and highlight mode
-var defaultBaseNote = "C";
-var defaultHighlightMode = "BASENOTE";
+// var defaultBaseNote = "C";
+// var defaultHighlightMode = "BASENOTE";
 
-window.toggleNoteNames = toggleNoteNames;
+window.handleCheckboxChange = handleCheckboxChange;
 window.changeBaseNote = changeBaseNote;
 window.selectHighlightMode = selectHighlightMode;
 
@@ -46,7 +46,7 @@ function initializeView() {
   // NOTE LABEL TEXT VISIBILITY
   common.initializeNoteNamesVisibility();
   // Set the checked property of the checkbox based on storedShowNoteNames
-  console.log("Stored note names visibility (should be set to the checkbox): " + common.getNoteNamesVisibility());
+  // console.log("Stored note names visibility (should be set to the checkbox): " + common.getNoteNamesVisibility());
   document.getElementById('noteNamesCheckbox').checked = JSON.parse(common.getNoteNamesVisibility());  // Show/hide the actual text labels on the screen
   setNoteNamesVisibility();
 
@@ -56,8 +56,10 @@ function initializeView() {
   if (storedBaseNote) {
     changeBaseNote(storedBaseNote);
   } else {
-    changeBaseNote(defaultBaseNote);
+    changeBaseNote(common.defaultBaseNote);
   }
+
+  console.log("**********         HIGHLIGHT MODE START         **********");
 
   // HIGHLIGHT MODE
   // Get the highlight mode from localStorage
@@ -66,10 +68,24 @@ function initializeView() {
   if (storedHighlightMode) {
     selectHighlightMode(storedHighlightMode);
   } else {
-    selectHighlightMode(defaultHighlightMode);
+    selectHighlightMode(common.defaultHighlightMode);
   }
+
+  console.log("**********         HIGHLIGHT MODE END         **********");
+
   console.log("*****     Initializing view END     *****");
 
+}
+
+function handleCheckboxChange(checkbox) {
+  console.log("Checkbox changed: ", checkbox.checked);
+  if (checkbox.checked) {
+      // Call function when checkbox is checked
+      showAllNotes();
+  } else {
+      // Call function when checkbox is unchecked
+      hideAllNotes();
+  }
 }
 
 
@@ -97,7 +113,7 @@ function changeBaseNote(newBaseNote) {
 // BASENOTE: highlight the base note
 // PENTATONIC: highlight the pentatonic scale
 function selectHighlightMode(highlightMode) {
-  console.log("New highlight mode: " + highlightMode);
+  console.log("guitarneck.selectHighlightMode, new highlight mode: " + highlightMode);
   common.setHighlightMode(highlightMode);
   // updateSliderNotes();
   setAllColor("red");
@@ -106,6 +122,7 @@ function selectHighlightMode(highlightMode) {
     colorNotes(common.getBaseNote(), "blue")
   } else if (highlightMode == "PENTATONIC") {
     let pentatonicNotes = common.pentatonic(common.getBaseNote());
+    console.log("Changing to PENTATONIC highlight mode, pentatonic notes: ", pentatonicNotes);
     colorNotes(pentatonicNotes, "blue");
   }
 };

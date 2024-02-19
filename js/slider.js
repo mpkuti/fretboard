@@ -92,7 +92,6 @@ export function setOpacity(opacity) {
 // color: the color to set
 export function setColor(note, color) {
     updateSliderNotes();
-    console.log("setColor: ", note, color); //  DEBUG
     slider_group.selectAll("circle")
         .filter(function() {
             return d3.select(this).attr("note") === note;
@@ -114,8 +113,8 @@ export function setAllColor(color) {
 // color: the color to set
 export function colorNotes(notes, color) {
     // Set the color of the selected notes
-    console.log("color notes: ", notes);
-    console.log("color: ", color);
+    // console.log("color notes: ", notes);
+    // console.log("color: ", color);
     if (Array.isArray(notes)) {
         notes.forEach(function(note) {
             setColor(note, color);
