@@ -65,6 +65,15 @@ function initializeView() {
   // Get the highlight mode from localStorage
   var storedHighlightMode = localStorage.getItem('highlightMode');
   console.log("Stored highlight mode: " + storedHighlightMode);
+
+  // Set the radio button checked state
+  if (storedHighlightMode) {
+    var radioButton = document.querySelector(`input[name="highlightMode"][value="${storedHighlightMode}"]`);
+    if (radioButton) {
+        radioButton.checked = true;
+    }
+  }
+  
   if (storedHighlightMode) {
     selectHighlightMode(storedHighlightMode);
   } else {

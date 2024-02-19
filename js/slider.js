@@ -53,11 +53,11 @@ export function moveSlider(event) {
 
     if (direction < 0) {
         console.log("lowerBaseNote");
-        // common.lowerBaseNote();
+        common.lowerBaseNote();
         // lowerNotes();
     } else {
         console.log("raiseBaseNote");
-        // common.raiseBaseNote();
+        common.raiseBaseNote();
         // raiseNotes();
     }
 
