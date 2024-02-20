@@ -36,8 +36,8 @@ export function drawBackground(svg) {
     
     // Create guitarneck rectangle
     var guitarneck = svg.append("rect")
-        .attr("x", 0) // x position of the guitar neck
-        .attr("y", 0) // y position of the guitar neck
+        .attr("x", common.padding) // x position of the guitar neck
+        .attr("y", common.padding) // y position of the guitar neck
         .attr("width", common.G_WIDTH) // width of the guitar neck
         .attr("height", common.G_HEIGHT) // height of the guitar neck
         .attr("fill", common.fretboard_color); // color of the guitar neck
@@ -48,10 +48,10 @@ export function drawBackground(svg) {
         .data(fretNumbers)
         .enter()
         .append("line")
-        .attr("x1", function(d) { return common.fretScale(d); }) // x position of the start of the line
-        .attr("y1", 0) // y position of the start of the line
-        .attr("x2", function(d) { return common.fretScale(d); }) // x position of the end of the line
-        .attr("y2", common.G_HEIGHT) // y position of the end of the line
+        .attr("x1", function(d) { return common.padding + common.fretScale(d); }) // x position of the start of the line
+        .attr("y1", common.padding) // y position of the start of the line
+        .attr("x2", function(d) { return common.padding +  common.fretScale(d); }) // x position of the end of the line
+        .attr("y2", common.padding + common.G_HEIGHT) // y position of the end of the line
         .attr("stroke", common.fret_color) // color of the line
         .attr("stroke-width", 3); // width of the line
     
@@ -65,8 +65,8 @@ export function drawBackground(svg) {
         .append("circle")
         .attr("class", "single-dots")
         .attr("r", common.dot_radius)
-        .attr("cy", common.G_HEIGHT/2)
-        .attr("cx", function(d) { return common.noteScale(d); });
+        .attr("cy", common.padding + common.G_HEIGHT/2)
+        .attr("cx", function(d) { return common.padding + common.noteScale(d); });
 
     // DOUBLE DOTS 1
     dots_group.selectAll(".double-dots-1")
@@ -75,8 +75,8 @@ export function drawBackground(svg) {
         .append("circle")
         .attr("class", "double-dots-1")
         .attr("r", common.dot_radius)
-        .attr("cy", common.G_HEIGHT / 3)
-        .attr("cx", function(d) { return common.noteScale(d); });
+        .attr("cy", common.padding + common.G_HEIGHT / 3)
+        .attr("cx", function(d) { return common.padding + common.noteScale(d); });
 
     // DOUBLE DOTS 2
     dots_group.selectAll(".double-dots-2")
@@ -85,8 +85,8 @@ export function drawBackground(svg) {
         .append("circle")
         .attr("class", "double-dots-2")
         .attr("r", common.dot_radius)
-        .attr("cy", 2 * common.G_HEIGHT / 3)
-        .attr("cx", function(d) { return common.noteScale(d); });
+        .attr("cy", common.padding + 2 * common.G_HEIGHT / 3)
+        .attr("cx", function(d) { return common.padding + common.noteScale(d); });
     
     // Draw the strings
     const stringNumbers = d3.range(0, 6);
@@ -97,9 +97,9 @@ export function drawBackground(svg) {
         .append("line")
         .attr("class", "string")
         .attr("x1", 0) // x position of the start of the line
-        .attr("y1", (d) => common.G_HEIGHT/12 + common.G_HEIGHT * d/6) // y position of the start of the line
-        .attr("x2", common.G_WIDTH) // x position of the end of the line
-        .attr("y2", (d) => common.G_HEIGHT/12 + common.G_HEIGHT * d/6) // y position of the end of the line
+        .attr("y1", (d) => common.padding + common.G_HEIGHT/12 + common.G_HEIGHT * d/6) // y position of the start of the line
+        .attr("x2", common.padding + common.G_WIDTH) // x position of the end of the line
+        .attr("y2", (d) => common.padding + common.G_HEIGHT/12 + common.G_HEIGHT * d/6) // y position of the end of the line
         .attr("stroke", common.string_color) // color of the line
         .attr("stroke-width", (d) => common.stringThicknesses[d]); // width of the line
     
@@ -110,8 +110,8 @@ export function drawBackground(svg) {
         .append("text")
         .attr("class", "fret-numbers")
         .text((d) => romanize(d))
-        .attr("x", (d) => common.noteScale(d))
-        .attr("y", common.G_HEIGHT + 20)
+        .attr("x", (d) => common.padding + common.noteScale(d))
+        .attr("y", common.padding + common.G_HEIGHT + 20)
         .attr("text-anchor", "middle");
     
     // Add text labels for each note using all_note_coordinates
@@ -128,19 +128,6 @@ export function drawBackground(svg) {
         .attr("dy", "0.35em") // vertical alignment
         .text((d) => d.note)
         .attr("text-anchor", "middle");
-    // for (let i = 0; i < 6; i++) {
-    //     for (let j = 0; j < common.NO_FRETS + 2; j++) {
-            
-    //         svg.append("text")
-    //             .attr("x", common.all_note_coordinates[i][j].x)
-    //             .attr("y", common.all_note_coordinates[i][j].y)
-    //             .attr("dy", "0.35em") // vertical alignment
-    //             .text(common.all_note_coordinates[i][j].note)
-    //             .attr("text-anchor", "middle");
-    //     }
-    // }
-
-
 }
 
 // Function to make text labels for each note visible or invisible instantly

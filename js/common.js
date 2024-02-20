@@ -1,12 +1,14 @@
 // Parameters:
 export const NO_FRETS = 12; // number of frets
-export const G_WIDTH = 600; // width of the guitar neck
+export const G_WIDTH = 500; // width of the guitar neck
 export const G_HEIGHT = 200; // height of the guitar neck
 export const G_COLOR = "brown"; // color of the guitar neck
 export const C_WIDTH = 50; 
 export const C_HEIGHT = 50;
 export const C_COLOR = "blue";
-export const padding = 15;
+export const padding = 60;
+export const containerWidth = G_WIDTH + 1 * padding;
+export const containerHeight = G_HEIGHT + 2 * padding;
 
 // COLORS
 export const fretboard_color = "BurlyWood"; // color of the guitar neck
@@ -175,6 +177,7 @@ export function getNoteNamesVisibility() {
 }
 
 
+
 export const intervals = [
     "1",
     "p2",
@@ -275,19 +278,15 @@ for (let i = 0; i < 6; i++) {
     for (let j = 0; j < iterations; j++) {
         // Create the note object
         const noteObject = {
-            x: noteScale(j),
-            y: stringScale(i),
+            x: padding + noteScale(j),
+            y: padding + stringScale(i),
             string: i,
             fret: j,
             note: all_guitar_notes[i][j]
         };
         all_note_coordinates.push(noteObject);
-        // currentNotePositions.push(noteObject);
     }
-    // all_note_coordinates.push(currentNotePositions);
 }
-// console.log("all_note_coordinates: ", all_note_coordinates);
-// console.log(all_note_coordinates[1][1].x);
 
 // Find the smallest distance between the frets
 export const DOT_SIZE = Math.min(G_HEIGHT/6, fretScale(NO_FRETS+1) - fretScale(NO_FRETS));

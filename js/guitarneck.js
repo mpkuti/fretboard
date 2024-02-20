@@ -16,8 +16,8 @@ window.selectHighlightMode = selectHighlightMode;
 // Select the SVG container
 var svg = d3.select("#fretboard_container")
             .append("svg")
-            .attr("width", common.G_WIDTH)
-            .attr("height", common.G_HEIGHT);
+            .attr("width", common.containerWidth)
+            .attr("height", common.containerHeight);
 
 drawBackground(svg);
 drawSlider(svg);

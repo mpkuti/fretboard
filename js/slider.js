@@ -61,21 +61,22 @@ export function moveSlider(event) {
         // raiseNotes();
     }
 
-    objectsInSliderGroup.transition()    .duration(1000) // duration of the animation in milliseconds
-    .attr("cx", function(d, i, nodes) {
-        // Determine the new x position based on the direction
-        d.fret = (d.fret + direction + common.sliderLength) % common.sliderLength;
-        // Update the note attribute
-        var oldNote = d.note;
-        // Based on the direction, call commont.raiseNote or common.lowerNote
-        d.note = direction < 0 ? common.lowerNote(d.note) : common.raiseNote(d.note);
-        // d.note = common.getNote(d.string, d.fret);
-        // console.log("Old note: " + oldNote + ", New note: " + d.note);
-        return common.noteScale(d.fret);
-    })
-    .on("end", function() {
-        transitionInProgress = false;
-    });
+    objectsInSliderGroup.transition()
+        .duration(1000) // duration of the animation in milliseconds
+        .attr("cx", function(d, i, nodes) {
+            // Determine the new x position based on the direction
+            d.fret = (d.fret + direction + common.sliderLength) % common.sliderLength;
+            // Update the note attribute
+            var oldNote = d.note;
+            // Based on the direction, call commont.raiseNote or common.lowerNote
+            d.note = direction < 0 ? common.lowerNote(d.note) : common.raiseNote(d.note);
+            // d.note = common.getNote(d.string, d.fret);
+            // console.log("Old note: " + oldNote + ", New note: " + d.note);
+            return common.padding + common.noteScale(d.fret);
+        })
+        .on("end", function() {
+            transitionInProgress = false;
+        });
 }
 
 // Function to set opacity of all circles in slider_group
