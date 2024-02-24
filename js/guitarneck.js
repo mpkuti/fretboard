@@ -134,7 +134,7 @@ function selectHighlightMode(highlightMode) {
     console.log("Changing to PENTATONIC highlight mode, pentatonic notes: ", pentatonicNotes);
     colorNotes(pentatonicNotes, "blue");
   }
-  updatePentatonicScaleLabel();
+  // updatePentatonicScaleLabel();
 };
 
 function updatePentatonicScaleLabel() {

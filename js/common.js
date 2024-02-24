@@ -57,6 +57,7 @@ export function setBaseNote(newNote) {
         // Set the HTTP dropdown menu to new base note:
         document.getElementById('baseNoteSelectDropdown').value = _base_note;
         console.log("New base note: " + _base_note);
+        updatePentatonicScaleLabel();
     }
 }
 
@@ -114,6 +115,7 @@ export function setHighlightMode(newMode) {
     else {
         _highlight_mode = newMode; // local variable
         localStorage.setItem('highlightMode', _highlight_mode); // localStorage
+        updatePentatonicScaleLabel();
     }
 }
 
@@ -347,3 +349,15 @@ export function getStringNotes(stringNumber) {
 export function getStringNoteCoordinates(stringNumber) {
     return all_note_coordinates[stringNumber];
 }
+
+function updatePentatonicScaleLabel() {
+    var labelText;
+    if (getHighlightMode() === 'PENTATONIC') {
+      labelText = 'Pentatonic Scale, ' + getBaseNote() + ' major, ' + getNoteFromInterval(getBaseNote(), 9) + ' minor';
+    } else {
+      // Handle other highlight modes
+      labelText = 'Pentatonic Scale';
+    }
+  
+    document.getElementById('pentatonicScaleKeyLabel').textContent = labelText;
+  }
