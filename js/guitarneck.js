@@ -125,14 +125,14 @@ function selectHighlightMode(highlightMode) {
   console.log("guitarneck.selectHighlightMode, new highlight mode: " + highlightMode);
   common.setHighlightMode(highlightMode);
   // updateSliderNotes();
-  setAllColor("red");
+  setAllColor("white");
   if (highlightMode == "BASENOTE") {
     console.log("Changing to BASENOTE highlight mode, basenote: ", common.getBaseNote());
-    colorNotes(common.getBaseNote(), "blue")
+    colorNotes(common.getBaseNote(), "green")
   } else if (highlightMode == "PENTATONIC") {
     let pentatonicNotes = common.pentatonic(common.getBaseNote());
     console.log("Changing to PENTATONIC highlight mode, pentatonic notes: ", pentatonicNotes);
-    colorNotes(pentatonicNotes, "blue");
+    colorNotes(pentatonicNotes, "green");
   }
   // updatePentatonicScaleLabel();
 };
