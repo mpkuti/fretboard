@@ -92,6 +92,17 @@ export function lowerNote(note) {
     }
 }
 
+// Get the note, given the note, and interval up from it
+export function getNoteFromInterval(note, interval) {
+    if (notes.includes(note)) {
+        let index = notes.indexOf(note);
+        let newIndex = (index + interval) % 12;
+        return notes[newIndex];
+    } else {
+        throw new Error("Note not found in notes");
+    }
+}
+
 
 // ******************** HIGHLIGHT MODE SETTERS/GETTERS ********************
 

@@ -134,4 +134,21 @@ function selectHighlightMode(highlightMode) {
     console.log("Changing to PENTATONIC highlight mode, pentatonic notes: ", pentatonicNotes);
     colorNotes(pentatonicNotes, "blue");
   }
+  updatePentatonicScaleLabel();
 };
+
+function updatePentatonicScaleLabel() {
+  // var highlightMode = document.querySelector('input[name="highlightMode"]:checked').value;
+  var baseNote = common.getBaseNote();
+  var highlightMode = common.getHighlightMode();
+
+  var labelText;
+  if (highlightMode === 'PENTATONIC') {
+    labelText = 'Pentatonic Scale, ' + baseNote + ' major, ' + common.getNoteFromInterval(baseNote, 9) + ' minor';
+  } else {
+    // Handle other highlight modes
+    labelText = 'Pentatonic Scale';
+  }
+
+  document.getElementById('pentatonicScaleKeyLabel').textContent = labelText;
+}

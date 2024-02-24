@@ -32,14 +32,17 @@
         Show Notes
     </label>
 
-    <h3>Select Highlight</h3>
+    <h3>Select Highlight:</h3>
     <label>
         <input type="radio" name="highlightMode" value="BASENOTE" onclick="selectHighlightMode('BASENOTE')" checked>
         Basenote
     </label>
+
+    <br>
+
     <label>
         <input type="radio" name="highlightMode" value="PENTATONIC" onclick="selectHighlightMode('PENTATONIC')">
-        Pentatonic Scale
+        <span id="pentatonicScaleKeyLabel">Pentatonic Scale</span>
     </label>
     <script src="js/d3.v7.min.js"></script>
     <script type="module" src="js/guitarneck.js"></script>
