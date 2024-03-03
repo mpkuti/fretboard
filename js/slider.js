@@ -150,8 +150,6 @@ export function setAllColor(color) {
 // color: the color to set
 export function colorNotes(notes, color) {
     // Set the color of the selected notes
-    // console.log("color notes: ", notes);
-    // console.log("color: ", color);
     if (Array.isArray(notes)) {
         notes.forEach(function(note) {
             setColor(note, color);
@@ -166,7 +164,6 @@ export function colorNotes(notes, color) {
 // oldNote: the old note of the circle
 // newNote: the new note to set
 export function changeNoteAttribute(oldNote, newNote) {
-    console.log("changeNoteAttribute: ", oldNote, " -> ", newNote); //  DEBUG
     slider_group.selectAll("circle")
         .filter(function() {
             return d3.select(this).attr("note") === oldNote;

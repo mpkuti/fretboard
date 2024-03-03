@@ -39,7 +39,6 @@ window.onload = function() {
 // This function is called when the settings change or when the page is loaded
 // It checks the local storage for the settings and applies them
 function initializeView() {
-  console.log("*****     Initializing view     *****");
 
   // Default opacity
   setOpacity(0.4);
@@ -47,7 +46,6 @@ function initializeView() {
   // NOTE LABEL TEXT VISIBILITY
   common.initializeNoteNamesVisibility();
   // Set the checked property of the checkbox based on storedShowNoteNames
-  // console.log("Stored note names visibility (should be set to the checkbox): " + common.getNoteNamesVisibility());
   document.getElementById('noteNamesCheckbox').checked = JSON.parse(common.getNoteNamesVisibility());  // Show/hide the actual text labels on the screen
   setNoteNamesVisibility();
 
@@ -69,12 +67,9 @@ function initializeView() {
     changeBaseNote(common.defaultBaseNote);
   }
 
-  console.log("**********         HIGHLIGHT MODE START         **********");
-
   // HIGHLIGHT MODE
   // Get the highlight mode from localStorage
   var storedHighlightMode = localStorage.getItem('highlightMode');
-  console.log("Stored highlight mode: " + storedHighlightMode);
 
   // Set the radio button checked state
   if (storedHighlightMode) {
@@ -90,25 +85,9 @@ function initializeView() {
     selectHighlightMode(common.defaultHighlightMode);
   }
 
-  console.log("**********         HIGHLIGHT MODE END         **********");
-
-  console.log("*****     Initializing view END     *****");
-
 }
 
-// function handleCheckboxChange(checkbox) {
-//   console.log("Checkbox changed: ", checkbox.checked);
-//   if (checkbox.checked) {
-//       // Call function when checkbox is checked
-//       showAllNotes();
-//   } else {
-//       // Call function when checkbox is unchecked
-//       hideAllNotes();
-//   }
-// }
-
 function handleCheckboxChange(checkbox, checkboxType) {
-  // console.log("Checkbox changed: ", checkbox.checked);
   if (checkbox.checked) {
     // Call different functions based on checkbox type
     if (checkboxType === 'noteNamesCheckbox') {
@@ -136,7 +115,6 @@ document.getElementById('intervalNamesCheckbox').addEventListener('change', func
 
 // Function to change base note
 function changeBaseNote(newBaseNote) {
-  console.log("Changing base note to " + newBaseNote);
   common.setBaseNote(newBaseNote);
   // Change Interval text labels
   updateIntervalText();
@@ -160,16 +138,13 @@ function changeBaseNote(newBaseNote) {
 // BASENOTE: highlight the base note
 // PENTATONIC: highlight the pentatonic scale
 function selectHighlightMode(highlightMode) {
-  console.log("guitarneck.selectHighlightMode, new highlight mode: " + highlightMode);
   common.setHighlightMode(highlightMode);
   // updateSliderNotes();
   setAllColor("white");
   if (highlightMode == "BASENOTE") {
-    console.log("Changing to BASENOTE highlight mode, basenote: ", common.getBaseNote());
     colorNotes(common.getBaseNote(), "green")
   } else if (highlightMode == "PENTATONIC") {
     let pentatonicNotes = common.pentatonic(common.getBaseNote());
-    console.log("Changing to PENTATONIC highlight mode, pentatonic notes: ", pentatonicNotes);
     colorNotes(pentatonicNotes, "green");
   }
   // updatePentatonicScaleLabel();

@@ -90,7 +90,6 @@ export function drawBackground(svg) {
     
     // Draw the strings
     const stringNumbers = d3.range(0, 6);
-    // console.log(stringNumbers);
     svg.selectAll(".string")
         .data(stringNumbers)
         .enter()
@@ -148,10 +147,8 @@ export function hideAllNotes() {
 export function setNoteNamesVisibility() {
     // This needs a boolean value
     if (common.getNoteNamesVisibility()) {
-        console.log("showing notes");
         showAllNotes();
     } else {
-        console.log("hiding notes");
         hideAllNotes();
     }
 }

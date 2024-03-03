@@ -74,7 +74,6 @@ export function setBaseNote(newNote) {
 
         // Set the HTTP dropdown menu to new base note:
         document.getElementById('baseNoteSelectDropdown').value = _base_note;
-        console.log("New base note: " + _base_note);
         updatePentatonicScaleLabel();
     }
 }
@@ -367,7 +366,6 @@ export const stringThicknesses = stringThicknesses_;
 // The parameter is the base note
 // The function returns a list of notes in the pentatonic scale
 export function pentatonic(baseNote) {
-    // console.log("pentatonic base: ", baseNote);
     const baseIndex = notes.indexOf(baseNote);
     return [0, 2, 4, 7, 9].map(x => notes[(baseIndex + x) % 12]);
 }
