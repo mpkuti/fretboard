@@ -43,7 +43,7 @@ window.onload = function() {
 function initializeView() {
 
   // Default opacity
-  setOpacity(0.4);
+  setOpacity(0.6);
 
   // NOTE LABEL TEXT VISIBILITY
   common.initializeNoteNamesVisibility();
