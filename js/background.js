@@ -113,6 +113,11 @@ export function drawBackground(svg) {
         .attr("y", common.padding + common.G_HEIGHT + 20)
         .attr("text-anchor", "middle");
     
+}
+
+// Function to draw the note labels
+// This should be called last, so that the note labels are on top of everything else
+export function drawNoteLabels(svg) {
     // Add text labels for each note using all_note_coordinates
     // x: all_note_coordinates[i][j].x
     // y: all_note_coordinates[i][j].y

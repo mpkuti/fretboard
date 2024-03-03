@@ -2,7 +2,7 @@
 import * as common from './common.js';
 
 // Import the functions from the other files
-import { drawBackground, showAllNotes, hideAllNotes, setNoteNamesVisibility } from './background.js';
+import { drawBackground, drawNoteLabels, showAllNotes, hideAllNotes, setNoteNamesVisibility } from './background.js';
 import { drawSlider, moveSlider, setColor, setOpacity, colorNotes, setAllColor, updateSliderNotes, updateIntervalText } from './slider.js';
 import { showIntervals, hideIntervals } from './slider.js';
 
@@ -22,6 +22,8 @@ var svg = d3.select("#fretboard_container")
 
 drawBackground(svg);
 drawSlider(svg);
+drawNoteLabels(svg);
+
 
 // Attach the click event handler to the SVG container
 svg.on("click", moveSlider);
