@@ -30,10 +30,11 @@ export function drawSlider(svg) {
         .attr("x", function(d) { return d.x; }) // x position of the text
         .attr("y", function(d) { return d.y; }) // y position of the text
         .attr("text-anchor", "middle") // horizontal alignment
-        .attr("dy", "0.35em") // vertical alignment
+        .attr("dx", "0.75em") // horizontal alignment 0em is center
+        .attr("dy", "-0.85em") // vertical alignment 0.35em below center is an approximation
         .text(function(d) { return common.getIntervalFromBasenote(d.note); }) // text content
         .attr("font-family", "sans-serif")
-        .attr("font-size", "10px")
+        .attr("font-size", "8px")
         .attr("fill", "black");
 }
 
@@ -45,7 +46,16 @@ export function updateSliderNotes() {
         .attr("note", function(d) {
             return common.getNote(d.string, d.fret);
         });
-} 
+}
+
+// Function to set the text of an interval labels after basenote change
+export function updateIntervalText() {
+    slider_group.selectAll("text")
+        .text(function(d) {
+            return common.getIntervalFromBasenote(d.note);
+        });
+}
+
 
 // Flag to indicate whether a transition is in progress
 var transitionInProgress = false;
