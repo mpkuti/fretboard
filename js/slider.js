@@ -9,7 +9,7 @@ export function drawSlider(svg) {
     slider_group = svg.append("g")
 
     // Create circles for the slider group
-    slider_group.selectAll("circle")
+    var circles = slider_group.selectAll("circle")
         .data(common.all_note_coordinates)
         .enter()
         .append("circle")
@@ -19,8 +19,22 @@ export function drawSlider(svg) {
         .attr("fill", "red")
         .attr("string", function(d) { return d.string; }) // string number
         .attr("fret", function(d) { return d.fret; }) // fret number (0 - common.sliderLength-1)
-        .attr("note", function(d) { return d.note; }) // note attribute
-        ;
+        .attr("note", function(d) { return d.note; });
+
+        // Create text labels for the circles
+    var labels = slider_group.selectAll("text")
+        .data(common.all_note_coordinates)
+        .enter()
+        .append("text")
+        .attr("class", "interval-labels")
+        .attr("x", function(d) { return d.x; }) // x position of the text
+        .attr("y", function(d) { return d.y; }) // y position of the text
+        .attr("text-anchor", "middle") // horizontal alignment
+        .attr("dy", "0.35em") // vertical alignment
+        .text(function(d) { return common.getIntervalFromBasenote(d.note); }) // text content
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "10px")
+        .attr("fill", "black");
 }
 
 // Function to update all notes of the slider_group position
@@ -52,31 +66,43 @@ export function moveSlider(event) {
     var objectsInSliderGroup = slider_group.selectAll("*");
 
     if (direction < 0) {
-        console.log("lowerBaseNote");
         common.lowerBaseNote();
-        // lowerNotes();
     } else {
-        console.log("raiseBaseNote");
         common.raiseBaseNote();
-        // raiseNotes();
     }
+    
+    ////////// DATA UPDATE
+    
+    // "circle" and "text" are the elements to be updated.
+    // The data is the same for both elements.
+    // Therefore, the data is updated only once.
+    slider_group.selectAll("circle").each(function(d) {
+        d.fret = (d.fret + direction + common.sliderLength) % common.sliderLength;
+        d.note = direction < 0 ? common.lowerNote(d.note) : common.raiseNote(d.note);
+    });
 
-    objectsInSliderGroup.transition()
-        .duration(1000) // duration of the animation in milliseconds
-        .attr("cx", function(d, i, nodes) {
-            // Determine the new x position based on the direction
-            d.fret = (d.fret + direction + common.sliderLength) % common.sliderLength;
-            // Update the note attribute
-            var oldNote = d.note;
-            // Based on the direction, call commont.raiseNote or common.lowerNote
-            d.note = direction < 0 ? common.lowerNote(d.note) : common.raiseNote(d.note);
-            // d.note = common.getNote(d.string, d.fret);
-            // console.log("Old note: " + oldNote + ", New note: " + d.note);
+    ////////// TRANSITIONS
+
+    // Create a transition for the circle elements and return a promise that resolves when the transition ends
+    var circleTransition = slider_group.selectAll("circle").transition()
+        .duration(1000)
+        .attr("cx", function(d) {
             return common.padding + common.noteScale(d.fret);
         })
-        .on("end", function() {
-            transitionInProgress = false;
-        });
+        .end(); // The end method returns a promise that resolves when the transition ends
+
+    // Create a transition for the text elements and return a promise that resolves when the transition ends
+    var textTransition = slider_group.selectAll("text").transition()
+        .duration(1000)
+        .attr("x", function(d) {
+            return common.padding + common.noteScale(d.fret);
+        })
+        .end(); // The end method returns a promise that resolves when the transition ends
+
+    // Use Promise.all to wait for both transitions to complete
+    Promise.all([circleTransition, textTransition]).then(function() {
+        transitionInProgress = false;
+    });
 }
 
 // Function to set opacity of all circles in slider_group
@@ -152,4 +178,21 @@ export function lowerNotes() {
         .attr("note", function(d) {
             return common.lowerNote(d.note);
         });
+}
+
+// HANDLE CHECKBOX CHANGE, SHOW/HIDE INTERVAL LABELS
+
+function setIntervalTextOpacity(opacity) {
+    d3.selectAll("text.interval-labels")
+        .transition()
+        .duration(0)
+        .style("opacity", opacity);
+}
+export function showIntervals() {
+    common.showIntervals();
+    setIntervalTextOpacity(1);
+}
+export function hideIntervals() {
+    common.hideIntervals();
+    setIntervalTextOpacity(0);
 }

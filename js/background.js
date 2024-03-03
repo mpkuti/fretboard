@@ -132,7 +132,7 @@ export function drawBackground(svg) {
 
 // Function to make text labels for each note visible or invisible instantly
 function setNoteTextOpacity(opacity) {
-    d3.selectAll("text")
+    d3.selectAll("text.note-labels")
         .transition()
         .duration(0)
         .style("opacity", opacity);

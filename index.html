@@ -12,6 +12,8 @@
 <body>
     <div id="fretboard_container"></div>
    
+    <h4>Base Note:</h4>
+
     <select id="baseNoteSelectDropdown" onchange="changeBaseNote(this.value)">
         <option value="C">C</option>
         <option value="C#">C#</option>
@@ -27,12 +29,22 @@
         <option value="B">B</option>
       </select>
 
+    <h4>Options:</h4>
+
     <label>
         <input type="checkbox" id="noteNamesCheckbox" onchange="handleCheckboxChange(this)" checked>
         Show Notes
     </label>
 
-    <h3>Select Highlight:</h3>
+    <br>
+
+    <label>
+        <input type="checkbox" id="intervalNamesCheckbox" onchange="handleCheckboxChange(this)" checked>
+        Show Intervals
+    </label>
+
+    <h4>Select Highlight:</h4>
+    
     <label>
         <input type="radio" name="highlightMode" value="BASENOTE" onclick="selectHighlightMode('BASENOTE')" checked>
         Basenote

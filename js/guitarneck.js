@@ -3,7 +3,8 @@ import * as common from './common.js';
 
 // Import the functions from the other files
 import { drawBackground, showAllNotes, hideAllNotes, setNoteNamesVisibility } from './background.js';
-import { drawSlider, moveSlider, setColor, setOpacity, colorNotes, setAllColor, updateSliderNotes } from './slider.js';
+import { drawSlider, moveSlider, setColor, setOpacity, colorNotes, setAllColor, updateSliderNotes, updateIntervalText } from './slider.js';
+import { showIntervals, hideIntervals } from './slider.js';
 
 // Set a default setting for the base note and highlight mode
 // var defaultBaseNote = "C";
@@ -50,6 +51,15 @@ function initializeView() {
   document.getElementById('noteNamesCheckbox').checked = JSON.parse(common.getNoteNamesVisibility());  // Show/hide the actual text labels on the screen
   setNoteNamesVisibility();
 
+  // INTERVAL LABEL TEXT VISIBILITY
+  common.initializeIntervalVisibility();
+  document.getElementById('intervalNamesCheckbox').checked = JSON.parse(common.getIntervalVisibility());
+  if (common.getIntervalVisibility()) {
+    showIntervals();
+  } else {
+    hideIntervals();
+  }
+
   // BASE NOTE
   // Get _base_note from localStorage
   var storedBaseNote = localStorage.getItem('baseNote');
@@ -86,22 +96,50 @@ function initializeView() {
 
 }
 
-function handleCheckboxChange(checkbox) {
-  console.log("Checkbox changed: ", checkbox.checked);
+// function handleCheckboxChange(checkbox) {
+//   console.log("Checkbox changed: ", checkbox.checked);
+//   if (checkbox.checked) {
+//       // Call function when checkbox is checked
+//       showAllNotes();
+//   } else {
+//       // Call function when checkbox is unchecked
+//       hideAllNotes();
+//   }
+// }
+
+function handleCheckboxChange(checkbox, checkboxType) {
+  // console.log("Checkbox changed: ", checkbox.checked);
   if (checkbox.checked) {
-      // Call function when checkbox is checked
+    // Call different functions based on checkbox type
+    if (checkboxType === 'noteNamesCheckbox') {
       showAllNotes();
+    } else if (checkboxType === 'intervalNamesCheckbox') {
+      showIntervals();
+    }
   } else {
-      // Call function when checkbox is unchecked
+    // Call different functions based on checkbox type
+    if (checkboxType === 'noteNamesCheckbox') {
       hideAllNotes();
+    } else if (checkboxType === 'intervalNamesCheckbox') {
+      hideIntervals();
+    }
   }
 }
+
+document.getElementById('noteNamesCheckbox').addEventListener('change', function() {
+  handleCheckboxChange(this, 'noteNamesCheckbox');
+});
+document.getElementById('intervalNamesCheckbox').addEventListener('change', function() {
+  handleCheckboxChange(this, 'intervalNamesCheckbox');
+});
 
 
 // Function to change base note
 function changeBaseNote(newBaseNote) {
   console.log("Changing base note to " + newBaseNote);
   common.setBaseNote(newBaseNote);
+  // Change Interval text labels
+  updateIntervalText();
   // Set the color of the circles
   switch (common.getHighlightMode()) {
     case "NONE":

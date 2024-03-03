@@ -32,12 +32,28 @@ export const notes = [
     "G#",
   ];
 
+const _intervals = [
+    "1",
+    "p2",
+    "S2",
+    "p3",
+    "S3",
+    "4",
+    "-5",
+    "5",
+    "p6",
+    "S6",
+    "p7",
+    "S7",
+];
+
 // ******************** GLOBAL VARIABLES ********************
 // Set the default values
 let _base_note = "C";
 let _highlight_mode = "BASENOTE";
 const validHighlightModes = ["NONE", "BASENOTE", "PENTATONIC"];
 let _showNoteNames = true;
+let _showIntervals = true;
 var defaultBaseNote = "C";
 var defaultHighlightMode = "BASENOTE";
 // **********************************************************
@@ -53,6 +69,8 @@ export function setBaseNote(newNote) {
     else {
         _base_note = newNote;
         localStorage.setItem('baseNote', _base_note);
+
+        // TODO: Change also the interval labels
 
         // Set the HTTP dropdown menu to new base note:
         document.getElementById('baseNoteSelectDropdown').value = _base_note;
@@ -94,6 +112,9 @@ export function lowerNote(note) {
 }
 
 // Get the note, given the note, and interval up from it
+// Arguments:
+// - note: an integer representing a note
+// - interval: an integer representing an interval
 export function getNoteFromInterval(note, interval) {
     if (notes.includes(note)) {
         let index = notes.indexOf(note);
@@ -101,6 +122,47 @@ export function getNoteFromInterval(note, interval) {
         return notes[newIndex];
     } else {
         throw new Error("Note not found in notes");
+    }
+}
+
+export function showIntervals() {
+    _showIntervals = true;
+    localStorage.setItem('showIntervals', 'true');
+}
+export function hideIntervals() {
+    _showIntervals = false;
+    localStorage.setItem('showIntervals', 'false');
+}
+export function getIntervalVisibility() {
+    if (localStorage.getItem('showIntervals') === 'false') {
+        hideIntervals();
+    } else {
+        showIntervals();
+    }
+    return _showIntervals;
+}
+// Get the interval, given the note, and the note up from it
+// Arguments:
+// - basenote: a string representing the basenote
+// - note: a string representing the note
+export function getIntervalFromNotes(basenote, note) {
+    if (notes.includes(basenote) && notes.includes(note)) {
+        let baseIndex = notes.indexOf(basenote);
+        let noteIndex = notes.indexOf(note);
+        return _intervals[(noteIndex - baseIndex + 12) % 12];
+    } else {
+        throw new Error("Note not found in notes");
+    }
+}
+export function getIntervalFromBasenote(note) {
+    return getIntervalFromNotes(_base_note, note);
+}
+
+export function initializeIntervalVisibility() {
+    if (localStorage.getItem('showIntervals') === 'true') {
+        showIntervals();
+    } else {
+        hideIntervals();
     }
 }
 
@@ -191,20 +253,7 @@ export function getNoteNamesVisibility() {
 
 
 
-export const intervals = [
-    "1",
-    "p2",
-    "S2",
-    "p3",
-    "S3",
-    "4",
-    "-5",
-    "5",
-    "p6",
-    "S6",
-    "p7",
-    "S7",
-];
+
 
 // Calculate the smallest multiple of 12 that is greater than or equal to NO_FRETS + 2
 let note_row_length = Math.ceil((NO_FRETS + 2) / 12) * 12;
