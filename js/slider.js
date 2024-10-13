@@ -1,6 +1,9 @@
 // Import everything from common.js
 import * as common from './common.js';
 
+// Use D3 from the common import
+const d3 = common.d3;
+
 // Define slider_group in a common scope
 var slider_group;
 

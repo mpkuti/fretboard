@@ -1,6 +1,9 @@
 // Import everything from common.js
 import * as common from './common.js';
 
+// Use D3 from the common import
+const d3 = common.d3;
+
 // Import the functions from the other files
 import { drawBackground, drawNoteLabels, showAllNotes, hideAllNotes, setNoteNamesVisibility } from './background.js';
 import { drawSlider, moveSlider, setColor, setOpacity, colorNotes, setAllColor, updateSliderNotes, updateIntervalText } from './slider.js';
@@ -63,6 +66,8 @@ function initializeView() {
   // BASE NOTE
   // Get _base_note from localStorage
   var storedBaseNote = localStorage.getItem('baseNote');
+  // If the storedBaseNote exists (is defined), call changeBaseNote with it.
+  // Otherwise, call changeBaseNote with the defaultBaseNote
   if (storedBaseNote) {
     changeBaseNote(storedBaseNote);
   } else {

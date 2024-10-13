@@ -1,12 +1,19 @@
+// Import the D3 library
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+// Export D3 so it can be used in other files
+export { d3 };
+
 // Parameters:
+export const ZOOM_LEVEL = 0.9;
 export const NO_FRETS = 12; // number of frets
-export const G_WIDTH = 500; // width of the guitar neck
-export const G_HEIGHT = 200; // height of the guitar neck
+export const G_WIDTH = 500 * ZOOM_LEVEL; // width of the guitar neck
+export const G_HEIGHT = 200 * ZOOM_LEVEL; // height of the guitar neck
 export const G_COLOR = "brown"; // color of the guitar neck
-export const C_WIDTH = 50; 
-export const C_HEIGHT = 50;
+export const C_WIDTH = 50 * ZOOM_LEVEL; 
+export const C_HEIGHT = 50 * ZOOM_LEVEL;
 export const C_COLOR = "blue";
-export const padding = 60;
+export const padding = 60 * ZOOM_LEVEL;
 export const containerWidth = G_WIDTH + 1 * padding;
 export const containerHeight = G_HEIGHT + 2 * padding;
 
@@ -54,7 +61,7 @@ let _highlight_mode = "BASENOTE";
 const validHighlightModes = ["NONE", "BASENOTE", "PENTATONIC"];
 let _showNoteNames = true;
 let _showIntervals = true;
-var defaultBaseNote = "C";
+export var defaultBaseNote = "C";
 var defaultHighlightMode = "BASENOTE";
 // **********************************************************
 
@@ -64,7 +71,7 @@ var defaultHighlightMode = "BASENOTE";
 export function setBaseNote(newNote) {
     // Check if the note is valid
     if (!notes.includes(newNote)) {
-        throw new Error("Invalid note");
+        throw new Error("Invalid note: " + newNote);
     }
     else {
         _base_note = newNote;

@@ -1,6 +1,9 @@
 // Import everything from common.js
 import * as common from './common.js';
 
+// Use D3 from the common import
+const d3 = common.d3;
+
 // Function to convert numbers to roman numerals
 // Source: https://stackoverflow.com/questions/9083037/convert-a-number-into-a-roman-numeral-in-javascript
 function romanize(num) {
