@@ -30,6 +30,11 @@
         <option value="B">B</option>
       </select>
 
+    <h4>Fret Count:</h4>
+    <label>
+      <input id="fretCountInput" type="number" min="1" max="24" step="1" value="12" />
+    </label>
+
     <h4>Options:</h4>
 
     <label>
@@ -58,5 +63,25 @@
         <span id="pentatonicScaleKeyLabel">Pentatonic Scale</span>
     </label>
     <script type="module" src="js/guitarneck.js"></script>
+    <script>
+      (function(){
+        const key = 'fretCount';
+        const input = document.getElementById('fretCountInput');
+        try {
+          const stored = localStorage.getItem(key);
+          if (stored !== null) {
+            const v = parseInt(JSON.parse(stored),10);
+            if (!isNaN(v)) input.value = v;
+          }
+        } catch {}
+        input.addEventListener('change', () => {
+          let v = parseInt(input.value,10);
+          if (isNaN(v)) v = 12;
+            if (v < 1) v = 1; if (v > 24) v = 24;
+          localStorage.setItem(key, JSON.stringify(v));
+          location.reload();
+        });
+      })();
+    </script>
 </body>
 </html>

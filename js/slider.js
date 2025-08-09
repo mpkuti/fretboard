@@ -5,7 +5,7 @@
  */
 
 // Import from the new modular structure
-import { d3, DOT_SIZE, G_WIDTH, padding, sliderLength, noteScale, UI } from './constants.js';
+import { d3, DOT_SIZE, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, UI, containerWidth } from './constants.js';
 import { all_note_coordinates, raiseNote, lowerNote, getNote } from './utils.js';
 import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, hideIntervals, getBaseNote } from './state.js';
 
@@ -17,8 +17,23 @@ var slider_group;
  * @param {d3.Selection} svg - The D3 SVG selection to draw on
  */
 export function drawSlider(svg) {
-    // Create a group for the slider
+    // Ensure a single <defs> exists and update (or create) clipPath
+    let defs = svg.select('defs');
+    if (defs.empty()) defs = svg.append('defs');
+    defs.select('#fretboard-clip').remove();
+    const LEFT_MARGIN = DOT_SIZE; // expose space left of nut
+    const RIGHT_MARGIN = DOT_SIZE; // slight overrun on right for wrap
+    defs.append('clipPath')
+        .attr('id', 'fretboard-clip')
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', padding)
+        .attr('width', padding + G_WIDTH + RIGHT_MARGIN)
+        .attr('height', G_HEIGHT);
+
+    // Create a group for the slider, clipped to fretboard
     slider_group = svg.append("g")
+        .attr('clip-path', 'url(#fretboard-clip)');
 
     // Create circles for the slider group
     var circles = slider_group.selectAll("circle")
@@ -71,43 +86,79 @@ var transitionInProgress = false;
  * @param {Event} event - The mouse click event
  */
 export function moveSlider(event) {
-    if (transitionInProgress) {
-        return;
-    }
+    if (transitionInProgress) return;
     transitionInProgress = true;
 
-    var _clickX = event.pageX;
-    var direction = _clickX < G_WIDTH/2 ? -1 : 1;
+    const _clickX = event.pageX;
+    const direction = _clickX < G_WIDTH/2 ? -1 : 1; // -1 = shift left, +1 = shift right
 
-    // Do NOT mutate data yet; compute future fret lazily
     const futureFret = d => (d.fret + direction + sliderLength) % sliderLength;
 
-    // Animate circles to future positions based on futureFret
-    var circleTransition = slider_group.selectAll("circle").transition()
-        .duration(UI.ANIMATION_MS)
-        .attr("cx", function(d) { return padding + noteScale(futureFret(d)); })
-        .end();
+    const stepWidthFirst = noteScale(1) - noteScale(0);
+    const offLeftX = padding + noteScale(0) - stepWidthFirst; // just off left
 
-    // Animate text labels accordingly
-    var textTransition = slider_group.selectAll("text").transition()
-        .duration(UI.ANIMATION_MS)
-        .attr("x", function(d) { return padding + noteScale(futureFret(d)); })
-        .end();
-
-    Promise.all([circleTransition, textTransition]).then(function() {
-        // Now mutate underlying data & attributes
+    // Pre-position for rightward move: recycle last column to left off-screen
+    if (direction === 1) {
         slider_group.selectAll('circle').each(function(d) {
+            if (d.fret === sliderLength - 1) this.setAttribute('cx', offLeftX);
+        });
+        slider_group.selectAll('text').each(function(d) {
+            if (d.fret === sliderLength - 1) this.setAttribute('x', offLeftX);
+        });
+    }
+
+    // Compute target during animation explicitly per direction to avoid long travel
+    const targetXDuring = (d) => {
+        if (direction === 1) {
+            if (d.fret === sliderLength - 1) {
+                // recycled last -> slides into first position
+                return padding + noteScale(0);
+            }
+            return padding + noteScale(d.fret + 1);
+        } else { // direction === -1
+            if (d.fret === 0) {
+                // first slides off to left
+                return offLeftX;
+            }
+            return padding + noteScale(d.fret - 1);
+        }
+    };
+
+    const circleTransition = slider_group.selectAll('circle').transition()
+        .duration(UI.ANIMATION_MS)
+        .attr('cx', targetXDuring)
+        .end();
+
+    const textTransition = slider_group.selectAll('text').transition()
+        .duration(UI.ANIMATION_MS)
+        .attr('x', targetXDuring)
+        .end();
+
+    Promise.all([circleTransition, textTransition]).then(() => {
+        // Update logical data & final snap needed only for leftward wrap
+        slider_group.selectAll('circle').each(function(d) {
+            const oldFret = d.fret;
             d.fret = futureFret(d);
+            if (direction === -1 && oldFret === 0) {
+                // wrapped to last: ensure positioned at last fret coordinate
+                this.setAttribute('cx', padding + noteScale(sliderLength - 1));
+            } else if (direction === 1 && oldFret === sliderLength - 1) {
+                // already at first fret position from animation; ensure exact snap
+                this.setAttribute('cx', padding + noteScale(0));
+            }
             d.note = direction < 0 ? lowerNote(d.note) : raiseNote(d.note);
             this.setAttribute('fret', d.fret);
             this.setAttribute('note', d.note);
         });
-        // Apply logical base note change (triggers event/UI refresh)
-        if (direction < 0) {
-            lowerBaseNote();
-        } else {
-            raiseBaseNote();
-        }
+        slider_group.selectAll('text').each(function(d) {
+            const oldFret = (d.fret - direction + sliderLength) % sliderLength;
+            if (direction === -1 && oldFret === 0) {
+                this.setAttribute('x', padding + noteScale(sliderLength - 1));
+            } else if (direction === 1 && oldFret === sliderLength - 1) {
+                this.setAttribute('x', padding + noteScale(0));
+            }
+        });
+        if (direction < 0) lowerBaseNote(); else raiseBaseNote();
         transitionInProgress = false;
     });
 }

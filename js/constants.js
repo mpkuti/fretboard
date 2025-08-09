@@ -13,7 +13,21 @@ export { d3 };
 
 // Visual Configuration Parameters
 export const ZOOM_LEVEL = 0.9;
-export const NO_FRETS = 12; // number of frets
+// Dynamic fret count (persisted)
+const FRET_MIN = 1;
+const FRET_MAX = 24;
+function loadFretCount() {
+  try {
+    const raw = localStorage.getItem('fretCount');
+    if (raw === null) return 12;
+    let v = JSON.parse(raw);
+    v = parseInt(v, 10);
+    if (isNaN(v)) return 12;
+    return Math.min(FRET_MAX, Math.max(FRET_MIN, v));
+  } catch { return 12; }
+}
+export const NO_FRETS = loadFretCount(); // session value; change input then reload to update
+export const SCALE_SEMITONES = 12; // fixed semitone divisor for physical spacing
 export const G_WIDTH = 500 * ZOOM_LEVEL; // width of the guitar neck
 export const G_HEIGHT = 200 * ZOOM_LEVEL; // height of the guitar neck
 export const G_COLOR = "brown"; // color of the guitar neck
@@ -74,7 +88,8 @@ export const STORAGE_KEYS = Object.freeze({
   HIGHLIGHT_MODE: 'highlightMode',
   SHOW_NOTES: 'showNoteNames',
   SHOW_INTERVALS: 'showIntervals',
-  OPACITY: 'opacity'
+  OPACITY: 'opacity',
+  FRET_COUNT: 'fretCount'
 });
 
 // Centralized default preference values
@@ -83,7 +98,8 @@ export const DEFAULTS = Object.freeze({
   HIGHLIGHT_MODE: defaultHighlightMode,
   SHOW_NOTES: true,
   SHOW_INTERVALS: true,
-  OPACITY: 0.6
+  OPACITY: 0.6,
+  FRET_COUNT: 12
 });
 
 // UI related tunable constants (non-persistent unless explicitly saved)
@@ -102,8 +118,8 @@ export const double_dots = [12, 24];
 const stringThicknesses_ = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 5].map(x => x * 3);
 export const stringThicknesses = stringThicknesses_;
 
-// Calculate note row length - smallest multiple of 12 that is greater than or equal to NO_FRETS + 2
-export const sliderLength = Math.ceil((NO_FRETS + 2) / 12) * 12;
+// Calculate note row length (displayed frets + 2 extra positions)
+export const sliderLength = NO_FRETS + 2;
 
 // Scales and Coordinate Systems
 
@@ -113,7 +129,7 @@ export const sliderLength = Math.ceil((NO_FRETS + 2) / 12) * 12;
  * @returns {number} The x-coordinate in pixels
  */
 export const fretScale = function(i) {
-    return 2 * G_WIDTH * (1 - Math.pow(2, -i / NO_FRETS));
+    return 2 * G_WIDTH * (1 - Math.pow(2, -i / SCALE_SEMITONES));
 }
 
 /**
@@ -122,7 +138,7 @@ export const fretScale = function(i) {
  * @returns {number} The x-coordinate in pixels
  */
 export const noteScale = function(i) {
-    return 2 * G_WIDTH * (1 - Math.pow(2, -(i - 0.5) / NO_FRETS));
+    return 2 * G_WIDTH * (1 - Math.pow(2, -(i - 0.5) / SCALE_SEMITONES));
 }
 
 /**
