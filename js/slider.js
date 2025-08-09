@@ -51,17 +51,6 @@ export function drawSlider(svg) {
 }
 
 /**
- * Updates the note attributes of all circles in the slider group
- * Recalculates note values based on current string and fret positions
- */
-export function updateSliderNotes() {
-    slider_group.selectAll("circle")
-        .attr("note", function(d) {
-            return getNote(d.string, d.fret);
-        });
-}
-
-/**
  * Updates the interval text labels after a base note change
  * Recalculates all interval labels relative to the current base note
  */
@@ -133,45 +122,6 @@ export function setOpacity(opacity) {
 }
 
 /**
- * Sets the color of circles that match a specific note
- * @param {string} note - The note to color (e.g., 'C', 'F#')
- * @param {string} color - The color to apply (CSS color string)
- */
-export function setColor(note, color) {
-    updateSliderNotes();
-    slider_group.selectAll("circle")
-        .filter(function() {
-            return d3.select(this).attr("note") === note;
-        })
-        .attr("fill", color);
-}
-
-/**
- * Sets the color of all circles in the slider group
- * @param {string} color - The color to apply (CSS color string)
- */
-export function setAllColor(color) {
-    slider_group.selectAll("circle")
-        .attr("fill", color);
-}
-
-/**
- * Colors specific notes with the given color
- * @param {string|string[]} notes - Single note or array of notes to color
- * @param {string} color - The color to apply (CSS color string)
- */
-export function colorNotes(notes, color) {
-    // Deprecated per-note loop kept for backward compatibility; prefer highlightNotes
-    const arr = Array.isArray(notes) ? notes : [notes];
-    updateSliderNotes();
-    arr.forEach(function(note) {
-        slider_group.selectAll('circle')
-            .filter(function() { return d3.select(this).attr('note') === note; })
-            .attr('fill', color);
-    });
-}
-
-/**
  * Batch highlight helper: single pass coloring
  */
 export function highlightNotes(notes, highlightColor = 'green', baseColor = 'white') {
@@ -181,54 +131,8 @@ export function highlightNotes(notes, highlightColor = 'green', baseColor = 'whi
         .each(function(d) {
             const desired = target.has(d.note) ? highlightColor : baseColor;
             const current = this.getAttribute('fill');
-            if (current !== desired) {
-                this.setAttribute('fill', desired);
-            }
+            if (current !== desired) this.setAttribute('fill', desired);
         });
-}
-
-/**
- * Changes the note attribute of circles from old note to new note
- * @param {string} oldNote - The current note to find
- * @param {string} newNote - The new note to set
- */
-export function changeNoteAttribute(oldNote, newNote) {
-    slider_group.selectAll("circle")
-        .filter(function() {
-            return d3.select(this).attr("note") === oldNote;
-        })
-        .attr("note", newNote);
-}
-
-/**
- * Raises every note in the slider group by one semitone
- */
-export function raiseNotes() {
-    slider_group.selectAll("circle")
-        .attr("note", function(d) {
-            return raiseNote(d.note);
-        });
-}
-
-/**
- * Lowers every note in the slider group by one semitone
- */
-export function lowerNotes() {
-    slider_group.selectAll("circle")
-        .attr("note", function(d) {
-            return lowerNote(d.note);
-        });
-}
-
-/**
- * Sets the opacity of interval text labels
- * @param {number} opacity - The opacity value (0-1)
- */
-function setIntervalTextOpacity(opacity) {
-    d3.selectAll("text.interval-labels")
-        .transition()
-        .duration(0)
-        .style("opacity", opacity);
 }
 
 /**
@@ -245,6 +149,14 @@ export function showIntervalsWithVisual() {
 export function hideIntervalsWithVisual() {
     hideIntervals();
     setIntervalTextOpacity(0);
+}
+
+// Private helper to set interval label opacity (restored after cleanup)
+function setIntervalTextOpacity(opacity) {
+    d3.selectAll('text.interval-labels')
+      .transition()
+      .duration(0)
+      .style('opacity', opacity);
 }
 
 // Re-export the state functions for convenience
