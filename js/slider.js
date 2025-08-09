@@ -5,7 +5,8 @@
  */
 
 // Import from the new modular structure
-import { d3, DOT_SIZE, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, UI } from './constants.js';
+import { d3, UI } from './constants.js';
+import { DOT_SIZE, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale } from './layout.js';
 import { all_note_coordinates, recalcAllNoteCoordinates, raiseNote, lowerNote } from './utils.js';
 import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, hideIntervals, getBaseNote } from './state.js';
 
@@ -60,7 +61,7 @@ export function drawSlider(svg) {
         .attr('dy','-0.85em')
         .text(d => getIntervalFromBasenote(d.note))
         .attr('font-family','sans-serif')
-        .attr('font-size','8px')
+        .attr('font-size', UI.NOTE_FONT_SIZE_PX + 'px')
         .attr('fill','black');
 }
 export function redrawSlider(svg){ recalcAllNoteCoordinates(); drawSlider(svg); }

@@ -4,7 +4,8 @@
  * @author Mika Kutila
  */
 
-import { notes, intervals, stringNotes, sliderLength, NO_FRETS, padding, noteScale, stringScale } from './constants.js';
+import { notes, intervals, stringNotes } from './constants.js';
+import { padding, noteScale, stringScale, sliderLength } from './layout.js';
 
 /**
  * Raises a note by one semitone

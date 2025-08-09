@@ -5,7 +5,8 @@
  */
 
 // Import from the new modular structure
-import { d3, G_WIDTH, G_HEIGHT, NO_FRETS, padding, fretboard_color, fret_color, string_color, dots, double_dots, dot_radius, stringThicknesses, fretScale, noteScale, stringScale } from './constants.js';
+import { d3, NO_FRETS, fretboard_color, fret_color, string_color, dots, double_dots, UI } from './constants.js';
+import { G_WIDTH, G_HEIGHT, padding, dot_radius, stringThicknesses, fretScale, noteScale, stringScale } from './layout.js';
 import { all_note_coordinates } from './utils.js';
 import { getNoteNamesVisibility, showNoteNames, hideNoteNames } from './state.js';
 
@@ -157,7 +158,8 @@ export function drawNoteLabels(svg) {
         .attr("y", (d) => d.y)
         .attr("dy", "0.35em") // vertical alignment
         .text((d) => d.note)
-        .attr("text-anchor", "middle");
+        .attr("text-anchor", "middle")
+        .attr('font-size', UI.NOTE_FONT_SIZE_PX + 'px');
 }
 
 /**

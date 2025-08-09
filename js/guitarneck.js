@@ -5,7 +5,8 @@
  */
 
 // Import from the new modular structure
-import { d3, containerWidth, containerHeight, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE, setZoomLevel, getZoomLevel, G_WIDTH, G_HEIGHT, padding, containerWidth as cwVar, containerHeight as chVar } from './constants.js';
+import { d3, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE } from './constants.js';
+import { getZoomLevel, setZoomLevel, containerWidth, containerHeight, padding } from './layout.js';
 import { pentatonic, buildPentatonicLabel, getNoteFromInterval, recalcAllNoteCoordinates } from './utils.js';
 import { 
     getBaseNote, 
@@ -225,14 +226,23 @@ function rebuildAll(){
   const container = d3.select('#fretboard_container');
   container.select('svg').remove();
   const svgLocal = container.append('svg')
-    .attr('width', cwVar)
-    .attr('height', chVar);
+    .attr('width', containerWidth)
+    .attr('height', containerHeight)
+    .classed('ready', true); // maintain ready state after rebuild
   drawBackground(svgLocal);
   drawSlider(svgLocal);
   drawNoteLabels(svgLocal);
   svgLocal.on('click', moveSlider);
+  // Re-apply highlight & outlines
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());
+  // Re-apply visibility states (they reset on redraw)
+  setNoteNamesVisibility();
+  if (getIntervalVisibility()) {
+    showIntervalsWithVisual();
+  } else {
+    hideIntervalsWithVisual();
+  }
 }
 function changeZoom(delta){
   const current = getZoomLevel();
