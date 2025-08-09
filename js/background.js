@@ -1,11 +1,20 @@
-// Import everything from common.js
-import * as common from './common.js';
+/**
+ * @fileoverview Background rendering for the guitar fretboard
+ * Handles drawing of static elements: neck, frets, strings, decorative dots, and note labels
+ * @author Mika Kutila
+ */
 
-// Use D3 from the common import
-const d3 = common.d3;
+// Import from the new modular structure
+import { d3, G_WIDTH, G_HEIGHT, NO_FRETS, padding, fretboard_color, fret_color, string_color, dots, double_dots, dot_radius, stringThicknesses, fretScale, noteScale, stringScale } from './constants.js';
+import { all_note_coordinates } from './utils.js';
+import { getNoteNamesVisibility, showNoteNames, hideNoteNames } from './state.js';
 
-// Function to convert numbers to roman numerals
-// Source: https://stackoverflow.com/questions/9083037/convert-a-number-into-a-roman-numeral-in-javascript
+/**
+ * Converts numbers to roman numerals
+ * @param {number} num - The number to convert (1-4000)
+ * @returns {string} The roman numeral representation
+ * @source https://stackoverflow.com/questions/9083037/convert-a-number-into-a-roman-numeral-in-javascript
+ */
 function romanize(num) {
     var lookup = {
         M: 1000,
@@ -33,29 +42,32 @@ function romanize(num) {
     return roman;
 }
 
-// Function to draw the background
+/**
+ * Draws the guitar fretboard background including neck, frets, strings, and decorative dots
+ * @param {d3.Selection} svg - The D3 SVG selection to draw on
+ */
 export function drawBackground(svg) {
     // Draw the background here
     
     // Create guitarneck rectangle
     var guitarneck = svg.append("rect")
-        .attr("x", common.padding) // x position of the guitar neck
-        .attr("y", common.padding) // y position of the guitar neck
-        .attr("width", common.G_WIDTH) // width of the guitar neck
-        .attr("height", common.G_HEIGHT) // height of the guitar neck
-        .attr("fill", common.fretboard_color); // color of the guitar neck
+        .attr("x", padding) // x position of the guitar neck
+        .attr("y", padding) // y position of the guitar neck
+        .attr("width", G_WIDTH) // width of the guitar neck
+        .attr("height", G_HEIGHT) // height of the guitar neck
+        .attr("fill", fretboard_color); // color of the guitar neck
     
     // Draw the frets according to the number of frets data
-    const fretNumbers = d3.range(0, common.NO_FRETS+1);
+    const fretNumbers = d3.range(0, NO_FRETS+1);
     svg.selectAll("line")
         .data(fretNumbers)
         .enter()
         .append("line")
-        .attr("x1", function(d) { return common.padding + common.fretScale(d); }) // x position of the start of the line
-        .attr("y1", common.padding) // y position of the start of the line
-        .attr("x2", function(d) { return common.padding +  common.fretScale(d); }) // x position of the end of the line
-        .attr("y2", common.padding + common.G_HEIGHT) // y position of the end of the line
-        .attr("stroke", common.fret_color) // color of the line
+        .attr("x1", function(d) { return padding + fretScale(d); }) // x position of the start of the line
+        .attr("y1", padding) // y position of the start of the line
+        .attr("x2", function(d) { return padding +  fretScale(d); }) // x position of the end of the line
+        .attr("y2", padding + G_HEIGHT) // y position of the end of the line
+        .attr("stroke", fret_color) // color of the line
         .attr("stroke-width", 3); // width of the line
     
     // Create a group for all the decotation dots 
@@ -63,33 +75,33 @@ export function drawBackground(svg) {
 
     // SINGLE DOTS
     dots_group.selectAll(".single-dots")
-        .data(common.dots)
+        .data(dots)
         .enter()
         .append("circle")
         .attr("class", "single-dots")
-        .attr("r", common.dot_radius)
-        .attr("cy", common.padding + common.G_HEIGHT/2)
-        .attr("cx", function(d) { return common.padding + common.noteScale(d); });
+        .attr("r", dot_radius)
+        .attr("cy", padding + G_HEIGHT/2)
+        .attr("cx", function(d) { return padding + noteScale(d); });
 
     // DOUBLE DOTS 1
     dots_group.selectAll(".double-dots-1")
-        .data(common.double_dots)
+        .data(double_dots)
         .enter()
         .append("circle")
         .attr("class", "double-dots-1")
-        .attr("r", common.dot_radius)
-        .attr("cy", common.padding + common.G_HEIGHT / 3)
-        .attr("cx", function(d) { return common.padding + common.noteScale(d); });
+        .attr("r", dot_radius)
+        .attr("cy", padding + G_HEIGHT / 3)
+        .attr("cx", function(d) { return padding + noteScale(d); });
 
     // DOUBLE DOTS 2
     dots_group.selectAll(".double-dots-2")
-        .data(common.double_dots)
+        .data(double_dots)
         .enter()
         .append("circle")
         .attr("class", "double-dots-2")
-        .attr("r", common.dot_radius)
-        .attr("cy", common.padding + 2 * common.G_HEIGHT / 3)
-        .attr("cx", function(d) { return common.padding + common.noteScale(d); });
+        .attr("r", dot_radius)
+        .attr("cy", padding + 2 * G_HEIGHT / 3)
+        .attr("cx", function(d) { return padding + noteScale(d); });
     
     // Draw the strings
     const stringNumbers = d3.range(0, 6);
@@ -99,11 +111,11 @@ export function drawBackground(svg) {
         .append("line")
         .attr("class", "string")
         .attr("x1", 0) // x position of the start of the line
-        .attr("y1", (d) => common.padding + common.G_HEIGHT/12 + common.G_HEIGHT * d/6) // y position of the start of the line
-        .attr("x2", common.padding + common.G_WIDTH) // x position of the end of the line
-        .attr("y2", (d) => common.padding + common.G_HEIGHT/12 + common.G_HEIGHT * d/6) // y position of the end of the line
-        .attr("stroke", common.string_color) // color of the line
-        .attr("stroke-width", (d) => common.stringThicknesses[d]); // width of the line
+        .attr("y1", (d) => padding + G_HEIGHT/12 + G_HEIGHT * d/6) // y position of the start of the line
+        .attr("x2", padding + G_WIDTH) // x position of the end of the line
+        .attr("y2", (d) => padding + G_HEIGHT/12 + G_HEIGHT * d/6) // y position of the end of the line
+        .attr("stroke", string_color) // color of the line
+        .attr("stroke-width", (d) => stringThicknesses[d]); // width of the line
     
     // Fret numbers in roman numerals
     svg.selectAll(".fret-numbers")
@@ -112,21 +124,24 @@ export function drawBackground(svg) {
         .append("text")
         .attr("class", "fret-numbers")
         .text((d) => romanize(d))
-        .attr("x", (d) => common.padding + common.noteScale(d))
-        .attr("y", common.padding + common.G_HEIGHT + 20)
+        .attr("x", (d) => padding + noteScale(d))
+        .attr("y", padding + G_HEIGHT + 20)
         .attr("text-anchor", "middle");
     
 }
 
-// Function to draw the note labels
-// This should be called last, so that the note labels are on top of everything else
+/**
+ * Draws note labels on the fretboard
+ * Should be called last so that note labels appear on top of other elements
+ * @param {d3.Selection} svg - The D3 SVG selection to draw on
+ */
 export function drawNoteLabels(svg) {
     // Add text labels for each note using all_note_coordinates
     // x: all_note_coordinates[i][j].x
     // y: all_note_coordinates[i][j].y
     // note: all_note_coordinates[i][j].note
     svg.selectAll(".note-labels")
-        .data(common.all_note_coordinates)
+        .data(all_note_coordinates)
         .enter()
         .append("text")
         .attr("class", "note-labels")
@@ -137,24 +152,39 @@ export function drawNoteLabels(svg) {
         .attr("text-anchor", "middle");
 }
 
-// Function to make text labels for each note visible or invisible instantly
+/**
+ * Sets the opacity of note text labels
+ * @param {number} opacity - The opacity value (0-1)
+ */
 function setNoteTextOpacity(opacity) {
     d3.selectAll("text.note-labels")
         .transition()
         .duration(0)
         .style("opacity", opacity);
 }
+
+/**
+ * Shows all note text labels and updates state
+ */
 export function showAllNotes() {
-    common.showNoteNames();
+    showNoteNames();
     setNoteTextOpacity(1);
 }
+
+/**
+ * Hides all note text labels and updates state
+ */
 export function hideAllNotes() {
-    common.hideNoteNames();
+    hideNoteNames();
     setNoteTextOpacity(0);
 }
+
+/**
+ * Sets note names visibility based on current state
+ */
 export function setNoteNamesVisibility() {
     // This needs a boolean value
-    if (common.getNoteNamesVisibility()) {
+    if (getNoteNamesVisibility()) {
         showAllNotes();
     } else {
         hideAllNotes();

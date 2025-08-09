@@ -15,7 +15,7 @@
    
     <h4>Base Note:</h4>
 
-    <select id="baseNoteSelectDropdown" onchange="changeBaseNote(this.value)">
+    <select id="baseNoteSelectDropdown">
         <option value="C">C</option>
         <option value="C#">C#</option>
         <option value="D">D</option>
@@ -33,28 +33,28 @@
     <h4>Options:</h4>
 
     <label>
-        <input type="checkbox" id="noteNamesCheckbox" onchange="handleCheckboxChange(this)" checked>
+        <input type="checkbox" id="noteNamesCheckbox" checked>
         Show Notes
     </label>
 
     <br>
 
     <label>
-        <input type="checkbox" id="intervalNamesCheckbox" onchange="handleCheckboxChange(this)" checked>
+        <input type="checkbox" id="intervalNamesCheckbox" checked>
         Show Intervals
     </label>
 
     <h4>Select Highlight:</h4>
     
     <label>
-        <input type="radio" name="highlightMode" value="BASENOTE" onclick="selectHighlightMode('BASENOTE')" checked>
+        <input type="radio" name="highlightMode" value="BASENOTE" checked>
         Basenote
     </label>
 
     <br>
 
     <label>
-        <input type="radio" name="highlightMode" value="PENTATONIC" onclick="selectHighlightMode('PENTATONIC')">
+        <input type="radio" name="highlightMode" value="PENTATONIC">
         <span id="pentatonicScaleKeyLabel">Pentatonic Scale</span>
     </label>
     <script type="module" src="js/guitarneck.js"></script>
