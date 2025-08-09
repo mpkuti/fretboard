@@ -5,7 +5,7 @@
  */
 
 // Import from the new modular structure
-import { d3, DOT_SIZE, G_WIDTH, padding, sliderLength, noteScale } from './constants.js';
+import { d3, DOT_SIZE, G_WIDTH, padding, sliderLength, noteScale, UI } from './constants.js';
 import { all_note_coordinates, raiseNote, lowerNote, getNote } from './utils.js';
 import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, hideIntervals, getBaseNote } from './state.js';
 
@@ -90,25 +90,30 @@ export function moveSlider(event) {
     var _clickX = event.pageX;
     var direction = _clickX < G_WIDTH/2 ? -1 : 1;
 
-    // Update underlying data first (but do NOT change base note yet)
-    slider_group.selectAll("circle").each(function(d) {
-        d.fret = (d.fret + direction + sliderLength) % sliderLength;
-        d.note = direction < 0 ? lowerNote(d.note) : raiseNote(d.note);
-    });
+    // Do NOT mutate data yet; compute future fret lazily
+    const futureFret = d => (d.fret + direction + sliderLength) % sliderLength;
 
-    // Run animations
+    // Animate circles to future positions based on futureFret
     var circleTransition = slider_group.selectAll("circle").transition()
-        .duration(1000)
-        .attr("cx", function(d) { return padding + noteScale(d.fret); })
+        .duration(UI.ANIMATION_MS)
+        .attr("cx", function(d) { return padding + noteScale(futureFret(d)); })
         .end();
 
+    // Animate text labels accordingly
     var textTransition = slider_group.selectAll("text").transition()
-        .duration(1000)
-        .attr("x", function(d) { return padding + noteScale(d.fret); })
+        .duration(UI.ANIMATION_MS)
+        .attr("x", function(d) { return padding + noteScale(futureFret(d)); })
         .end();
 
     Promise.all([circleTransition, textTransition]).then(function() {
-        // After animation completes, apply the logical base note change (triggers event + UI updates)
+        // Now mutate underlying data & attributes
+        slider_group.selectAll('circle').each(function(d) {
+            d.fret = futureFret(d);
+            d.note = direction < 0 ? lowerNote(d.note) : raiseNote(d.note);
+            this.setAttribute('fret', d.fret);
+            this.setAttribute('note', d.note);
+        });
+        // Apply logical base note change (triggers event/UI refresh)
         if (direction < 0) {
             lowerBaseNote();
         } else {
@@ -156,14 +161,30 @@ export function setAllColor(color) {
  * @param {string} color - The color to apply (CSS color string)
  */
 export function colorNotes(notes, color) {
-    // Set the color of the selected notes
-    if (Array.isArray(notes)) {
-        notes.forEach(function(note) {
-            setColor(note, color);
+    // Deprecated per-note loop kept for backward compatibility; prefer highlightNotes
+    const arr = Array.isArray(notes) ? notes : [notes];
+    updateSliderNotes();
+    arr.forEach(function(note) {
+        slider_group.selectAll('circle')
+            .filter(function() { return d3.select(this).attr('note') === note; })
+            .attr('fill', color);
+    });
+}
+
+/**
+ * Batch highlight helper: single pass coloring
+ */
+export function highlightNotes(notes, highlightColor = 'green', baseColor = 'white') {
+    const arr = Array.isArray(notes) ? notes : (notes ? [notes] : []);
+    const target = new Set(arr);
+    slider_group.selectAll('circle')
+        .each(function(d) {
+            const desired = target.has(d.note) ? highlightColor : baseColor;
+            const current = this.getAttribute('fill');
+            if (current !== desired) {
+                this.setAttribute('fill', desired);
+            }
         });
-    } else {
-        setColor(notes, color);
-    };
 }
 
 /**

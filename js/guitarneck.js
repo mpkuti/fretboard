@@ -17,10 +17,11 @@ import {
     initializeIntervalVisibility, 
     getIntervalVisibility 
 } from './state.js';
+import { EVENTS, on } from './events.js';
 
 // Import the functions from the other files
 import { drawBackground, drawNoteLabels, showAllNotes, hideAllNotes, setNoteNamesVisibility } from './background.js';
-import { drawSlider, moveSlider, setColor, setOpacity, colorNotes, setAllColor, updateSliderNotes, updateIntervalText, showIntervalsWithVisual, hideIntervalsWithVisual } from './slider.js';
+import { drawSlider, moveSlider, setOpacity, updateIntervalText, showIntervalsWithVisual, hideIntervalsWithVisual, highlightNotes } from './slider.js';
 
 // Set a default setting for the base note and highlight mode
 // var defaultBaseNote = "C";
@@ -65,16 +66,14 @@ export function initializeView() {
   } else {
     hideIntervalsWithVisual();
   }
-  // Use state getter (already parsed) instead of raw localStorage JSON string
   changeBaseNote(getBaseNote());
-  // Highlight mode via state getter
   const currentHighlight = getHighlightMode();
   const radioButton = document.querySelector(`input[name="highlightMode"][value="${currentHighlight}"]`);
   if (radioButton) radioButton.checked = true;
   selectHighlightMode(currentHighlight);
 
-  document.addEventListener('baseNoteChanged', onBaseNoteChanged);
-  document.addEventListener('highlightModeChanged', onHighlightModeChanged);
+  on(EVENTS.BASE_NOTE_CHANGED, onBaseNoteChanged);
+  on(EVENTS.HIGHLIGHT_MODE_CHANGED, onHighlightModeChanged);
 }
 
 /**
@@ -100,34 +99,12 @@ function handleCheckboxChange(checkbox, checkboxType) {
   }
 }
 
-document.getElementById('noteNamesCheckbox').addEventListener('change', function() {
-  handleCheckboxChange(this, 'noteNamesCheckbox');
-});
-document.getElementById('intervalNamesCheckbox').addEventListener('change', function() {
-  handleCheckboxChange(this, 'intervalNamesCheckbox');
-});
-
-
 /**
  * Changes the base note and updates the UI accordingly
  * @param {string} newBaseNote - The new base note (e.g., 'C', 'F#', 'Bb')
  */
 function changeBaseNote(newBaseNote) {
   setBaseNote(newBaseNote);
-  // Change Interval text labels
-  updateIntervalText();
-  // Set the color of the circles
-  switch (getHighlightMode()) {
-    case "NONE":
-      setAllColor("blue");
-      break;
-    case "BASENOTE":
-      selectHighlightMode("BASENOTE");
-      break;
-    case "PENTATONIC":
-      selectHighlightMode("PENTATONIC");
-      break;
-  }
 }
 
 
@@ -137,15 +114,6 @@ function changeBaseNote(newBaseNote) {
  */
 function selectHighlightMode(highlightMode) {
   setHighlightMode(highlightMode);
-  // updateSliderNotes();
-  setAllColor("white");
-  if (highlightMode == "BASENOTE") {
-    colorNotes(getBaseNote(), "green")
-  } else if (highlightMode == "PENTATONIC") {
-    let pentatonicNotes = pentatonic(getBaseNote());
-    colorNotes(pentatonicNotes, "green");
-  }
-  // updatePentatonicScaleLabel();
 };
 
 function renderPentatonicLabel() {
@@ -155,11 +123,13 @@ function renderPentatonicLabel() {
 }
 
 function applyHighlightColors() {
-  setAllColor('white');
-  if (getHighlightMode() === 'BASENOTE') {
-    colorNotes(getBaseNote(), 'green');
-  } else if (getHighlightMode() === 'PENTATONIC') {
-    colorNotes(pentatonic(getBaseNote()), 'green');
+  const mode = getHighlightMode();
+  if (mode === 'BASENOTE') {
+    highlightNotes(getBaseNote(), 'green', 'white');
+  } else if (mode === 'PENTATONIC') {
+    highlightNotes(pentatonic(getBaseNote()), 'green', 'white');
+  } else {
+    highlightNotes([], 'green', 'white');
   }
 }
 
@@ -167,9 +137,7 @@ function bindUIEvents() {
   const baseSelect = document.getElementById('baseNoteSelectDropdown');
   if (baseSelect) {
     baseSelect.addEventListener('change', e => {
-      changeBaseNote(e.target.value);
-      renderPentatonicLabel();
-      applyHighlightColors();
+      changeBaseNote(e.target.value); // event will trigger UI updates
     });
   }
   document.getElementById('noteNamesCheckbox')?.addEventListener('change', function() {
@@ -180,19 +148,15 @@ function bindUIEvents() {
   });
   document.querySelectorAll('input[name="highlightMode"]').forEach(r => {
     r.addEventListener('change', e => {
-      selectHighlightMode(e.target.value);
-      renderPentatonicLabel();
-      applyHighlightColors();
+      selectHighlightMode(e.target.value); // event will trigger UI updates
     });
   });
 }
 
 function onBaseNoteChanged(e) {
-    const base = e.detail.baseNote;
+    const { newValue: base } = e.detail;
     const baseNoteDropdown = document.getElementById('baseNoteSelectDropdown');
-    if (baseNoteDropdown) {
-        baseNoteDropdown.value = base;
-    }
+    if (baseNoteDropdown) baseNoteDropdown.value = base;
     updateIntervalText();
     renderPentatonicLabel();
     applyHighlightColors();

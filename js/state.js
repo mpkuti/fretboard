@@ -6,6 +6,7 @@
 
 import { notes, defaultBaseNote, defaultHighlightMode, validHighlightModes, STORAGE_KEYS, DEFAULTS } from './constants.js';
 import { raiseNote, lowerNote, getNoteFromInterval, getIntervalFromNotes } from './utils.js';
+import { EVENTS, emit } from './events.js';
 
 // Private state variables
 function loadPref(key, fallback) {
@@ -30,10 +31,12 @@ export function setBaseNote(newNote) {
     if (!notes.includes(newNote)) {
         throw new Error("Invalid note: " + newNote);
     }
-    
+    if (newNote === _base_note) return;
+    const oldValue = _base_note;
     _base_note = newNote;
     savePref(STORAGE_KEYS.BASE_NOTE, _base_note);
-    document.dispatchEvent(new CustomEvent('baseNoteChanged', { detail: { baseNote: _base_note } }));
+    emit(EVENTS.BASE_NOTE_CHANGED, { oldValue, newValue: _base_note });
+    emit(EVENTS.STATE_CHANGED, { key: 'baseNote', oldValue, newValue: _base_note });
 }
 
 /**
@@ -66,10 +69,12 @@ export function setHighlightMode(newMode) {
     if (!validHighlightModes.includes(newMode)) {
         throw new Error("Invalid mode: " + newMode);
     }
-    
+    if (newMode === _highlight_mode) return;
+    const oldValue = _highlight_mode;
     _highlight_mode = newMode;
     savePref(STORAGE_KEYS.HIGHLIGHT_MODE, _highlight_mode);
-    document.dispatchEvent(new CustomEvent('highlightModeChanged', { detail: { highlightMode: _highlight_mode } }));
+    emit(EVENTS.HIGHLIGHT_MODE_CHANGED, { oldValue, newValue: _highlight_mode });
+    emit(EVENTS.STATE_CHANGED, { key: 'highlightMode', oldValue, newValue: _highlight_mode });
 }
 
 /**
