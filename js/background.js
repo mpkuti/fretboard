@@ -47,88 +47,96 @@ function romanize(num) {
  * @param {d3.Selection} svg - The D3 SVG selection to draw on
  */
 export function drawBackground(svg) {
-    // Draw the background here
-    
-    // Create guitarneck rectangle
-    var guitarneck = svg.append("rect")
-        .attr("x", padding) // x position of the guitar neck
-        .attr("y", padding) // y position of the guitar neck
-        .attr("width", G_WIDTH) // width of the guitar neck
-        .attr("height", G_HEIGHT) // height of the guitar neck
-        .attr("fill", fretboard_color); // color of the guitar neck
-    
-    // Draw the frets according to the number of frets data
+    // Remove prior background layer if present (supports dynamic zoom redraw)
+    svg.select('#backgroundLayer').remove();
+    const layer = svg.append('g').attr('id','backgroundLayer');
+
+    // Guitar neck rectangle
+    layer.append('rect')
+        .attr('x', padding)
+        .attr('y', padding)
+        .attr('width', G_WIDTH)
+        .attr('height', G_HEIGHT)
+        .attr('fill', fretboard_color);
+
+    // Frets
     const fretNumbers = d3.range(0, NO_FRETS+1);
-    svg.selectAll("line")
+    layer.selectAll('.fret')
         .data(fretNumbers)
         .enter()
-        .append("line")
-        .attr("x1", function(d) { return padding + fretScale(d); }) // x position of the start of the line
-        .attr("y1", padding) // y position of the start of the line
-        .attr("x2", function(d) { return padding +  fretScale(d); }) // x position of the end of the line
-        .attr("y2", padding + G_HEIGHT) // y position of the end of the line
-        .attr("stroke", fret_color) // color of the line
-        .attr("stroke-width", d => d === 0 ? 5 : 3); // thicker first (nut) fret (5), thinner others (3)
+        .append('line')
+        .attr('class','fret')
+        .attr('x1', d => padding + fretScale(d))
+        .attr('y1', padding)
+        .attr('x2', d => padding + fretScale(d))
+        .attr('y2', padding + G_HEIGHT)
+        .attr('stroke', fret_color)
+        .attr('stroke-width', d => d === 0 ? 5 : 3);
 
-    // Create a group for all the decotation dots 
-    var dots_group = svg.append("g")
+    // Decoration dots container
+    const dots_group = layer.append('g').attr('class','fret-dots');
 
-    // SINGLE DOTS
-    dots_group.selectAll(".single-dots")
+    // Single dots
+    dots_group.selectAll('.single-dots')
         .data(dots)
         .enter()
-        .append("circle")
-        .attr("class", "single-dots")
-        .attr("r", dot_radius)
-        .attr("cy", padding + G_HEIGHT/2)
-        .attr("cx", function(d) { return padding + noteScale(d); });
+        .append('circle')
+        .attr('class','single-dots')
+        .attr('r', dot_radius)
+        .attr('cy', padding + G_HEIGHT/2)
+        .attr('cx', d => padding + noteScale(d));
 
-    // DOUBLE DOTS 1
-    dots_group.selectAll(".double-dots-1")
+    // Double dots (top)
+    dots_group.selectAll('.double-dots-1')
         .data(double_dots)
         .enter()
-        .append("circle")
-        .attr("class", "double-dots-1")
-        .attr("r", dot_radius)
-        .attr("cy", padding + G_HEIGHT / 3)
-        .attr("cx", function(d) { return padding + noteScale(d); });
+        .append('circle')
+        .attr('class','double-dots-1')
+        .attr('r', dot_radius)
+        .attr('cy', padding + G_HEIGHT/3)
+        .attr('cx', d => padding + noteScale(d));
 
-    // DOUBLE DOTS 2
-    dots_group.selectAll(".double-dots-2")
+    // Double dots (bottom)
+    dots_group.selectAll('.double-dots-2')
         .data(double_dots)
         .enter()
-        .append("circle")
-        .attr("class", "double-dots-2")
-        .attr("r", dot_radius)
-        .attr("cy", padding + 2 * G_HEIGHT / 3)
-        .attr("cx", function(d) { return padding + noteScale(d); });
-    
-    // Draw the strings
-    const stringNumbers = d3.range(0, 6);
-    svg.selectAll(".string")
+        .append('circle')
+        .attr('class','double-dots-2')
+        .attr('r', dot_radius)
+        .attr('cy', padding + 2 * G_HEIGHT/3)
+        .attr('cx', d => padding + noteScale(d));
+
+    // Strings
+    const stringNumbers = d3.range(0,6);
+    layer.selectAll('.string')
         .data(stringNumbers)
         .enter()
-        .append("line")
-        .attr("class", "string")
-        .attr("x1", 0) // x position of the start of the line
-        .attr("y1", (d) => padding + G_HEIGHT/12 + G_HEIGHT * d/6) // y position of the start of the line
-        .attr("x2", padding + G_WIDTH) // x position of the end of the line
-        .attr("y2", (d) => padding + G_HEIGHT/12 + G_HEIGHT * d/6) // y position of the end of the line
-        .attr("stroke", string_color) // color of the line
-        .attr("stroke-width", (d) => stringThicknesses[d]); // width of the line
-    
-    // Fret numbers in roman numerals
-    svg.selectAll(".fret-numbers")
+        .append('line')
+        .attr('class','string')
+        .attr('x1', 0)
+        .attr('y1', d => padding + G_HEIGHT/12 + G_HEIGHT * d/6)
+        .attr('x2', padding + G_WIDTH)
+        .attr('y2', d => padding + G_HEIGHT/12 + G_HEIGHT * d/6)
+        .attr('stroke', string_color)
+        .attr('stroke-width', d => stringThicknesses[d]);
+
+    // Fret numbers
+    layer.selectAll('.fret-numbers')
         .data(fretNumbers)
         .enter()
-        .append("text")
-        .attr("class", "fret-numbers")
-        .text((d) => romanize(d))
-        .attr("x", (d) => padding + noteScale(d))
-        .attr("y", padding + G_HEIGHT + 20)
-        .attr("text-anchor", "middle");
-    
+        .append('text')
+        .attr('class','fret-numbers')
+        .text(d => romanize(d))
+        .attr('x', d => padding + noteScale(d))
+        .attr('y', padding + G_HEIGHT + 20)
+        .attr('text-anchor','middle');
 }
+
+/**
+ * Redraws the background, useful for dynamic updates
+ * @param {d3.Selection} svg - The D3 SVG selection to draw on
+ */
+export function redrawBackground(svg) { drawBackground(svg); }
 
 /**
  * Draws note labels on the fretboard

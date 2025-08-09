@@ -165,5 +165,9 @@ function generateNoteCoordinates(guitarNotes) {
 // Create immutable guitar notes data structure FIRST
 export const all_guitar_notes = Object.freeze(generateGuitarNotes());
 
-// Then generate coordinates based on the created notes structure
-export const all_note_coordinates = generateNoteCoordinates(all_guitar_notes);
+// Then generate coordinates based on the created notes structure (mutable for zoom)
+export let all_note_coordinates = generateNoteCoordinates(all_guitar_notes);
+export function recalcAllNoteCoordinates() {
+  all_note_coordinates = generateNoteCoordinates(all_guitar_notes);
+  return all_note_coordinates;
+}

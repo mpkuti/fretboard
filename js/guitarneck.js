@@ -5,8 +5,8 @@
  */
 
 // Import from the new modular structure
-import { d3, containerWidth, containerHeight, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE } from './constants.js';
-import { pentatonic, buildPentatonicLabel, getNoteFromInterval } from './utils.js';
+import { d3, containerWidth, containerHeight, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE, setZoomLevel, getZoomLevel, G_WIDTH, G_HEIGHT, padding, containerWidth as cwVar, containerHeight as chVar } from './constants.js';
+import { pentatonic, buildPentatonicLabel, getNoteFromInterval, recalcAllNoteCoordinates } from './utils.js';
 import { 
     getBaseNote, 
     setBaseNote, 
@@ -217,9 +217,42 @@ function onHighlightModeChanged() {
     updateHeader();
 }
 
+function updateZoomUI(){
+  const el = document.getElementById('zoomLevelDisplay');
+  if (el) el.textContent = `Zoom: ${getZoomLevel().toFixed(1)}`;
+}
+function rebuildAll(){
+  const container = d3.select('#fretboard_container');
+  container.select('svg').remove();
+  const svgLocal = container.append('svg')
+    .attr('width', cwVar)
+    .attr('height', chVar);
+  drawBackground(svgLocal);
+  drawSlider(svgLocal);
+  drawNoteLabels(svgLocal);
+  svgLocal.on('click', moveSlider);
+  applyHighlightColors();
+  outlineBaseNoteCircles(getBaseNote());
+}
+function changeZoom(delta){
+  const current = getZoomLevel();
+  const next = +(current + delta).toFixed(1);
+  if (next < 0.4 || next > 1.6) return;
+  setZoomLevel(next);
+  recalcAllNoteCoordinates();
+  updateZoomUI();
+  rebuildAll();
+}
+function bindZoomButtons(){
+  document.getElementById('zoomInBtn')?.addEventListener('click', ()=> changeZoom(0.1));
+  document.getElementById('zoomOutBtn')?.addEventListener('click', ()=> changeZoom(-0.1));
+  updateZoomUI();
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   initializeView();
   bindUIEvents();
+  bindZoomButtons();
   renderPentatonicLabel();
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());

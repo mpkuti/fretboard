@@ -5,8 +5,8 @@
  */
 
 // Import from the new modular structure
-import { d3, DOT_SIZE, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, UI, containerWidth } from './constants.js';
-import { all_note_coordinates, raiseNote, lowerNote, getNote } from './utils.js';
+import { d3, DOT_SIZE, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, UI } from './constants.js';
+import { all_note_coordinates, recalcAllNoteCoordinates, raiseNote, lowerNote } from './utils.js';
 import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, hideIntervals, getBaseNote } from './state.js';
 
 // Define slider_group in a common scope
@@ -17,7 +17,10 @@ var slider_group;
  * @param {d3.Selection} svg - The D3 SVG selection to draw on
  */
 export function drawSlider(svg) {
-    // Ensure a single <defs> exists and update (or create) clipPath
+    // Remove existing slider group if present for redraw
+    svg.select('#sliderLayer').remove();
+    let coords = all_note_coordinates;
+    // Ensure clip path updated
     let defs = svg.select('defs');
     if (defs.empty()) defs = svg.append('defs');
     defs.select('#fretboard-clip').remove();
@@ -31,39 +34,36 @@ export function drawSlider(svg) {
         .attr('width', padding + G_WIDTH + RIGHT_MARGIN)
         .attr('height', G_HEIGHT);
 
-    // Create a group for the slider, clipped to fretboard
-    slider_group = svg.append("g")
-        .attr('clip-path', 'url(#fretboard-clip)');
+    slider_group = svg.append('g').attr('id','sliderLayer').attr('clip-path','url(#fretboard-clip)');
 
-    // Create circles for the slider group
-    var circles = slider_group.selectAll("circle")
-        .data(all_note_coordinates)
+    slider_group.selectAll('circle')
+        .data(coords)
         .enter()
-        .append("circle")
-        .attr("cx", function(d) { return d.x; }) // x position of the circle
-        .attr("cy", function(d) { return d.y; }) // y position of the circle
-        .attr("r", DOT_SIZE/2) // radius of the circle
-        .attr("fill", "red")
-        .attr("string", function(d) { return d.string; }) // string number
-        .attr("fret", function(d) { return d.fret; }) // fret number (0 - sliderLength-1)
-        .attr("note", function(d) { return d.note; });
+        .append('circle')
+        .attr('cx', d => d.x)
+        .attr('cy', d => d.y)
+        .attr('r', DOT_SIZE/2)
+        .attr('fill','red')
+        .attr('string', d => d.string)
+        .attr('fret', d => d.fret)
+        .attr('note', d => d.note);
 
-        // Create text labels for the circles
-    var labels = slider_group.selectAll("text")
-        .data(all_note_coordinates)
+    slider_group.selectAll('text')
+        .data(coords)
         .enter()
-        .append("text")
-        .attr("class", "interval-labels")
-        .attr("x", function(d) { return d.x; }) // x position of the text
-        .attr("y", function(d) { return d.y; }) // y position of the text
-        .attr("text-anchor", "middle") // horizontal alignment
-        .attr("dx", "0.75em") // horizontal alignment 0em is center
-        .attr("dy", "-0.85em") // vertical alignment 0.35em below center is an approximation
-        .text(function(d) { return getIntervalFromBasenote(d.note); }) // text content
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "8px")
-        .attr("fill", "black");
+        .append('text')
+        .attr('class','interval-labels')
+        .attr('x', d => d.x)
+        .attr('y', d => d.y)
+        .attr('text-anchor','middle')
+        .attr('dx','0.75em')
+        .attr('dy','-0.85em')
+        .text(d => getIntervalFromBasenote(d.note))
+        .attr('font-family','sans-serif')
+        .attr('font-size','8px')
+        .attr('fill','black');
 }
+export function redrawSlider(svg){ recalcAllNoteCoordinates(); drawSlider(svg); }
 
 /**
  * Updates the interval text labels after a base note change

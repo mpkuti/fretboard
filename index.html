@@ -10,9 +10,11 @@
     <title>Fretboard</title>
     <link rel="icon" href="img/favicon.ico" type="image/x-icon">
     <style>
-      #fretboard_container svg { visibility: hidden; }
-      #fretboard_container svg.ready { visibility: visible; transition: opacity .25s ease; opacity:1; }
+      #fretboard_container svg.ready { transition: opacity .25s ease; opacity:1; }
       #fretboard_container svg.init-fade { opacity:0; }
+      #zoomControls { margin: 8px 0; }
+      #zoomControls button { width:2.2em; }
+      #zoomLevelDisplay { display:inline-block; min-width:5em; text-align:center; }
     </style>
 </head>
 <body>
@@ -73,6 +75,11 @@
         <input type="radio" name="highlightMode" value="MINOR_CHORD">
         Minor Chord
     </label>
+    <div id="zoomControls">
+      <button id="zoomOutBtn" title="Zoom out">-</button>
+      <span id="zoomLevelDisplay"></span>
+      <button id="zoomInBtn" title="Zoom in">+</button>
+    </div>
     <script type="module" src="js/guitarneck.js"></script>
 </body>
 </html>
