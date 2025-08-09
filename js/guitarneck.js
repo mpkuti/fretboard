@@ -167,6 +167,38 @@ function bindUIEvents() {
   });
 }
 
+function updateHeader() {
+  const el = document.getElementById('fretboardHeader');
+  if (!el) return;
+  const base = getBaseNote();
+  const mode = getHighlightMode();
+  let text = '';
+  switch(mode) {
+    case 'NONE':
+      text = `Note ${base}`; break;
+    case 'BASENOTE':
+      text = `Note ${base}`; break;
+    case 'PENTATONIC_SCALE': {
+      // Determine major/minor pentatonic label: major root is base; minor relative base is 3 semitones down
+      const majorRoot = base;
+      // Compute minor relative (base - 3 semitones)
+      const notesOrder = ['A','A#','B','C','C#','D','D#','E','F','F#','G','G#'];
+      const idx = notesOrder.indexOf(base);
+      const minorIdx = (idx - 3 + notesOrder.length) % notesOrder.length;
+      const minorRoot = notesOrder[minorIdx];
+      text = `${majorRoot} Major / ${minorRoot} Minor Pentatonic Scale`;
+      break;
+    }
+    case 'MAJOR_CHORD':
+      text = `${base} Major Chord`; break;
+    case 'MINOR_CHORD':
+      text = `${base} Minor Chord`; break;
+    default:
+      text = base;
+  }
+  el.textContent = text;
+}
+
 function onBaseNoteChanged(e) {
     const { newValue: base } = e.detail;
     const baseNoteDropdown = document.getElementById('baseNoteSelectDropdown');
@@ -175,12 +207,14 @@ function onBaseNoteChanged(e) {
     renderPentatonicLabel();
     applyHighlightColors();
     outlineBaseNoteCircles(base);
+    updateHeader();
 }
 
 function onHighlightModeChanged() {
     applyHighlightColors();
     renderPentatonicLabel();
     outlineBaseNoteCircles(getBaseNote());
+    updateHeader();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -189,6 +223,7 @@ window.addEventListener('DOMContentLoaded', () => {
   renderPentatonicLabel();
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());
+  updateHeader();
   // Reveal SVG after everything drawn
   svg.classed('ready', true).classed('init-fade', false);
 });
