@@ -1,0 +1,1 @@
+highlightModes.js is now obsolete; safe to remove once confirmed no imports remain.

@@ -9,6 +9,11 @@
     <meta name="author" content="Mika Kutila">
     <title>Fretboard</title>
     <link rel="icon" href="img/favicon.ico" type="image/x-icon">
+    <style>
+      #fretboard_container svg { visibility: hidden; }
+      #fretboard_container svg.ready { visibility: visible; transition: opacity .25s ease; opacity:1; }
+      #fretboard_container svg.init-fade { opacity:0; }
+    </style>
 </head>
 <body>
     <div id="fretboard_container"></div>
@@ -29,11 +34,6 @@
         <option value="A#">A#</option>
         <option value="B">B</option>
       </select>
-
-    <h4>Fret Count:</h4>
-    <label>
-      <input id="fretCountInput" type="number" min="1" max="24" step="1" value="12" />
-    </label>
 
     <h4>Options:</h4>
 
@@ -59,29 +59,19 @@
     <br>
 
     <label>
-        <input type="radio" name="highlightMode" value="PENTATONIC">
+        <input type="radio" name="highlightMode" value="PENTATONIC_SCALE">
         <span id="pentatonicScaleKeyLabel">Pentatonic Scale</span>
     </label>
+    <br>
+    <label>
+        <input type="radio" name="highlightMode" value="MAJOR_CHORD">
+        Major Chord
+    </label>
+    <br>
+    <label>
+        <input type="radio" name="highlightMode" value="MINOR_CHORD">
+        Minor Chord
+    </label>
     <script type="module" src="js/guitarneck.js"></script>
-    <script>
-      (function(){
-        const key = 'fretCount';
-        const input = document.getElementById('fretCountInput');
-        try {
-          const stored = localStorage.getItem(key);
-          if (stored !== null) {
-            const v = parseInt(JSON.parse(stored),10);
-            if (!isNaN(v)) input.value = v;
-          }
-        } catch {}
-        input.addEventListener('change', () => {
-          let v = parseInt(input.value,10);
-          if (isNaN(v)) v = 12;
-            if (v < 1) v = 1; if (v > 24) v = 24;
-          localStorage.setItem(key, JSON.stringify(v));
-          location.reload();
-        });
-      })();
-    </script>
 </body>
 </html>

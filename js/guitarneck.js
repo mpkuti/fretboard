@@ -5,8 +5,8 @@
  */
 
 // Import from the new modular structure
-import { d3, containerWidth, containerHeight, DEFAULTS } from './constants.js';
-import { pentatonic, buildPentatonicLabel } from './utils.js';
+import { d3, containerWidth, containerHeight, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE } from './constants.js';
+import { pentatonic, buildPentatonicLabel, getNoteFromInterval } from './utils.js';
 import { 
     getBaseNote, 
     setBaseNote, 
@@ -21,7 +21,7 @@ import { EVENTS, on } from './events.js';
 
 // Import the functions from the other files
 import { drawBackground, drawNoteLabels, showAllNotes, hideAllNotes, setNoteNamesVisibility } from './background.js';
-import { drawSlider, moveSlider, setOpacity, updateIntervalText, showIntervalsWithVisual, hideIntervalsWithVisual, highlightNotes } from './slider.js';
+import { drawSlider, moveSlider, setOpacity, updateIntervalText, showIntervalsWithVisual, hideIntervalsWithVisual, highlightNotes, outlineBaseNoteCircles, highlightNotesMulti } from './slider.js';
 
 // Set a default setting for the base note and highlight mode
 // var defaultBaseNote = "C";
@@ -32,7 +32,8 @@ import { drawSlider, moveSlider, setOpacity, updateIntervalText, showIntervalsWi
 var svg = d3.select("#fretboard_container")
             .append("svg")
             .attr("width", containerWidth)
-            .attr("height", containerHeight);
+            .attr("height", containerHeight)
+            .classed('init-fade', true);
 
 drawBackground(svg);
 drawSlider(svg);
@@ -66,7 +67,11 @@ export function initializeView() {
   } else {
     hideIntervalsWithVisual();
   }
-  changeBaseNote(getBaseNote());
+  // Ensure dropdown reflects persisted base note (event will not fire if unchanged)
+  const persistedBase = getBaseNote();
+  const baseSelectEl = document.getElementById('baseNoteSelectDropdown');
+  if (baseSelectEl) baseSelectEl.value = persistedBase;
+  changeBaseNote(persistedBase); // no-op if same, keeps logic consistent
   const currentHighlight = getHighlightMode();
   const radioButton = document.querySelector(`input[name="highlightMode"][value="${currentHighlight}"]`);
   if (radioButton) radioButton.checked = true;
@@ -124,12 +129,21 @@ function renderPentatonicLabel() {
 
 function applyHighlightColors() {
   const mode = getHighlightMode();
-  if (mode === 'BASENOTE') {
-    highlightNotes(getBaseNote(), 'green', 'white');
-  } else if (mode === 'PENTATONIC') {
-    highlightNotes(pentatonic(getBaseNote()), 'green', 'white');
+  const base = getBaseNote();
+  const def = HIGHLIGHT_MODE_INTERVAL_MAP[mode];
+  if (!def || def === '') { highlightNotes([], 'green', 'white'); return; }
+  if (mode === 'PENTATONIC_SCALE') {
+    highlightNotes(pentatonic(base), 'green', 'white');
+    return;
+  }
+  const semis = def.split(',').filter(s => s.length).map(s => parseInt(s,10));
+  const notes = semis.map(semi => getNoteFromInterval(base, semi));
+  if (mode.endsWith('_CHORD')) {
+    const map = {};
+    notes.forEach((n,i)=>{ map[n]=CHORD_PALETTE[i%CHORD_PALETTE.length]; });
+    highlightNotesMulti(map,'white');
   } else {
-    highlightNotes([], 'green', 'white');
+    highlightNotes(notes,'green','white');
   }
 }
 
@@ -160,11 +174,13 @@ function onBaseNoteChanged(e) {
     updateIntervalText();
     renderPentatonicLabel();
     applyHighlightColors();
+    outlineBaseNoteCircles(base);
 }
 
 function onHighlightModeChanged() {
     applyHighlightColors();
     renderPentatonicLabel();
+    outlineBaseNoteCircles(getBaseNote());
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -172,4 +188,7 @@ window.addEventListener('DOMContentLoaded', () => {
   bindUIEvents();
   renderPentatonicLabel();
   applyHighlightColors();
+  outlineBaseNoteCircles(getBaseNote());
+  // Reveal SVG after everything drawn
+  svg.classed('ready', true).classed('init-fade', false);
 });

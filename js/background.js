@@ -68,8 +68,8 @@ export function drawBackground(svg) {
         .attr("x2", function(d) { return padding +  fretScale(d); }) // x position of the end of the line
         .attr("y2", padding + G_HEIGHT) // y position of the end of the line
         .attr("stroke", fret_color) // color of the line
-        .attr("stroke-width", 3); // width of the line
-    
+        .attr("stroke-width", d => d === 0 ? 5 : 3); // thicker first (nut) fret (5), thinner others (3)
+
     // Create a group for all the decotation dots 
     var dots_group = svg.append("g")
 

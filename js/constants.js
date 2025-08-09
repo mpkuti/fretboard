@@ -13,20 +13,8 @@ export { d3 };
 
 // Visual Configuration Parameters
 export const ZOOM_LEVEL = 0.9;
-// Dynamic fret count (persisted)
-const FRET_MIN = 1;
-const FRET_MAX = 24;
-function loadFretCount() {
-  try {
-    const raw = localStorage.getItem('fretCount');
-    if (raw === null) return 12;
-    let v = JSON.parse(raw);
-    v = parseInt(v, 10);
-    if (isNaN(v)) return 12;
-    return Math.min(FRET_MAX, Math.max(FRET_MIN, v));
-  } catch { return 12; }
-}
-export const NO_FRETS = loadFretCount(); // session value; change input then reload to update
+// Fixed fret count
+export const NO_FRETS = 12;
 export const SCALE_SEMITONES = 12; // fixed semitone divisor for physical spacing
 export const G_WIDTH = 500 * ZOOM_LEVEL; // width of the guitar neck
 export const G_HEIGHT = 200 * ZOOM_LEVEL; // height of the guitar neck
@@ -39,7 +27,8 @@ export const containerWidth = G_WIDTH + 1 * padding;
 export const containerHeight = G_HEIGHT + 2 * padding;
 
 // Colors
-export const fretboard_color = "BurlyWood"; // color of the guitar neck
+//export const fretboard_color = "BurlyWood"; // color of the guitar neck
+export const fretboard_color = "#E3CDB6"; // 
 export const fret_color = "DimGray";
 export const string_color = "black";
 
@@ -80,7 +69,16 @@ export const stringNotes = ["E", "B", "G", "D", "A", "E"];
 // Default Settings (static references kept for backward compatibility)
 export const defaultBaseNote = "C";
 export const defaultHighlightMode = "BASENOTE";
-export const validHighlightModes = ["NONE", "BASENOTE", "PENTATONIC"];
+
+// Highlight mode interval definitions (comma-separated semitone offsets from base)
+export const HIGHLIGHT_MODE_INTERVAL_MAP = Object.freeze({
+  NONE: '',
+  BASENOTE: '0',
+  PENTATONIC_SCALE: '0,2,4,7,9',
+  MAJOR_CHORD: '0,4,7',
+  MINOR_CHORD: '0,3,7'
+});
+export const validHighlightModes = Object.keys(HIGHLIGHT_MODE_INTERVAL_MAP);
 
 // Centralized localStorage key names
 export const STORAGE_KEYS = Object.freeze({
@@ -88,8 +86,7 @@ export const STORAGE_KEYS = Object.freeze({
   HIGHLIGHT_MODE: 'highlightMode',
   SHOW_NOTES: 'showNoteNames',
   SHOW_INTERVALS: 'showIntervals',
-  OPACITY: 'opacity',
-  FRET_COUNT: 'fretCount'
+  OPACITY: 'opacity'
 });
 
 // Centralized default preference values
@@ -98,8 +95,7 @@ export const DEFAULTS = Object.freeze({
   HIGHLIGHT_MODE: defaultHighlightMode,
   SHOW_NOTES: true,
   SHOW_INTERVALS: true,
-  OPACITY: 0.6,
-  FRET_COUNT: 12
+  OPACITY: 0.6
 });
 
 // UI related tunable constants (non-persistent unless explicitly saved)
@@ -157,3 +153,6 @@ export const noteYCoordinates = d3.range(G_HEIGHT/12, G_HEIGHT, G_HEIGHT/6);
 // Calculate dot size
 export const DOT_SIZE = Math.min(G_HEIGHT/6, fretScale(NO_FRETS+1) - fretScale(NO_FRETS));
 export const dot_radius = (fretScale(NO_FRETS+1) - fretScale(NO_FRETS))/3;
+
+// Chord palette constant for configurable chord tone colors
+export const CHORD_PALETTE = ['#00A676', '#FF7F0E', '#1F77B4', '#D62728']; // colors applied per chord tone in order

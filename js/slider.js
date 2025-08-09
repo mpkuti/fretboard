@@ -187,6 +187,20 @@ export function highlightNotes(notes, highlightColor = 'green', baseColor = 'whi
 }
 
 /**
+ * Multi-color highlight for chord tones
+ * @param {Object} noteColorMap - Mapping of note names to color values
+ * @param {string} defaultColor - Default color for notes not in the map
+ */
+export function highlightNotesMulti(noteColorMap, defaultColor = 'white') {
+    if (!noteColorMap) return;
+    slider_group.selectAll('circle').each(function(d) {
+        const col = noteColorMap[d.note] || defaultColor;
+        const current = this.getAttribute('fill');
+        if (current !== col) this.setAttribute('fill', col);
+    });
+}
+
+/**
  * Shows interval labels with visual update
  */
 export function showIntervalsWithVisual() {
@@ -208,6 +222,24 @@ function setIntervalTextOpacity(opacity) {
       .transition()
       .duration(0)
       .style('opacity', opacity);
+}
+
+/**
+ * Outlines the circles of the base note with a black stroke
+ * @param {string} baseNote - The note to be outlined
+ */
+export function outlineBaseNoteCircles(baseNote) {
+    const strokeW = DOT_SIZE / 10; // diameter is DOT_SIZE
+    if (!slider_group) return;
+    slider_group.selectAll('circle').each(function(d) {
+        if (d.note === baseNote) {
+            this.setAttribute('stroke', 'black');
+            this.setAttribute('stroke-width', strokeW);
+        } else {
+            this.removeAttribute('stroke');
+            this.removeAttribute('stroke-width');
+        }
+    });
 }
 
 // Re-export the state functions for convenience
