@@ -80,15 +80,29 @@
           <option value="A#">A#</option>
           <option value="B">B</option>
         </select>
-        <fieldset class="inline-radio">
-          <legend class="visually-hidden" style="position:absolute;left:-9999px;">Select highlight mode</legend>
-          <label><input type="radio" name="highlightMode" value="BASENOTE" checked /> Basenote</label>
-          <label><input type="radio" name="highlightMode" value="PENTATONIC_SCALE" /> <span id="pentatonicScaleKeyLabel">Pentatonic Scale</span></label>
-          <label><input type="radio" name="highlightMode" value="MAJOR_CHORD" /> Major Chord</label>
-          <label><input type="radio" name="highlightMode" value="MINOR_CHORD" /> Minor Chord</label>
-        </fieldset>
+        <label for="highlightModeSelect" class="muted" style="font-size:.7rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600;">Highlight Mode</label>
+        <select id="highlightModeSelect" class="stretch" aria-label="Select highlight mode" style="margin:4px 0 6px;">
+          <option value="NONE">None</option>
+          <option value="BASENOTE" selected>Basenote</option>
+          <option value="PENTATONIC_SCALE">Pentatonic Scale</option>
+          <option value="MAJOR_SCALE">Major Scale</option>
+          <option value="NATURAL_MINOR_SCALE">Natural Minor Scale</option>
+          <option value="MAJOR_CHORD">Major Chord</option>
+          <option value="MINOR_CHORD">Minor Chord</option>
+          <option value="DOMINANT_SEVEN_CHORD">7 Chord</option>
+          <option value="MAJOR_SEVEN_CHORD">Maj7 Chord</option>
+          <option value="MINOR_SEVEN_CHORD">m7 Chord</option>
+          <option value="POWER_CHORD">Power Chord</option>
+        </select>
+        <div class="muted" style="font-size:.7rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600; margin-top:6px;">Highlight List</div>
+        <div style="margin:4px 0 8px; font-size:.85rem;">
+          <label><input type="radio" name="highlightSet" value="BASIC" checked> Basic</label>
+          <label style="margin-left:10px;"><input type="radio" name="highlightSet" value="ADVANCED"> Advanced</label>
+        </div>
+        <div class="muted" style="font-size:.65rem;">Advanced adds extended / altered chords & scales.</div>
       </div>
 
+      <!-- Layout panel second -->
       <div class="panel" aria-labelledby="panel-base">
         <h4 id="panel-base">Layout</h4>
         <hr class="divider" />
