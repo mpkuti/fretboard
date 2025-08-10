@@ -63,9 +63,10 @@
     <div id="fretboard_container"></div>
 
     <div id="controlArea" aria-label="Fretboard controls">
-      <div class="panel" aria-labelledby="panel-base">
-        <h4 id="panel-base">Base Note</h4>
-        <select id="baseNoteSelectDropdown" class="stretch" aria-label="Select base note">
+      <div class="panel" aria-labelledby="panel-highlight">
+        <h4 id="panel-highlight">Highlight & Base</h4>
+        <label for="baseNoteSelectDropdown" class="muted" style="font-size:.7rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600;">Base Note</label>
+        <select id="baseNoteSelectDropdown" class="stretch" aria-label="Select base note" style="margin:4px 0 10px;">
           <option value="C">C</option>
           <option value="C#">C#</option>
           <option value="D">D</option>
@@ -79,6 +80,17 @@
           <option value="A#">A#</option>
           <option value="B">B</option>
         </select>
+        <fieldset class="inline-radio">
+          <legend class="visually-hidden" style="position:absolute;left:-9999px;">Select highlight mode</legend>
+          <label><input type="radio" name="highlightMode" value="BASENOTE" checked /> Basenote</label>
+          <label><input type="radio" name="highlightMode" value="PENTATONIC_SCALE" /> <span id="pentatonicScaleKeyLabel">Pentatonic Scale</span></label>
+          <label><input type="radio" name="highlightMode" value="MAJOR_CHORD" /> Major Chord</label>
+          <label><input type="radio" name="highlightMode" value="MINOR_CHORD" /> Minor Chord</label>
+        </fieldset>
+      </div>
+
+      <div class="panel" aria-labelledby="panel-base">
+        <h4 id="panel-base">Layout</h4>
         <hr class="divider" />
         <div id="zoomControls" aria-label="Zoom controls">
           <button id="zoomOutBtn" title="Zoom out" aria-label="Zoom out">-</button>
@@ -96,17 +108,6 @@
         <h4 id="panel-visibility">Visibility</h4>
         <label><input type="checkbox" id="noteNamesCheckbox" checked /> Show Notes</label><br />
         <label><input type="checkbox" id="intervalNamesCheckbox" checked /> Show Intervals</label>
-      </div>
-
-      <div class="panel" aria-labelledby="panel-highlight">
-        <h4 id="panel-highlight">Highlight</h4>
-        <fieldset class="inline-radio">
-          <legend class="visually-hidden" style="position:absolute;left:-9999px;">Select highlight mode</legend>
-          <label><input type="radio" name="highlightMode" value="BASENOTE" checked /> Basenote</label>
-          <label><input type="radio" name="highlightMode" value="PENTATONIC_SCALE" /> <span id="pentatonicScaleKeyLabel">Pentatonic Scale</span></label>
-          <label><input type="radio" name="highlightMode" value="MAJOR_CHORD" /> Major Chord</label>
-            <label><input type="radio" name="highlightMode" value="MINOR_CHORD" /> Minor Chord</label>
-        </fieldset>
       </div>
 
       <div class="panel" aria-labelledby="panel-legend">
