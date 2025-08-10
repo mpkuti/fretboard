@@ -22,7 +22,7 @@ import { EVENTS, on } from './events.js';
 
 // Import the functions from the other files
 import { drawBackground, drawNoteLabels, showAllNotes, hideAllNotes, setNoteNamesVisibility } from './background.js';
-import { drawSlider, moveSlider, setOpacity, updateIntervalText, showIntervalsWithVisual, hideIntervalsWithVisual, highlightNotes, outlineBaseNoteCircles, highlightNotesMulti } from './slider.js';
+import { drawSlider, moveSlider, updateIntervalText, showIntervalsWithVisual, hideIntervalsWithVisual, highlightNotes, outlineBaseNoteCircles, highlightNotesMulti } from './slider.js';
 
 // Set a default setting for the base note and highlight mode
 // var defaultBaseNote = "C";
@@ -55,7 +55,7 @@ zoomRoot.on("click", moveSlider);
  * Sets up opacity, note visibility, interval visibility, base note, and highlight mode
  */
 export function initializeView() {
-  setOpacity(DEFAULTS.OPACITY);
+  // setOpacity(DEFAULTS.OPACITY); // removed: opacity now fixed via CIRCLE_OPACITY constant
   initializeNoteNamesVisibility();
   const noteNamesChecked = getNoteNamesVisibility();
   const noteCb = document.getElementById('noteNamesCheckbox');

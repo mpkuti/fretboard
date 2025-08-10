@@ -5,7 +5,7 @@
  */
 
 // Import from the new modular structure
-import { d3, UI } from './constants.js';
+import { d3, UI, CIRCLE_OPACITY } from './constants.js';
 import { DOT_SIZE, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, openNoteX } from './layout.js';
 import { all_note_coordinates, recalcAllNoteCoordinates, raiseNote, lowerNote } from './utils.js';
 import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, hideIntervals, getBaseNote, getIntervalVisibility } from './state.js';
@@ -64,6 +64,7 @@ export function drawSlider(svg) {
         .attr('cy', d=>d.y)
         .attr('r', DOT_SIZE/2)
         .attr('fill','red')
+        .attr('fill-opacity', CIRCLE_OPACITY)
         .attr('string', d=>d.string)
         .attr('fret', d=>d.fret)
         .attr('note', d=>d.note);
@@ -162,15 +163,6 @@ export function moveSlider(event) {
             active--;
             if (active === 0) finalize();
         });
-}
-
-/**
- * Sets the opacity of all circles in the slider group
- * @param {number} opacity - The opacity value (0-1)
- */
-export function setOpacity(opacity) {
-    slider_group.selectAll("circle")
-        .attr("fill-opacity", opacity);
 }
 
 /**

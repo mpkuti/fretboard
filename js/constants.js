@@ -5,8 +5,8 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 export { d3 };
 // Pure constants
 export const MIN_FRETS = 2;
-export const MAX_FRETS = 24;
-export const DEFAULT_FRETS = 12; // used as initial unless user overrides
+export const MAX_FRETS = 21;
+export const DEFAULT_FRETS = 6; // used as initial unless user overrides
 export const SCALE_SEMITONES = 12;
 export const notes = ["A","A#","B","C","C#","D","D#","E","F","F#","G","G#"]; 
 export const intervals = ["1","p2","S2","p3","S3","4","-5","5","p6","S6","p7","S7"]; 
@@ -94,3 +94,4 @@ export const string_color = 'black';
 export const dots = [3,5,7,9,15,17,19,21];
 export const double_dots = [12,24];
 export const OPEN_NOTE_BASELINE = 24; // reference fret span used to anchor open string X
+export const CIRCLE_OPACITY = 0.6; // uniform dot opacity
