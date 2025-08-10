@@ -16,7 +16,9 @@ import {
     initializeNoteNamesVisibility, 
     getNoteNamesVisibility, 
     initializeIntervalVisibility, 
-    getIntervalVisibility 
+    getIntervalVisibility,
+    getHighlightSet,
+    setHighlightSet
 } from './state.js';
 import { EVENTS, on } from './events.js';
 
@@ -217,9 +219,12 @@ function bindUIEvents() {
     selectHighlightMode(select.value);
   }
   document.querySelectorAll('input[name="highlightSet"]').forEach(r=>{
-    r.addEventListener('change', e=>{ rebuildSelect(e.target.value); });
+    r.addEventListener('change', e=>{ setHighlightSet(e.target.value); rebuildSelect(e.target.value); });
   });
-  rebuildSelect(document.querySelector('input[name="highlightSet"]:checked')?.value || 'BASIC');
+  const storedSet = getHighlightSet();
+  const radio = document.querySelector(`input[name="highlightSet"][value="${storedSet}"]`);
+  if (radio) radio.checked = true;
+  rebuildSelect(storedSet || (document.querySelector('input[name="highlightSet"]:checked')?.value || 'BASIC'));
 }
 
 function updateHeader() {

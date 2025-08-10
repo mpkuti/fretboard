@@ -22,6 +22,7 @@ let _base_note = loadPref(STORAGE_KEYS.BASE_NOTE, DEFAULTS.BASE_NOTE);
 let _highlight_mode = loadPref(STORAGE_KEYS.HIGHLIGHT_MODE, DEFAULTS.HIGHLIGHT_MODE);
 let _showNoteNames = loadPref(STORAGE_KEYS.SHOW_NOTES, DEFAULTS.SHOW_NOTES);
 let _showIntervals = loadPref(STORAGE_KEYS.SHOW_INTERVALS, DEFAULTS.SHOW_INTERVALS);
+let _highlight_set = loadPref(STORAGE_KEYS.HIGHLIGHT_SET, DEFAULTS.HIGHLIGHT_SET);
 
 /**
  * Set the base note and update localStorage
@@ -156,3 +157,22 @@ export function getIntervalVisibility() { return _showIntervals; }
 export function getIntervalFromBasenote(note) {
     return getIntervalFromNotes(_base_note, note);
 }
+
+/**
+ * Set the highlight set and update localStorage
+ * @param {string} val - The new highlight set
+ */
+export function setHighlightSet(val){
+  if (!val || (val !== 'BASIC' && val !== 'ADVANCED')) return;
+  if (val === _highlight_set) return;
+  const oldValue = _highlight_set;
+  _highlight_set = val;
+  savePref(STORAGE_KEYS.HIGHLIGHT_SET, _highlight_set);
+  emit(EVENTS.STATE_CHANGED, { key:'highlightSet', oldValue, newValue:_highlight_set });
+}
+
+/**
+ * Get the current highlight set
+ * @returns {string} The current highlight set
+ */
+export function getHighlightSet(){ return _highlight_set; }

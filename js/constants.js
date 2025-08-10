@@ -83,9 +83,9 @@ DOMINANT_SEVEN_SHARP_NINE_CHORD: '0,3,4,7,10'
 
 export const validHighlightModes = Object.keys(HIGHLIGHT_MODE_INTERVAL_MAP);
 export const STORAGE_KEYS = Object.freeze({
-  BASE_NOTE:'baseNote', HIGHLIGHT_MODE:'highlightMode', SHOW_NOTES:'showNoteNames', SHOW_INTERVALS:'showIntervals'
+  BASE_NOTE:'baseNote', HIGHLIGHT_MODE:'highlightMode', SHOW_NOTES:'showNoteNames', SHOW_INTERVALS:'showIntervals', HIGHLIGHT_SET:'highlightSet'
 });
-export const DEFAULTS = Object.freeze({ BASE_NOTE:defaultBaseNote, HIGHLIGHT_MODE:defaultHighlightMode, SHOW_NOTES:true, SHOW_INTERVALS:true });
+export const DEFAULTS = Object.freeze({ BASE_NOTE:defaultBaseNote, HIGHLIGHT_MODE:defaultHighlightMode, SHOW_NOTES:true, SHOW_INTERVALS:true, HIGHLIGHT_SET:'BASIC' });
 export const UI = Object.freeze({ ANIMATION_MS:1000, INTERVAL_LABEL_DX:'0.75em', INTERVAL_LABEL_DY:'-0.85em', NOTE_FONT_SIZE_PX:12 });
 export const CHORD_PALETTE = ['#00A676', '#FF7F0E', '#1F77B4', '#D62728'];
 export const fretboard_color = '#E3CDB6';
