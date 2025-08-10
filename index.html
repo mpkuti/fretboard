@@ -37,6 +37,8 @@
       body.dark .fret-numbers { fill:#fafbfc; }
       body { font-family: system-ui, Arial, sans-serif; margin:18px; line-height:1.35; background:var(--bg); color:var(--text); transition: background .25s, color .25s; }
       h2 { margin-top:0; color:var(--heading); }
+      /* Reserve space to avoid CLS when header text injected */
+      #fretboardHeader { min-height:1.6em; }
       #fretboard_container { margin-bottom:16px; }
       #controlArea { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; align-items:start; margin-top:12px; }
       .panel { background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:8px; padding:12px 14px 14px; box-shadow:0 1px 2px rgba(0,0,0,0.08); transition: background .25s, border-color .25s; }
@@ -60,9 +62,26 @@
       #pageFooter { margin:40px 0 12px; text-align:center; }
       @media (max-width:560px){ #controlArea { grid-template-columns:1fr; } }
     </style>
+    <!-- Pre-size fretboard container (Option A CLS mitigation) -->
+    <script>
+      (function(){
+        var zMin=0.4, zMax=1.6, z=1.0;
+        try {
+          var raw = localStorage.getItem('zoomLevel');
+            if(raw!==null){ var p=parseFloat(raw); if(!isNaN(p)) z = Math.min(zMax, Math.max(zMin, p)); }
+        } catch {}
+        var BASE_G_WIDTH=500, BASE_G_HEIGHT=200, BASE_PADDING=60;
+        var cw = Math.round(z * (BASE_G_WIDTH + BASE_PADDING));
+        var ch = Math.round(z * (BASE_G_HEIGHT + 2*BASE_PADDING));
+        var styleEl = document.createElement('style');
+        // Reserve exact space; width unaffected by dynamic fret count in current layout logic
+        styleEl.textContent = '#fretboard_container{width:'+cw+'px;height:'+ch+'px;display:block;}';
+        document.head.appendChild(styleEl);
+      })();
+    </script>
 </head>
 <body>
-    <h2 id="fretboardHeader"></h2>
+    <h2 id="fretboardHeader">&nbsp;</h2>
     <div id="fretboard_container"></div>
 
     <div id="controlArea" aria-label="Fretboard controls">

@@ -99,7 +99,7 @@ export function updateIntervalText() {
 
 
 // Flag to indicate whether a transition is in progress
-var transitionInProgress = false;
+let transitionInProgress = false;
 
 /**
  * Handles click events on the fretboard to move the slider (change base note)

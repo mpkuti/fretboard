@@ -10,6 +10,9 @@ import { G_WIDTH, G_HEIGHT, padding, dot_radius, stringThicknesses, fretScale, n
 import { all_note_coordinates } from './utils.js';
 import { getNoteNamesVisibility, showNoteNames, hideNoteNames } from './state.js';
 
+// Hoisted Roman numeral lookup (avoids reallocation per call)
+const ROMAN_LOOKUP = { M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1 };
+const ROMAN_KEYS = Object.keys(ROMAN_LOOKUP);
 /**
  * Converts numbers to roman numerals
  * @param {number} num - The number to convert (1-4000)
@@ -17,30 +20,11 @@ import { getNoteNamesVisibility, showNoteNames, hideNoteNames } from './state.js
  * @source https://stackoverflow.com/questions/9083037/convert-a-number-into-a-roman-numeral-in-javascript
  */
 function romanize(num) {
-    var lookup = {
-        M: 1000,
-        CM: 900,
-        D: 500,
-        CD: 400,
-        C: 100,
-        XC: 90,
-        L: 50,
-        XL: 40,
-        X: 10,
-        IX: 9,
-        V: 5,
-        IV: 4,
-        I: 1,
-      },
-      roman = "",
-      i;
-    for (i in lookup) {
-      while (num >= lookup[i]) {
-        roman += i;
-        num -= lookup[i];
-      }
-    }
-    return roman;
+  let roman = '';
+  for (const k of ROMAN_KEYS) {
+    while (num >= ROMAN_LOOKUP[k]) { roman += k; num -= ROMAN_LOOKUP[k]; }
+  }
+  return roman;
 }
 
 /**
