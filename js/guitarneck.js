@@ -313,6 +313,9 @@ function rebuildAll(){
   zoomRoot.on('click', moveSlider);
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());
+  // Reapply visibility states
+  if (getNoteNamesVisibility()) { showAllNotes(); } else { hideAllNotes(); }
+  if (getIntervalVisibility()) { showIntervalsWithVisual(); } else { hideIntervalsWithVisual(); }
 }
 function changeZoom(delta){
   const current = getZoomLevel();
