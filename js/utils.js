@@ -110,8 +110,8 @@ export function getRelativeMinor(majorRoot) {
  * @returns {string} Label text
  */
 export function buildPentatonicLabel(baseNote, highlightMode) {
-    if (highlightMode === 'PENTATONIC') {
-        return `Pentatonic Scale, ${baseNote} major, ${getRelativeMinor(baseNote)} minor`;
+    if (highlightMode === 'PENTATONIC_SCALE') {
+        return `Pentatonic Scale, ${baseNote} major / ${getRelativeMinor(baseNote)} minor`;
     }
     return 'Pentatonic Scale';
 }

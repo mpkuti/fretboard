@@ -237,7 +237,7 @@ function updateHeader() {
   const simpleMap = {
     NONE: `Note ${base}`,
     BASENOTE: `Note ${base}`,
-    PENTATONIC_SCALE: `${base} Pentatonic Scale`,
+    PENTATONIC_SCALE: null, // handled below to include relative minor
     MAJOR_SCALE: `${base} Major Scale`,
     NATURAL_MINOR_SCALE: `${base} Natural Minor Scale`,
     HARMONIC_MINOR_SCALE: `${base} Harmonic Minor Scale`,
@@ -247,7 +247,10 @@ function updateHeader() {
     DIMINISHED_HALF_WHOLE_SCALE: `${base} Half-Whole Diminished`,
     DIMINISHED_WHOLE_HALF_SCALE: `${base} Whole-Half Diminished`
   };
-  if (simpleMap[mode]) { text = simpleMap[mode]; }
+  if (mode === 'PENTATONIC_SCALE') {
+    // Use utility to show both major and relative minor roots
+    text = buildPentatonicLabel(base, mode); // e.g. "Pentatonic Scale, C major / A minor"
+  } else if (simpleMap[mode]) { text = simpleMap[mode]; }
   else if (mode.endsWith('_CHORD')) {
     // Format chord name from mode constant
     const name = mode.replace(/_CHORD$/, '')
