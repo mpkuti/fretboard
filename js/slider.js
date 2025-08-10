@@ -5,7 +5,7 @@
  */
 
 // Import from the new modular structure
-import { d3, UI, CIRCLE_OPACITY } from './constants.js';
+import { d3, UI, CIRCLE_OPACITY, BASE_NOTE_STROKE_WIDTH } from './constants.js';
 import { DOT_SIZE, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, openNoteX } from './layout.js';
 import { all_note_coordinates, recalcAllNoteCoordinates, raiseNote, lowerNote } from './utils.js';
 import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, hideIntervals, getBaseNote, getIntervalVisibility } from './state.js';
@@ -222,15 +222,25 @@ function setIntervalTextOpacity(opacity) {
  * @param {string} baseNote - The note to be outlined
  */
 export function outlineBaseNoteCircles(baseNote) {
-    const strokeW = DOT_SIZE / 10; // diameter is DOT_SIZE
     if (!slider_group) return;
+    const baseR = DOT_SIZE / 2; // canonical outer radius
     slider_group.selectAll('circle').each(function(d) {
+        this.setAttribute('r', baseR);
         if (d.note === baseNote) {
+            const strokeW = BASE_NOTE_STROKE_WIDTH; // fixed px width
+            const adjustedR = Math.max(1, baseR - strokeW / 2);
+            this.setAttribute('r', adjustedR);
             this.setAttribute('stroke', 'black');
             this.setAttribute('stroke-width', strokeW);
+            this.setAttribute('vector-effect','non-scaling-stroke');
+            this.setAttribute('stroke-linejoin','round');
+            this.setAttribute('stroke-linecap','round');
         } else {
             this.removeAttribute('stroke');
             this.removeAttribute('stroke-width');
+            this.removeAttribute('vector-effect');
+            this.removeAttribute('stroke-linejoin');
+            this.removeAttribute('stroke-linecap');
         }
     });
 }

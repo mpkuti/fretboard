@@ -56,12 +56,12 @@
       button, input[type=number], select { border:1px solid var(--panel-border); border-radius:4px; padding:4px 6px; background:linear-gradient(var(--button-bg1),var(--button-bg2)); color:var(--text); transition: background .2s, color .2s, border-color .2s; }
       button:hover { background:linear-gradient(var(--button-bg1),var(--button-bg-hover2)); }
       button:focus, input:focus, select:focus { outline:none; box-shadow:var(--focus-ring); }
-      #themeToggleBtn { position:absolute; top:12px; right:18px; padding:6px 10px; font-size:.85rem; }
-      @media (max-width:560px){ #controlArea { grid-template-columns:1fr; } #themeToggleBtn { position:static; margin-bottom:8px; } }
+      #themeToggleBtn { padding:6px 10px; font-size:.85rem; }
+      #pageFooter { margin:40px 0 12px; text-align:center; }
+      @media (max-width:560px){ #controlArea { grid-template-columns:1fr; } }
     </style>
 </head>
 <body>
-    <button id="themeToggleBtn" type="button" aria-pressed="false" title="Toggle dark / light theme">Dark Theme</button>
     <h2 id="fretboardHeader"></h2>
     <div id="fretboard_container"></div>
 
@@ -137,6 +137,10 @@
         </ul>
       </div>
     </div>
+
+    <footer id="pageFooter" aria-label="Theme toggle">
+      <button id="themeToggleBtn" type="button" aria-pressed="false" title="Toggle dark / light theme">Dark Theme</button>
+    </footer>
 
     <script>
       (function(){
