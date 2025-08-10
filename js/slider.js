@@ -12,21 +12,20 @@ import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, h
 
 // Define slider_group in a common scope
 var slider_group;
+let xCenters = [];
 
 /**
  * Draws the interactive slider elements (circles and interval labels) on the fretboard
  * @param {d3.Selection} svg - The D3 SVG selection to draw on
  */
 export function drawSlider(svg) {
-    // Remove existing slider group if present for redraw
     svg.select('#sliderLayer').remove();
     let coords = all_note_coordinates;
-    // Ensure clip path updated
     let defs = svg.select('defs');
     if (defs.empty()) defs = svg.append('defs');
     defs.select('#fretboard-clip').remove();
-    const LEFT_MARGIN = DOT_SIZE; // expose space left of nut
-    const RIGHT_MARGIN = DOT_SIZE; // slight overrun on right for wrap
+    const LEFT_MARGIN = DOT_SIZE;
+    const RIGHT_MARGIN = DOT_SIZE;
     defs.append('clipPath')
         .attr('id', 'fretboard-clip')
         .append('rect')
@@ -37,29 +36,47 @@ export function drawSlider(svg) {
 
     slider_group = svg.append('g').attr('id','sliderLayer').attr('clip-path','url(#fretboard-clip)');
 
-    slider_group.selectAll('circle')
-        .data(coords)
+    // Precompute x centers for each logical fret index
+    xCenters = [];
+    for (let f = 0; f < sliderLength(); f++) {
+        xCenters.push(f === 0 ? openNoteX() : padding + noteScale(f));
+    }
+
+    // Group coordinates by fret
+    const byFret = Array.from({length: sliderLength()}, () => []);
+    coords.forEach(d => { if (d.fret < sliderLength()) byFret[d.fret].push(d); });
+
+    const col = slider_group.selectAll('g.fret-col')
+        .data(byFret)
+        .enter()
+        .append('g')
+        .attr('class','fret-col')
+        .attr('data-fret',(d,i)=>i)
+        .attr('transform',(d,i)=>`translate(${xCenters[i]},0)`);
+
+    col.selectAll('circle')
+        .data(d=>d)
         .enter()
         .append('circle')
-        .attr('cx', d => d.fret === 0 ? openNoteX() : d.x)
-        .attr('cy', d => d.y)
+        .attr('cx',0)
+        .attr('cy', d=>d.y)
         .attr('r', DOT_SIZE/2)
         .attr('fill','red')
-        .attr('string', d => d.string)
-        .attr('fret', d => d.fret)
-        .attr('note', d => d.note);
+        .attr('string', d=>d.string)
+        .attr('fret', d=>d.fret)
+        .attr('note', d=>d.note);
 
-    slider_group.selectAll('text')
-        .data(coords)
+    col.selectAll('text')
+        .data(d=>d)
         .enter()
         .append('text')
         .attr('class','interval-labels')
-        .attr('x', d => d.fret === 0 ? openNoteX() : d.x)
-        .attr('y', d => d.y)
+        .attr('x',0)
+        .attr('y', d=>d.y)
         .attr('text-anchor','middle')
         .attr('dx','0.75em')
         .attr('dy','-0.85em')
-        .text(d => getIntervalFromBasenote(d.note))
+        .text(d=>getIntervalFromBasenote(d.note))
         .attr('font-family','sans-serif')
         .attr('font-size', UI.NOTE_FONT_SIZE_PX + 'px')
         .attr('fill','black');
@@ -89,85 +106,60 @@ var transitionInProgress = false;
 export function moveSlider(event) {
     if (transitionInProgress) return;
     transitionInProgress = true;
-
     const _clickX = event.pageX;
     const direction = _clickX < G_WIDTH/2 ? -1 : 1; // -1 = shift left, +1 = shift right
 
-    const futureFret = d => (d.fret + direction + sliderLength()) % sliderLength();
+    const stepWidth = xCenters[1] - xCenters[0];
+    const offLeftX = xCenters[0] - stepWidth;
+    const groups = slider_group.selectAll('g.fret-col');
 
-    const stepWidthFirst = noteScale(1) - noteScale(0);
-    const offLeftX = openNoteX() - stepWidthFirst; // reference from constant open position
-
-    // Pre-position for rightward move: recycle last column to left off-screen
     if (direction === 1) {
-        slider_group.selectAll('circle').each(function(d) {
-            if (d.fret === sliderLength() - 1) this.setAttribute('cx', offLeftX);
-        });
-        slider_group.selectAll('text').each(function(d) {
-            if (d.fret === sliderLength() - 1) this.setAttribute('x', offLeftX);
-        });
-    } // removed early hide for leftward move so label stays visible while sliding off
+        groups.filter(function(){ return +this.getAttribute('data-fret') === sliderLength()-1; })
+            .attr('transform',`translate(${offLeftX},0)`);
+    }
 
-    // Compute target during animation explicitly per direction to avoid long travel
-    const targetXDuring = (d) => {
-        if (direction === 1) {
-            if (d.fret === sliderLength() - 1) {
-                // recycled last -> slides into first position
-                return openNoteX();
-            }
-            return (d.fret + 1) === 0 ? openNoteX() : padding + noteScale(d.fret + 1);
-        } else { // direction === -1
-            if (d.fret === 0) {
-                // first slides off to left
-                return offLeftX;
-            }
-            return (d.fret - 1) === 0 ? openNoteX() : padding + noteScale(d.fret - 1);
-        }
-    };
-
-    const circleTransition = slider_group.selectAll('circle').transition()
-        .duration(UI.ANIMATION_MS)
-        .attr('cx', targetXDuring)
-        .end();
-
-    const textTransition = slider_group.selectAll('text').transition()
-        .duration(UI.ANIMATION_MS)
-        .attr('x', targetXDuring)
-        .end();
-
-    Promise.all([circleTransition, textTransition]).then(() => {
-        // Update logical data & final snap needed only for leftward wrap
-        slider_group.selectAll('circle').each(function(d) {
-            const oldFret = d.fret;
-            d.fret = futureFret(d);
-            if (direction === -1 && oldFret === 0) {
-                // wrapped to last: ensure positioned at last fret coordinate
-                this.setAttribute('cx', padding + noteScale(sliderLength() - 1));
-            } else if (direction === 1 && oldFret === sliderLength() - 1) {
-                // already at first fret position from animation; ensure exact snap
-                this.setAttribute('cx', openNoteX());
-            }
-            d.note = direction < 0 ? lowerNote(d.note) : raiseNote(d.note);
-            this.setAttribute('fret', d.fret);
-            this.setAttribute('note', d.note);
-        });
-        slider_group.selectAll('text').each(function(d) {
-            const oldFret = (d.fret - direction + sliderLength()) % sliderLength(); // fixed missing ()
-            if (direction === -1 && oldFret === 0) {
-                // Temporarily hide only during the instantaneous wrap to avoid flash
-                const el = this;
-                el.style.opacity = 0;
-                el.setAttribute('x', padding + noteScale(sliderLength() - 1));
-                if (getIntervalVisibility()) {
-                    requestAnimationFrame(() => { el.style.opacity = 1; });
-                }
-            } else if (direction === 1 && oldFret === sliderLength() - 1) {
-                this.setAttribute('x', openNoteX());
-            }
+    let active = 0;
+    function finalize(){
+        // Snap and update logical frets / notes
+        groups.each(function(){
+            let fret = +this.getAttribute('data-fret');
+            let newFret = (fret + direction + sliderLength()) % sliderLength();
+            if (direction === -1 && fret === 0) newFret = sliderLength()-1;
+            this.setAttribute('data-fret', newFret);
+            this.setAttribute('transform', `translate(${xCenters[newFret]},0)`);
+            d3.select(this).selectAll('circle').each(function(cd){
+                cd.fret = newFret;
+                cd.note = direction < 0 ? lowerNote(cd.note) : raiseNote(cd.note);
+                this.setAttribute('fret', cd.fret);
+                this.setAttribute('note', cd.note);
+            });
+            d3.select(this).selectAll('text').each(function(cd){
+                cd.fret = newFret;
+                this.textContent = getIntervalFromBasenote(cd.note);
+                if (!getIntervalVisibility()) this.style.opacity = 0; else this.style.opacity = 1;
+            });
         });
         if (direction < 0) lowerBaseNote(); else raiseBaseNote();
         transitionInProgress = false;
-    });
+    }
+
+    groups.transition()
+        .duration(UI.ANIMATION_MS)
+        .on('start', function(){ active++; })
+        .attr('transform', function(){
+            const fret = +this.getAttribute('data-fret');
+            if (direction === 1) {
+                if (fret === sliderLength()-1) return `translate(${xCenters[0]},0)`;
+                return `translate(${xCenters[fret+1]},0)`;
+            } else {
+                if (fret === 0) return `translate(${offLeftX},0)`;
+                return `translate(${xCenters[fret-1]},0)`;
+            }
+        })
+        .on('end', function(){
+            active--;
+            if (active === 0) finalize();
+        });
 }
 
 /**

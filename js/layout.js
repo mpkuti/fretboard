@@ -35,9 +35,10 @@ function rawFretPos(i){ return 1 - Math.pow(2, -i / SCALE_SEMITONES); }
 function normDenom(){ return rawFretPos(fretCount); }
 export const fretScale = (i) => G_WIDTH * rawFretPos(i) / normDenom();
 export const noteScale = (i) => G_WIDTH * rawFretPos(i - 0.5) / normDenom();
-// Constant open string note X (uses DEFAULT_FRETS for normalization so it does not shift when fretCount changes)
+// Constant open string center independent of current fretCount (baseline = 24 frets)
+const OPEN_NOTE_BASELINE = 24; // fixed reference so open note stays put
 export function openNoteX(){
-  return padding + G_WIDTH * rawFretPos(-0.5) / rawFretPos(DEFAULT_FRETS);
+  return padding + G_WIDTH * rawFretPos(-0.5) / rawFretPos(OPEN_NOTE_BASELINE);
 }
 export const stringScale = d3.scaleLinear().domain([0,5]).range([G_HEIGHT/12, G_HEIGHT - G_HEIGHT/12]);
 
