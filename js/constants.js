@@ -106,7 +106,10 @@ export const FRET_COLOR = 'DimGray';
 export const STRING_COLOR = 'black';
 export const DOT_FRETS = [3,5,7,9,15,17,19,21];
 export const DOUBLE_DOT_FRETS = [12,24];
-export const OPEN_NOTE_BASELINE = 24; // reference fret span used to anchor open string X
+// Slider span configuration (2 octaves) centralizes prior magic number 24
+export const SLIDER_OCTAVES = 2; // number of octaves represented by slider columns
+export const SLIDER_LENGTH = SCALE_SEMITONES * SLIDER_OCTAVES; // total logical fret positions (open + fretted span) used by slider wrapping
+export const OPEN_NOTE_BASELINE = SLIDER_LENGTH; // reference span used to anchor open string X independent of current visible fretCount
 export const CIRCLE_OPACITY = 0.6; // uniform dot opacity
 // Added UI magic number extractions
 export const ZOOM_MIN = 0.4;

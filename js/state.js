@@ -5,7 +5,7 @@
  */
 
 import { NOTES, DEFAULT_BASE_NOTE, DEFAULT_HIGHLIGHT_MODE, validHighlightModes, STORAGE_KEYS, DEFAULTS, PERSISTED_SETTINGS } from './constants.js';
-import { raiseNote, lowerNote, getNoteFromInterval, getIntervalFromNotes } from './utils.js';
+import { raiseNote, lowerNote, getIntervalFromNotes } from './utils.js';
 import { EVENTS, emit } from './events.js';
 
 // Private state variables

@@ -2,7 +2,7 @@
  * @fileoverview Dynamic layout & geometry derived from zoom level.
  * Exports live bindings so other modules see updated values after setZoomLevel.
  */
-import { d3, SCALE_SEMITONES, DEFAULT_FRETS, MIN_FRETS, MAX_FRETS, OPEN_NOTE_BASELINE, DEFAULTS, STORAGE_KEYS, ZOOM_MIN, ZOOM_MAX } from './constants.js';
+import { d3, SCALE_SEMITONES, DEFAULT_FRETS, MIN_FRETS, MAX_FRETS, OPEN_NOTE_BASELINE, DEFAULTS, STORAGE_KEYS, ZOOM_MIN, ZOOM_MAX, SLIDER_LENGTH } from './constants.js';
 
 // Base logical dimensions (unscaled)
 const BASE = Object.freeze({
@@ -59,8 +59,7 @@ export function setFretCount(n){
   recalc();
   document.dispatchEvent(new CustomEvent('fretCountChanged',{detail:{fretCount}}));
 }
-// Fixed slider length (2 octaves = 24 positions) independent of fretCount for stable wrapping
-const SLIDER_LENGTH = 24; // 2 * 12
+// Fixed slider length (derived from constants)
 export const sliderLength = () => SLIDER_LENGTH;
 // Placeholder; will be set in initial recalc() so it reflects current fretCount spacing
 export let DOT_SIZE = 0;

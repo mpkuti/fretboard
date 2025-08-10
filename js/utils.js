@@ -4,7 +4,7 @@
  * @author Mika Kutila
  */
 
-import { NOTES, INTERVALS, STRING_TUNING } from './constants.js';
+import { NOTES, INTERVALS, STRING_TUNING, SLIDER_LENGTH } from './constants.js';
 import { padding, noteScale, stringScale, sliderLength, getFretCount, openNoteX } from './layout.js';
 
 /**
@@ -127,7 +127,7 @@ function generateGuitarNotes() {
         const startNote = STRING_TUNING[i];
         const startIndex = NOTES.indexOf(startNote);
         const currentNotes = [];
-        for (let f = 0; f < 25; f++) {
+        for (let f = 0; f < SLIDER_LENGTH + 1; f++) { // +1 to safely cover wrap interval
             currentNotes.push(NOTES[(startIndex + f) % NOTES.length]);
         }
         guitarNotes.push(currentNotes);

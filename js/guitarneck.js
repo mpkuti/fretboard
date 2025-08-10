@@ -306,9 +306,9 @@ function updateZoomUI(){
   const el = document.getElementById('zoomLevelDisplay');
   if (el) el.textContent = `Zoom: ${getZoomLevel().toFixed(1)}`;
 }
-function rebuildAll(){
-  // No longer rebuild everything on zoom; leave for fret count changes only
-  // This function retained for fretCount changes
+
+// Consolidated rebuild routine (used for fret count & zoom changes)
+function rebuildFretboard() {
   const container = d3.select('#fretboard_container');
   container.select('svg').remove();
   svg = container.append('svg')
@@ -322,10 +322,13 @@ function rebuildAll(){
   zoomRoot.on('click', moveSlider);
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());
-  // Reapply visibility states
   if (getNoteNamesVisibility()) { showAllNotes(); } else { hideAllNotes(); }
   if (getIntervalVisibility()) { showIntervalsWithVisual(); } else { hideIntervalsWithVisual(); }
+  updateHeader();
 }
+// Backward compatibility alias
+function rebuildAll(){ rebuildFretboard(); }
+
 function changeZoom(delta){
   const current = getZoomLevel();
   const next = +(current + delta).toFixed(1);
@@ -333,8 +336,9 @@ function changeZoom(delta){
   setZoomLevel(next);
   recalcAllNoteCoordinates();
   updateZoomUI();
-  rebuildAll();
+  rebuildFretboard();
 }
+
 function bindZoomButtons(){
   document.getElementById('zoomInBtn')?.addEventListener('click', ()=> changeZoom(ZOOM_STEP));
   document.getElementById('zoomOutBtn')?.addEventListener('click', ()=> changeZoom(-ZOOM_STEP));
@@ -345,21 +349,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initializeAllSettings();
   document.addEventListener('fretCountChanged', () => {
     recalcAllNoteCoordinates();
-    const container = d3.select('#fretboard_container');
-    container.select('svg').remove();
-    svg = d3.select('#fretboard_container').append('svg')
-      .attr('width', containerWidth)
-      .attr('height', containerHeight)
-      .classed('ready', true);
-    zoomRoot = svg.append('g').attr('id','zoomRoot');
-    drawBackground(zoomRoot);
-    drawSlider(zoomRoot);
-    drawNoteLabels(zoomRoot);
-    zoomRoot.on('click', moveSlider);
-    applyHighlightColors();
-    outlineBaseNoteCircles(getBaseNote());
-    if (getNoteNamesVisibility()) { showAllNotes(); } else { hideAllNotes(); }
-    if (getIntervalVisibility()) { showIntervalsWithVisual(); } else { hideIntervalsWithVisual(); }
+    rebuildFretboard();
   });
   initializeView();
   bindUIEvents();
