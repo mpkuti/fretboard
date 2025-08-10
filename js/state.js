@@ -9,19 +9,23 @@ import { raiseNote, lowerNote, getNoteFromInterval, getIntervalFromNotes } from 
 import { EVENTS, emit } from './events.js';
 
 // Private state variables
+let STORE_OK = true;
+try { const t='__test__'; localStorage.setItem(t,'1'); localStorage.removeItem(t); } catch { STORE_OK = false; }
+const memStore = {};
+function safeGetRaw(key){ if(!STORE_OK) return Object.prototype.hasOwnProperty.call(memStore,key)? memStore[key] : null; try { return localStorage.getItem(key); } catch { return null; } }
+function safeSetRaw(key,val){ if(!STORE_OK){ memStore[key]=val; return; } try { localStorage.setItem(key,val); } catch { /* ignore */ } }
 function loadPref(key, fallback) {
-  const raw = localStorage.getItem(key);
+  const raw = safeGetRaw(key);
   if (raw === null) return fallback;
   try { return JSON.parse(raw); } catch { return fallback; }
 }
 function savePref(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+  safeSetRaw(key, JSON.stringify(value));
 }
-
 export function initializeAllSettings(){
   Object.values(PERSISTED_SETTINGS).forEach(({storageKey, def}) => {
-    if (localStorage.getItem(storageKey) === null) {
-      localStorage.setItem(storageKey, JSON.stringify(def));
+    if (safeGetRaw(storageKey) === null) {
+      safeSetRaw(storageKey, JSON.stringify(def));
     }
   });
 }
