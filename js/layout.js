@@ -2,7 +2,7 @@
  * @fileoverview Dynamic layout & geometry derived from zoom level.
  * Exports live bindings so other modules see updated values after setZoomLevel.
  */
-import { d3, SCALE_SEMITONES, DEFAULT_FRETS, MIN_FRETS, MAX_FRETS } from './constants.js';
+import { d3, SCALE_SEMITONES, DEFAULT_FRETS, MIN_FRETS, MAX_FRETS, OPEN_NOTE_BASELINE } from './constants.js';
 
 // Base logical dimensions (unscaled)
 const BASE = Object.freeze({
@@ -36,7 +36,7 @@ function normDenom(){ return rawFretPos(fretCount); }
 export const fretScale = (i) => G_WIDTH * rawFretPos(i) / normDenom();
 export const noteScale = (i) => G_WIDTH * rawFretPos(i - 0.5) / normDenom();
 // Constant open string center independent of current fretCount (baseline = 24 frets)
-const OPEN_NOTE_BASELINE = 24; // fixed reference so open note stays put
+// OPEN_NOTE_BASELINE imported from constants.js
 export function openNoteX(){
   return padding + G_WIDTH * rawFretPos(-0.5) / rawFretPos(OPEN_NOTE_BASELINE);
 }

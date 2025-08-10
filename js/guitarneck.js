@@ -35,14 +35,16 @@ var svg = d3.select("#fretboard_container")
             .attr("width", containerWidth)
             .attr("height", containerHeight)
             .classed('init-fade', true);
+// New root group for scalable content
+var zoomRoot = svg.append('g').attr('id','zoomRoot');
 
-drawBackground(svg);
-drawSlider(svg);
-drawNoteLabels(svg);
+drawBackground(zoomRoot);
+drawSlider(zoomRoot);
+drawNoteLabels(zoomRoot);
 
 
-// Attach the click event handler to the SVG container
-svg.on("click", moveSlider);
+// Attach the click event handler to the scalable root
+zoomRoot.on("click", moveSlider);
 
 
 // ******************** START FUNCTIONS ********************
@@ -230,16 +232,19 @@ function updateZoomUI(){
   if (el) el.textContent = `Zoom: ${getZoomLevel().toFixed(1)}`;
 }
 function rebuildAll(){
+  // No longer rebuild everything on zoom; leave for fret count changes only
+  // This function retained for fretCount changes
   const container = d3.select('#fretboard_container');
   container.select('svg').remove();
-  const svgLocal = container.append('svg')
+  svg = container.append('svg')
     .attr('width', containerWidth)
     .attr('height', containerHeight)
-    .classed('ready', true); // maintain ready state after rebuild
-  drawBackground(svgLocal);
-  drawSlider(svgLocal);
-  drawNoteLabels(svgLocal);
-  svgLocal.on('click', moveSlider);
+    .classed('ready', true);
+  zoomRoot = svg.append('g').attr('id','zoomRoot');
+  drawBackground(zoomRoot);
+  drawSlider(zoomRoot);
+  drawNoteLabels(zoomRoot);
+  zoomRoot.on('click', moveSlider);
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());
 }
@@ -267,13 +272,13 @@ window.addEventListener('DOMContentLoaded', () => {
       .attr('width', containerWidth)
       .attr('height', containerHeight)
       .classed('ready', true);
-    drawBackground(svg);
-    drawSlider(svg);
-    drawNoteLabels(svg);
-    svg.on('click', moveSlider);
+    zoomRoot = svg.append('g').attr('id','zoomRoot');
+    drawBackground(zoomRoot);
+    drawSlider(zoomRoot);
+    drawNoteLabels(zoomRoot);
+    zoomRoot.on('click', moveSlider);
     applyHighlightColors();
     outlineBaseNoteCircles(getBaseNote());
-    // Restore visibility states
     if (getNoteNamesVisibility()) { showAllNotes(); } else { hideAllNotes(); }
     if (getIntervalVisibility()) { showIntervalsWithVisual(); } else { hideIntervalsWithVisual(); }
   });
@@ -284,6 +289,5 @@ window.addEventListener('DOMContentLoaded', () => {
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());
   updateHeader();
-  // Reveal SVG after everything drawn
   svg.classed('ready', true).classed('init-fade', false);
 });

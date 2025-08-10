@@ -28,3 +28,4 @@ export const fret_color = 'DimGray';
 export const string_color = 'black';
 export const dots = [3,5,7,9,15,17,19,21];
 export const double_dots = [12,24];
+export const OPEN_NOTE_BASELINE = 24; // reference fret span used to anchor open string X

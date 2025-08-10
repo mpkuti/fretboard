@@ -21,8 +21,10 @@ let xCenters = [];
 export function drawSlider(svg) {
     svg.select('#sliderLayer').remove();
     let coords = all_note_coordinates;
-    let defs = svg.select('defs');
-    if (defs.empty()) defs = svg.append('defs');
+    // Ensure we operate with the root SVG for defs/clipPath (zoomRoot passes a <g>)
+    const rootSvg = svg.node().ownerSVGElement ? d3.select(svg.node().ownerSVGElement) : svg;
+    let defs = rootSvg.select('defs');
+    if (defs.empty()) defs = rootSvg.append('defs');
     defs.select('#fretboard-clip').remove();
     const LEFT_MARGIN = DOT_SIZE;
     const RIGHT_MARGIN = DOT_SIZE;
