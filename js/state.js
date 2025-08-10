@@ -4,7 +4,7 @@
  * @author Mika Kutila
  */
 
-import { notes, defaultBaseNote, defaultHighlightMode, validHighlightModes, STORAGE_KEYS, DEFAULTS } from './constants.js';
+import { notes, defaultBaseNote, defaultHighlightMode, validHighlightModes, STORAGE_KEYS, DEFAULTS, PERSISTED_SETTINGS } from './constants.js';
 import { raiseNote, lowerNote, getNoteFromInterval, getIntervalFromNotes } from './utils.js';
 import { EVENTS, emit } from './events.js';
 
@@ -16,6 +16,14 @@ function loadPref(key, fallback) {
 }
 function savePref(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+}
+
+export function initializeAllSettings(){
+  Object.values(PERSISTED_SETTINGS).forEach(({storageKey, def}) => {
+    if (localStorage.getItem(storageKey) === null) {
+      localStorage.setItem(storageKey, JSON.stringify(def));
+    }
+  });
 }
 
 let _base_note = loadPref(STORAGE_KEYS.BASE_NOTE, DEFAULTS.BASE_NOTE);
@@ -176,3 +184,13 @@ export function setHighlightSet(val){
  * @returns {string} The current highlight set
  */
 export function getHighlightSet(){ return _highlight_set; }
+
+export function getAllSettings(){
+  return {
+    baseNote: _base_note,
+    highlightMode: _highlight_mode,
+    highlightSet: _highlight_set,
+    showNoteNames: _showNoteNames,
+    showIntervals: _showIntervals
+  };
+}

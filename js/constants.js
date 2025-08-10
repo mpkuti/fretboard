@@ -83,10 +83,20 @@ DOMINANT_SEVEN_SHARP_NINE_CHORD: '0,3,4,7,10'
 
 export const validHighlightModes = Object.keys(HIGHLIGHT_MODE_INTERVAL_MAP);
 export const STORAGE_KEYS = Object.freeze({
-  BASE_NOTE:'baseNote', HIGHLIGHT_MODE:'highlightMode', SHOW_NOTES:'showNoteNames', SHOW_INTERVALS:'showIntervals', HIGHLIGHT_SET:'highlightSet'
+  BASE_NOTE:'baseNote', HIGHLIGHT_MODE:'highlightMode', SHOW_NOTES:'showNoteNames', SHOW_INTERVALS:'showIntervals', HIGHLIGHT_SET:'highlightSet', ZOOM_LEVEL:'zoomLevel', FRET_COUNT:'fretCount', THEME:'theme'
 });
-export const DEFAULTS = Object.freeze({ BASE_NOTE:defaultBaseNote, HIGHLIGHT_MODE:defaultHighlightMode, SHOW_NOTES:true, SHOW_INTERVALS:true, HIGHLIGHT_SET:'BASIC' });
-export const UI = Object.freeze({ ANIMATION_MS:1000, INTERVAL_LABEL_DX:'0.75em', INTERVAL_LABEL_DY:'-0.85em', NOTE_FONT_SIZE_PX:12 });
+export const DEFAULTS = Object.freeze({ BASE_NOTE:defaultBaseNote, HIGHLIGHT_MODE:defaultHighlightMode, SHOW_NOTES:true, SHOW_INTERVALS:false, HIGHLIGHT_SET:'BASIC', ZOOM_LEVEL:1.0, FRET_COUNT:DEFAULT_FRETS, THEME:'light' });
+// Central schema listing persisted settings and their defaults
+export const PERSISTED_SETTINGS = Object.freeze({
+  BASE_NOTE: { storageKey: STORAGE_KEYS.BASE_NOTE, def: DEFAULTS.BASE_NOTE },
+  HIGHLIGHT_MODE: { storageKey: STORAGE_KEYS.HIGHLIGHT_MODE, def: DEFAULTS.HIGHLIGHT_MODE },
+  HIGHLIGHT_SET: { storageKey: STORAGE_KEYS.HIGHLIGHT_SET, def: DEFAULTS.HIGHLIGHT_SET },
+  SHOW_NOTES: { storageKey: STORAGE_KEYS.SHOW_NOTES, def: DEFAULTS.SHOW_NOTES },
+  SHOW_INTERVALS: { storageKey: STORAGE_KEYS.SHOW_INTERVALS, def: DEFAULTS.SHOW_INTERVALS },
+  ZOOM_LEVEL: { storageKey: STORAGE_KEYS.ZOOM_LEVEL, def: DEFAULTS.ZOOM_LEVEL },
+  FRET_COUNT: { storageKey: STORAGE_KEYS.FRET_COUNT, def: DEFAULTS.FRET_COUNT },
+  THEME: { storageKey: STORAGE_KEYS.THEME, def: DEFAULTS.THEME }
+});
 export const CHORD_PALETTE = ['#00A676', '#FF7F0E', '#1F77B4', '#D62728'];
 export const fretboard_color = '#E3CDB6';
 export const fret_color = 'DimGray';
@@ -101,3 +111,9 @@ export const ZOOM_MAX = 1.6;
 export const ZOOM_STEP = 0.1;
 export const NUT_STROKE_WIDTH = 5;
 export const FRET_STROKE_WIDTH = 3;
+export const UI = Object.freeze({
+  ANIMATION_MS: 1000,
+  INTERVAL_LABEL_DX: '0.75em',
+  INTERVAL_LABEL_DY: '-0.85em',
+  NOTE_FONT_SIZE_PX: 12
+});

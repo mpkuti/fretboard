@@ -2,7 +2,7 @@
  * @fileoverview Dynamic layout & geometry derived from zoom level.
  * Exports live bindings so other modules see updated values after setZoomLevel.
  */
-import { d3, SCALE_SEMITONES, DEFAULT_FRETS, MIN_FRETS, MAX_FRETS, OPEN_NOTE_BASELINE } from './constants.js';
+import { d3, SCALE_SEMITONES, DEFAULT_FRETS, MIN_FRETS, MAX_FRETS, OPEN_NOTE_BASELINE, DEFAULTS, STORAGE_KEYS, ZOOM_MIN, ZOOM_MAX } from './constants.js';
 
 // Base logical dimensions (unscaled)
 const BASE = Object.freeze({
@@ -14,10 +14,10 @@ const BASE = Object.freeze({
 });
 
 // Zoom state (persisted in localStorage)
-let zoomLevel = 0.9;
+let zoomLevel = DEFAULTS.ZOOM_LEVEL;
 try {
-  const stored = parseFloat(localStorage.getItem('zoomLevel'));
-  if (!isNaN(stored)) zoomLevel = Math.max(0.3, Math.min(2, stored));
+  const stored = parseFloat(localStorage.getItem(STORAGE_KEYS.ZOOM_LEVEL));
+  if (!isNaN(stored)) zoomLevel = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, stored));
 } catch {}
 
 // Derived geometry (live bindings)
@@ -72,10 +72,10 @@ export let stringThicknesses = BASE_STRING_THICKNESSES.map(x => x * 3 * zoomLeve
 export function getZoomLevel(){ return zoomLevel; }
 export function setZoomLevel(z){
   if (typeof z !== 'number' || !isFinite(z)) return;
-  const clamped = Math.max(0.3, Math.min(2, z));
+  const clamped = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z));
   if (Math.abs(clamped - zoomLevel) < 1e-6) return;
   zoomLevel = clamped;
-  try { localStorage.setItem('zoomLevel', String(zoomLevel)); } catch {}
+  try { localStorage.setItem(STORAGE_KEYS.ZOOM_LEVEL, String(zoomLevel)); } catch {}
   recalc();
 }
 

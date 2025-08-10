@@ -18,7 +18,8 @@ import {
     initializeIntervalVisibility, 
     getIntervalVisibility,
     getHighlightSet,
-    setHighlightSet
+    setHighlightSet,
+    initializeAllSettings
 } from './state.js';
 import { EVENTS, on } from './events.js';
 
@@ -338,6 +339,7 @@ function bindZoomButtons(){
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  initializeAllSettings();
   document.addEventListener('fretCountChanged', () => {
     recalcAllNoteCoordinates();
     const container = d3.select('#fretboard_container');
