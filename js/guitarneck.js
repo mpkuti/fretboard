@@ -5,7 +5,7 @@
  */
 
 // Import from the new modular structure
-import { d3, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE } from './constants.js';
+import { d3, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE, ZOOM_MIN, ZOOM_MAX, ZOOM_STEP } from './constants.js';
 import { getZoomLevel, setZoomLevel, containerWidth, containerHeight, padding, setFretCount, getFretCount } from './layout.js';
 import { pentatonic, buildPentatonicLabel, getNoteFromInterval, recalcAllNoteCoordinates } from './utils.js';
 import { 
@@ -320,15 +320,15 @@ function rebuildAll(){
 function changeZoom(delta){
   const current = getZoomLevel();
   const next = +(current + delta).toFixed(1);
-  if (next < 0.4 || next > 1.6) return;
+  if (next < ZOOM_MIN || next > ZOOM_MAX) return;
   setZoomLevel(next);
   recalcAllNoteCoordinates();
   updateZoomUI();
   rebuildAll();
 }
 function bindZoomButtons(){
-  document.getElementById('zoomInBtn')?.addEventListener('click', ()=> changeZoom(0.1));
-  document.getElementById('zoomOutBtn')?.addEventListener('click', ()=> changeZoom(-0.1));
+  document.getElementById('zoomInBtn')?.addEventListener('click', ()=> changeZoom(ZOOM_STEP));
+  document.getElementById('zoomOutBtn')?.addEventListener('click', ()=> changeZoom(-ZOOM_STEP));
   updateZoomUI();
 }
 

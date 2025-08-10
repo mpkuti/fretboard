@@ -95,3 +95,9 @@ export const dots = [3,5,7,9,15,17,19,21];
 export const double_dots = [12,24];
 export const OPEN_NOTE_BASELINE = 24; // reference fret span used to anchor open string X
 export const CIRCLE_OPACITY = 0.6; // uniform dot opacity
+// Added UI magic number extractions
+export const ZOOM_MIN = 0.4;
+export const ZOOM_MAX = 1.6;
+export const ZOOM_STEP = 0.1;
+export const NUT_STROKE_WIDTH = 5;
+export const FRET_STROKE_WIDTH = 3;

@@ -5,7 +5,7 @@
  */
 
 // Import from the new modular structure
-import { d3, fretboard_color, fret_color, string_color, dots, double_dots, UI } from './constants.js';
+import { d3, fretboard_color, fret_color, string_color, dots, double_dots, UI, NUT_STROKE_WIDTH, FRET_STROKE_WIDTH } from './constants.js';
 import { G_WIDTH, G_HEIGHT, padding, dot_radius, stringThicknesses, fretScale, noteScale, stringScale, getFretCount, neckWidth } from './layout.js';
 import { all_note_coordinates } from './utils.js';
 import { getNoteNamesVisibility, showNoteNames, hideNoteNames } from './state.js';
@@ -72,7 +72,7 @@ export function drawBackground(svg) {
         .attr('x2', d => padding + fretScale(d))
         .attr('y2', padding + G_HEIGHT)
         .attr('stroke', fret_color)
-        .attr('stroke-width', d => d === 0 ? 5 : 3);
+        .attr('stroke-width', d => d === 0 ? NUT_STROKE_WIDTH : FRET_STROKE_WIDTH);
 
     // Decoration dots container
     const dots_group = layer.append('g').attr('class','fret-dots');
