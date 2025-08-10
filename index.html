@@ -10,81 +10,136 @@
     <title>Fretboard</title>
     <link rel="icon" href="img/favicon.ico" type="image/x-icon">
     <style>
-      #fretboard_container svg.ready { transition: opacity .25s ease; opacity:1; }
-      #fretboard_container svg.init-fade { opacity:0; }
-      #zoomControls { margin: 8px 0; }
-      #zoomControls button { width:2.2em; }
-      #zoomLevelDisplay { display:inline-block; min-width:5em; text-align:center; }
+      :root {
+        --bg:#ffffff;
+        --text:#222;
+        --heading:#333;
+        --panel-bg:#f8f8f8;
+        --panel-border:#ccc;
+        --muted:#666;
+        --divider1:#ddd; --divider2:#eee;
+        --button-bg1:#ffffff; --button-bg2:#f0f0f0; --button-bg-hover2:#e8e8e8;
+        --focus-ring: 0 0 0 3px rgba(0,123,255,0.35);
+      }
+      body.dark {
+        --bg:#101418;
+        --text:#e2e6ea;
+        --heading:#fafbfc;
+        --panel-bg:#1d2329;
+        --panel-border:#3a444e;
+        --muted:#8a96a3;
+        --divider1:#2c343c; --divider2:#1f262c;
+        --button-bg1:#262f37; --button-bg2:#1f272e; --button-bg-hover2:#273039;
+        --focus-ring: 0 0 0 3px rgba(120,180,255,0.4);
+      }
+      body { font-family: system-ui, Arial, sans-serif; margin:18px; line-height:1.35; background:var(--bg); color:var(--text); transition: background .25s, color .25s; }
+      h2 { margin-top:0; color:var(--heading); }
+      #fretboard_container { margin-bottom:16px; }
+      #controlArea { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; align-items:start; margin-top:12px; }
+      .panel { background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:8px; padding:12px 14px 14px; box-shadow:0 1px 2px rgba(0,0,0,0.08); transition: background .25s, border-color .25s; }
+      .panel h4 { margin:0 0 8px; font-size:1rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600; color:var(--heading); }
+      .panel label { cursor:pointer; }
+      fieldset { border:none; padding:0; margin:0; }
+      fieldset legend { font-weight:600; margin-bottom:4px; }
+      .inline-radio label { display:flex; align-items:center; gap:4px; margin:2px 0; }
+      #zoomControls { display:flex; align-items:center; gap:6px; margin:4px 0 0; }
+      #zoomControls button { width:2.2em; height:2.2em; font-size:1rem; }
+      #zoomLevelDisplay { font-variant-numeric:tabular-nums; }
+      .number-input-row { display:flex; align-items:center; gap:6px; margin-top:6px; }
+      .muted { color:var(--muted); font-size:.75rem; }
+      .divider { height:1px; background:linear-gradient(90deg,var(--divider1),var(--divider2),var(--divider1)); margin:8px 0 10px; border:none; }
+      .stretch { width:100%; }
+      .actions-row { display:flex; gap:8px; margin-top:6px; }
+      button, input[type=number], select { border:1px solid var(--panel-border); border-radius:4px; padding:4px 6px; background:linear-gradient(var(--button-bg1),var(--button-bg2)); color:var(--text); transition: background .2s, color .2s, border-color .2s; }
+      button:hover { background:linear-gradient(var(--button-bg1),var(--button-bg-hover2)); }
+      button:focus, input:focus, select:focus { outline:none; box-shadow:var(--focus-ring); }
+      #themeToggleBtn { position:absolute; top:12px; right:18px; padding:6px 10px; font-size:.85rem; }
+      @media (max-width:560px){ #controlArea { grid-template-columns:1fr; } #themeToggleBtn { position:static; margin-bottom:8px; } }
     </style>
 </head>
 <body>
+    <button id="themeToggleBtn" type="button" aria-pressed="false" title="Toggle dark / light theme">Dark Theme</button>
     <h2 id="fretboardHeader"></h2>
     <div id="fretboard_container"></div>
-   
-    <h4>Base Note:</h4>
 
-    <select id="baseNoteSelectDropdown">
-        <option value="C">C</option>
-        <option value="C#">C#</option>
-        <option value="D">D</option>
-        <option value="D#">D#</option>
-        <option value="E">E</option>
-        <option value="F">F</option>
-        <option value="F#">F#</option>
-        <option value="G">G</option>
-        <option value="G#">G#</option>
-        <option value="A">A</option>
-        <option value="A#">A#</option>
-        <option value="B">B</option>
-      </select>
+    <div id="controlArea" aria-label="Fretboard controls">
+      <div class="panel" aria-labelledby="panel-base">
+        <h4 id="panel-base">Base Note</h4>
+        <select id="baseNoteSelectDropdown" class="stretch" aria-label="Select base note">
+          <option value="C">C</option>
+          <option value="C#">C#</option>
+          <option value="D">D</option>
+          <option value="D#">D#</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+          <option value="F#">F#</option>
+          <option value="G">G</option>
+          <option value="G#">G#</option>
+          <option value="A">A</option>
+          <option value="A#">A#</option>
+          <option value="B">B</option>
+        </select>
+        <hr class="divider" />
+        <div id="zoomControls" aria-label="Zoom controls">
+          <button id="zoomOutBtn" title="Zoom out" aria-label="Zoom out">-</button>
+          <span id="zoomLevelDisplay" aria-live="polite"></span>
+          <button id="zoomInBtn" title="Zoom in" aria-label="Zoom in">+</button>
+        </div>
+        <div class="number-input-row">
+          <label for="fretCountInput">Frets:</label>
+          <input type="number" id="fretCountInput" min="2" max="21" value="12" />
+          <span class="muted">2–21</span>
+        </div>
+      </div>
 
-    <h4>Options:</h4>
+      <div class="panel" aria-labelledby="panel-visibility">
+        <h4 id="panel-visibility">Visibility</h4>
+        <label><input type="checkbox" id="noteNamesCheckbox" checked /> Show Notes</label><br />
+        <label><input type="checkbox" id="intervalNamesCheckbox" checked /> Show Intervals</label>
+      </div>
 
-    <label>
-        <input type="checkbox" id="noteNamesCheckbox" checked>
-        Show Notes
-    </label>
+      <div class="panel" aria-labelledby="panel-highlight">
+        <h4 id="panel-highlight">Highlight</h4>
+        <fieldset class="inline-radio">
+          <legend class="visually-hidden" style="position:absolute;left:-9999px;">Select highlight mode</legend>
+          <label><input type="radio" name="highlightMode" value="BASENOTE" checked /> Basenote</label>
+          <label><input type="radio" name="highlightMode" value="PENTATONIC_SCALE" /> <span id="pentatonicScaleKeyLabel">Pentatonic Scale</span></label>
+          <label><input type="radio" name="highlightMode" value="MAJOR_CHORD" /> Major Chord</label>
+            <label><input type="radio" name="highlightMode" value="MINOR_CHORD" /> Minor Chord</label>
+        </fieldset>
+      </div>
 
-    <br>
-
-    <label>
-        <input type="checkbox" id="intervalNamesCheckbox" checked>
-        Show Intervals
-    </label>
-
-    <h4>Select Highlight:</h4>
-    
-    <label>
-        <input type="radio" name="highlightMode" value="BASENOTE" checked>
-        Basenote
-    </label>
-
-    <br>
-
-    <label>
-        <input type="radio" name="highlightMode" value="PENTATONIC_SCALE">
-        <span id="pentatonicScaleKeyLabel">Pentatonic Scale</span>
-    </label>
-    <br>
-    <label>
-        <input type="radio" name="highlightMode" value="MAJOR_CHORD">
-        Major Chord
-    </label>
-    <br>
-    <label>
-        <input type="radio" name="highlightMode" value="MINOR_CHORD">
-        Minor Chord
-    </label>
-    <div id="zoomControls">
-      <button id="zoomOutBtn" title="Zoom out">-</button>
-      <span id="zoomLevelDisplay"></span>
-      <button id="zoomInBtn" title="Zoom in">+</button>
+      <div class="panel" aria-labelledby="panel-legend">
+        <h4 id="panel-legend">Legend</h4>
+        <p class="muted" style="margin:0 0 6px;">Colors / intervals update with base note and highlight mode.</p>
+        <ul class="muted" style="padding-left:16px; margin:0; list-style:disc;">
+          <li>Click fretboard to shift base note.</li>
+          <li>Change Frets to resize neck.</li>
+          <li>Zoom resets layout for clarity.</li>
+        </ul>
+      </div>
     </div>
-    <div style="margin-top:12px;">
-      <label for="fretCountInput">Frets:</label>
-      <input type="number" id="fretCountInput" min="2" max="21" value="12" style="width:4em;" />
-      <small>(2-21)</small>
-    </div>
+
+    <script>
+      (function(){
+        const KEY='theme';
+        const stored = localStorage.getItem(KEY);
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if(stored==='dark' || (!stored && prefersDark)) document.body.classList.add('dark');
+        function updateLabel(){
+          const btn=document.getElementById('themeToggleBtn'); if(!btn) return;
+          const dark = document.body.classList.contains('dark');
+            btn.textContent = dark ? 'Light Theme' : 'Dark Theme';
+            btn.setAttribute('aria-pressed', dark?'true':'false');
+        }
+        document.getElementById('themeToggleBtn').addEventListener('click',()=>{
+          document.body.classList.toggle('dark');
+          localStorage.setItem(KEY, document.body.classList.contains('dark') ? 'dark' : 'light');
+          updateLabel();
+        });
+        updateLabel();
+      })();
+    </script>
     <script type="module" src="js/guitarneck.js"></script>
 </body>
 </html>
