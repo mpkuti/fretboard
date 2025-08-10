@@ -4,7 +4,7 @@
  * @author Mika Kutila
  */
 
-import { notes, defaultBaseNote, defaultHighlightMode, validHighlightModes, STORAGE_KEYS, DEFAULTS, PERSISTED_SETTINGS } from './constants.js';
+import { NOTES, DEFAULT_BASE_NOTE, DEFAULT_HIGHLIGHT_MODE, validHighlightModes, STORAGE_KEYS, DEFAULTS, PERSISTED_SETTINGS } from './constants.js';
 import { raiseNote, lowerNote, getNoteFromInterval, getIntervalFromNotes } from './utils.js';
 import { EVENTS, emit } from './events.js';
 
@@ -37,7 +37,7 @@ let _highlight_set = loadPref(STORAGE_KEYS.HIGHLIGHT_SET, DEFAULTS.HIGHLIGHT_SET
  * @param {string} newNote - The new base note
  */
 export function setBaseNote(newNote) {
-    if (!notes.includes(newNote)) {
+    if (!NOTES.includes(newNote)) {
         throw new Error("Invalid note: " + newNote);
     }
     if (newNote === _base_note) return;

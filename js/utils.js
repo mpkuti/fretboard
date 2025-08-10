@@ -4,7 +4,7 @@
  * @author Mika Kutila
  */
 
-import { notes, intervals, stringNotes } from './constants.js';
+import { NOTES, INTERVALS, STRING_TUNING } from './constants.js';
 import { padding, noteScale, stringScale, sliderLength, getFretCount, openNoteX } from './layout.js';
 
 /**
@@ -13,11 +13,11 @@ import { padding, noteScale, stringScale, sliderLength, getFretCount, openNoteX 
  * @returns {string} The raised note
  */
 export function raiseNote(note) {
-    let index = notes.indexOf(note);
+    let index = NOTES.indexOf(note);
     if (index === 11) {
-        return notes[0];
+        return NOTES[0];
     } else {
-        return notes[index + 1];
+        return NOTES[index + 1];
     }
 }
 
@@ -27,11 +27,11 @@ export function raiseNote(note) {
  * @returns {string} The lowered note
  */
 export function lowerNote(note) {
-    let index = notes.indexOf(note);
+    let index = NOTES.indexOf(note);
     if (index === 0) {
-        return notes[11];
+        return NOTES[11];
     } else {
-        return notes[index - 1];
+        return NOTES[index - 1];
     }
 }
 
@@ -42,10 +42,10 @@ export function lowerNote(note) {
  * @returns {string} The resulting note
  */
 export function getNoteFromInterval(note, interval) {
-    if (notes.includes(note)) {
-        let index = notes.indexOf(note);
+    if (NOTES.includes(note)) {
+        let index = NOTES.indexOf(note);
         let newIndex = (index + interval) % 12;
-        return notes[newIndex];
+        return NOTES[newIndex];
     } else {
         throw new Error("Note not found in notes");
     }
@@ -58,10 +58,10 @@ export function getNoteFromInterval(note, interval) {
  * @returns {string} The interval representation
  */
 export function getIntervalFromNotes(basenote, note) {
-    if (notes.includes(basenote) && notes.includes(note)) {
-        let baseIndex = notes.indexOf(basenote);
-        let noteIndex = notes.indexOf(note);
-        return intervals[(noteIndex - baseIndex + 12) % 12];
+    if (NOTES.includes(basenote) && NOTES.includes(note)) {
+        let baseIndex = NOTES.indexOf(basenote);
+        let noteIndex = NOTES.indexOf(note);
+        return INTERVALS[(noteIndex - baseIndex + 12) % 12];
     } else {
         throw new Error("Note not found in notes");
     }
@@ -73,8 +73,8 @@ export function getIntervalFromNotes(basenote, note) {
  * @returns {string[]} Array of notes in the pentatonic scale
  */
 export function pentatonic(baseNote) {
-    const baseIndex = notes.indexOf(baseNote);
-    return [0, 2, 4, 7, 9].map(x => notes[(baseIndex + x) % 12]);
+    const baseIndex = NOTES.indexOf(baseNote);
+    return [0, 2, 4, 7, 9].map(x => NOTES[(baseIndex + x) % 12]);
 }
 
 /**
@@ -121,17 +121,18 @@ export function buildPentatonicLabel(baseNote, highlightMode) {
  * @returns {string[][]} 2D array of notes for each string
  */
 function generateGuitarNotes() {
-    let all_guitar_notes_work = [];
-    for (let j = 0; j < stringNotes.length; j++) {
-        const stringNote = stringNotes[j];
-        const startIndex = notes.indexOf(stringNote);
+    // use STRING_TUNING instead of stringNotes
+    const guitarNotes = [];
+    for (let i = 0; i < STRING_TUNING.length; i++) {
+        const startNote = STRING_TUNING[i];
+        const startIndex = NOTES.indexOf(startNote);
         const currentNotes = [];
-        for (let i = 0; i < sliderLength(); i++) {
-            currentNotes.push(notes[(startIndex + i) % 12]);
+        for (let f = 0; f < 25; f++) {
+            currentNotes.push(NOTES[(startIndex + f) % NOTES.length]);
         }
-        all_guitar_notes_work[j] = currentNotes;
+        guitarNotes.push(currentNotes);
     }
-    return all_guitar_notes_work.map(Object.freeze);
+    return guitarNotes;
 }
 
 /**

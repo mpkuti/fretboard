@@ -1,5 +1,8 @@
 /**
  * @fileoverview Immutable constants (no layout / zoom logic here).
+ * Naming convention:
+ *  - UPPER_SNAKE_CASE for immutable exported constants / maps.
+ *  - camelCase for functions & runtime / derived values in other modules.
  */
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 export { d3 };
@@ -8,11 +11,11 @@ export const MIN_FRETS = 2;
 export const MAX_FRETS = 21;
 export const DEFAULT_FRETS = 6; // used as initial unless user overrides
 export const SCALE_SEMITONES = 12;
-export const notes = ["A","A#","B","C","C#","D","D#","E","F","F#","G","G#"]; 
-export const intervals = ["1","p2","S2","p3","S3","4","-5","5","p6","S6","p7","S7"]; 
-export const stringNotes = ["E","B","G","D","A","E"];
-export const defaultBaseNote = "C";
-export const defaultHighlightMode = "BASENOTE";
+export const NOTES = ["A","A#","B","C","C#","D","D#","E","F","F#","G","G#"]; 
+export const INTERVALS = ["1","p2","S2","p3","S3","4","-5","5","p6","S6","p7","S7"]; 
+export const STRING_TUNING = ["E","B","G","D","A","E"];
+export const DEFAULT_BASE_NOTE = "C";
+export const DEFAULT_HIGHLIGHT_MODE = "BASENOTE";
 
 export const HIGHLIGHT_MODE_INTERVAL_MAP = Object.freeze({
 NONE: '',
@@ -85,7 +88,7 @@ export const validHighlightModes = Object.keys(HIGHLIGHT_MODE_INTERVAL_MAP);
 export const STORAGE_KEYS = Object.freeze({
   BASE_NOTE:'baseNote', HIGHLIGHT_MODE:'highlightMode', SHOW_NOTES:'showNoteNames', SHOW_INTERVALS:'showIntervals', HIGHLIGHT_SET:'highlightSet', ZOOM_LEVEL:'zoomLevel', FRET_COUNT:'fretCount', THEME:'theme'
 });
-export const DEFAULTS = Object.freeze({ BASE_NOTE:defaultBaseNote, HIGHLIGHT_MODE:defaultHighlightMode, SHOW_NOTES:true, SHOW_INTERVALS:false, HIGHLIGHT_SET:'BASIC', ZOOM_LEVEL:1.0, FRET_COUNT:DEFAULT_FRETS, THEME:'light' });
+export const DEFAULTS = Object.freeze({ BASE_NOTE:DEFAULT_BASE_NOTE, HIGHLIGHT_MODE:DEFAULT_HIGHLIGHT_MODE, SHOW_NOTES:true, SHOW_INTERVALS:false, HIGHLIGHT_SET:'BASIC', ZOOM_LEVEL:1.0, FRET_COUNT:DEFAULT_FRETS, THEME:'light' });
 // Central schema listing persisted settings and their defaults
 export const PERSISTED_SETTINGS = Object.freeze({
   BASE_NOTE: { storageKey: STORAGE_KEYS.BASE_NOTE, def: DEFAULTS.BASE_NOTE },
