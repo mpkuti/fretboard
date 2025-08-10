@@ -49,15 +49,16 @@ try {
 } catch {}
 export function getFretCount(){ return fretCount; }
 export function setFretCount(n){
-  const v = Math.max(MIN_FRETS, Math.min(MAX_FRETS, Math.round(Number(n))));
+  const requested = Math.round(Number(n));
+  const v = Math.max(MIN_FRETS, Math.min(21, Math.min(MAX_FRETS, requested))); // hard cap at 21
   if (!v || v === fretCount) return;
   fretCount = v;
   try { localStorage.setItem('fretCount', String(fretCount)); } catch {}
   recalc();
   document.dispatchEvent(new CustomEvent('fretCountChanged',{detail:{fretCount}}));
 }
-// Fixed slider length (3 octaves = 36 positions) independent of fretCount for stable wrapping
-const SLIDER_LENGTH = 36; // 3 * 12
+// Fixed slider length (2 octaves = 24 positions) independent of fretCount for stable wrapping
+const SLIDER_LENGTH = 24; // 2 * 12
 export const sliderLength = () => SLIDER_LENGTH;
 // Placeholder; will be set in initial recalc() so it reflects current fretCount spacing
 export let DOT_SIZE = 0;
