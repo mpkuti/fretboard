@@ -101,11 +101,11 @@ export const PERSISTED_SETTINGS = Object.freeze({
   THEME: { storageKey: STORAGE_KEYS.THEME, def: DEFAULTS.THEME }
 });
 export const CHORD_PALETTE = ['#00A676', '#FF7F0E', '#1F77B4', '#D62728'];
-export const fretboard_color = '#E3CDB6';
-export const fret_color = 'DimGray';
-export const string_color = 'black';
-export const dots = [3,5,7,9,15,17,19,21];
-export const double_dots = [12,24];
+export const FRETBOARD_COLOR = '#E3CDB6';
+export const FRET_COLOR = 'DimGray';
+export const STRING_COLOR = 'black';
+export const DOT_FRETS = [3,5,7,9,15,17,19,21];
+export const DOUBLE_DOT_FRETS = [12,24];
 export const OPEN_NOTE_BASELINE = 24; // reference fret span used to anchor open string X
 export const CIRCLE_OPACITY = 0.6; // uniform dot opacity
 // Added UI magic number extractions

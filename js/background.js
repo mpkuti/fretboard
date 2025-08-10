@@ -5,7 +5,7 @@
  */
 
 // Import from the new modular structure
-import { d3, fretboard_color, fret_color, string_color, dots, double_dots, UI, NUT_STROKE_WIDTH, FRET_STROKE_WIDTH } from './constants.js';
+import { d3, FRETBOARD_COLOR, FRET_COLOR, STRING_COLOR, DOT_FRETS, DOUBLE_DOT_FRETS, UI, NUT_STROKE_WIDTH, FRET_STROKE_WIDTH } from './constants.js';
 import { G_WIDTH, G_HEIGHT, padding, dot_radius, stringThicknesses, fretScale, noteScale, stringScale, getFretCount, neckWidth } from './layout.js';
 import { all_note_coordinates } from './utils.js';
 import { getNoteNamesVisibility, showNoteNames, hideNoteNames } from './state.js';
@@ -58,7 +58,7 @@ export function drawBackground(svg) {
         .attr('y', padding)
         .attr('width', neckWidth)
         .attr('height', G_HEIGHT)
-        .attr('fill', fretboard_color);
+        .attr('fill', FRETBOARD_COLOR);
 
     // Frets
     const fretNumbers = d3.range(0, getFretCount()+1);
@@ -71,7 +71,7 @@ export function drawBackground(svg) {
         .attr('y1', padding)
         .attr('x2', d => padding + fretScale(d))
         .attr('y2', padding + G_HEIGHT)
-        .attr('stroke', fret_color)
+        .attr('stroke', FRET_COLOR)
         .attr('stroke-width', d => d === 0 ? NUT_STROKE_WIDTH : FRET_STROKE_WIDTH);
 
     // Decoration dots container
@@ -79,7 +79,7 @@ export function drawBackground(svg) {
 
     // Single dots
     dots_group.selectAll('.single-dots')
-        .data(dots)
+        .data(DOT_FRETS)
         .enter()
         .append('circle')
         .attr('class','single-dots')
@@ -89,7 +89,7 @@ export function drawBackground(svg) {
 
     // Double dots (top)
     dots_group.selectAll('.double-dots-1')
-        .data(double_dots)
+        .data(DOUBLE_DOT_FRETS)
         .enter()
         .append('circle')
         .attr('class','double-dots-1')
@@ -99,7 +99,7 @@ export function drawBackground(svg) {
 
     // Double dots (bottom)
     dots_group.selectAll('.double-dots-2')
-        .data(double_dots)
+        .data(DOUBLE_DOT_FRETS)
         .enter()
         .append('circle')
         .attr('class','double-dots-2')
@@ -118,7 +118,7 @@ export function drawBackground(svg) {
         .attr('y1', d => padding + G_HEIGHT/12 + G_HEIGHT * d/6)
         .attr('x2', padding + neckWidth)
         .attr('y2', d => padding + G_HEIGHT/12 + G_HEIGHT * d/6)
-        .attr('stroke', string_color)
+        .attr('stroke', STRING_COLOR)
         .attr('stroke-width', d => stringThicknesses[d]);
 
     // Fret numbers
