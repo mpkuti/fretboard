@@ -5,8 +5,8 @@
  */
 
 // Import from the new modular structure
-import { d3, NO_FRETS, fretboard_color, fret_color, string_color, dots, double_dots, UI } from './constants.js';
-import { G_WIDTH, G_HEIGHT, padding, dot_radius, stringThicknesses, fretScale, noteScale, stringScale } from './layout.js';
+import { d3, fretboard_color, fret_color, string_color, dots, double_dots, UI } from './constants.js';
+import { G_WIDTH, G_HEIGHT, padding, dot_radius, stringThicknesses, fretScale, noteScale, stringScale, getFretCount, neckWidth } from './layout.js';
 import { all_note_coordinates } from './utils.js';
 import { getNoteNamesVisibility, showNoteNames, hideNoteNames } from './state.js';
 
@@ -56,12 +56,12 @@ export function drawBackground(svg) {
     layer.append('rect')
         .attr('x', padding)
         .attr('y', padding)
-        .attr('width', G_WIDTH)
+        .attr('width', neckWidth)
         .attr('height', G_HEIGHT)
         .attr('fill', fretboard_color);
 
     // Frets
-    const fretNumbers = d3.range(0, NO_FRETS+1);
+    const fretNumbers = d3.range(0, getFretCount()+1);
     layer.selectAll('.fret')
         .data(fretNumbers)
         .enter()
@@ -116,7 +116,7 @@ export function drawBackground(svg) {
         .attr('class','string')
         .attr('x1', 0)
         .attr('y1', d => padding + G_HEIGHT/12 + G_HEIGHT * d/6)
-        .attr('x2', padding + G_WIDTH)
+        .attr('x2', padding + neckWidth)
         .attr('y2', d => padding + G_HEIGHT/12 + G_HEIGHT * d/6)
         .attr('stroke', string_color)
         .attr('stroke-width', d => stringThicknesses[d]);

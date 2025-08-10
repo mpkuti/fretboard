@@ -5,7 +5,7 @@
  */
 
 import { notes, intervals, stringNotes } from './constants.js';
-import { padding, noteScale, stringScale, sliderLength } from './layout.js';
+import { padding, noteScale, stringScale, sliderLength, getFretCount, openNoteX } from './layout.js';
 
 /**
  * Raises a note by one semitone
@@ -87,7 +87,7 @@ export function getNote(stringNumber, fretNumber) {
     if (stringNumber < 0 || stringNumber > 5) {
         throw new Error("Invalid string number " + stringNumber);
     }
-    if (fretNumber < 0 || fretNumber > sliderLength) {
+    if (fretNumber < 0 || fretNumber > sliderLength()) {
         throw new Error("Invalid fret number " + fretNumber);
     }
     return all_guitar_notes[stringNumber][fretNumber];
@@ -122,19 +122,15 @@ export function buildPentatonicLabel(baseNote, highlightMode) {
  */
 function generateGuitarNotes() {
     let all_guitar_notes_work = [];
-    
     for (let j = 0; j < stringNotes.length; j++) {
         const stringNote = stringNotes[j];
         const startIndex = notes.indexOf(stringNote);
         const currentNotes = [];
-
-        for (let i = 0; i < sliderLength; i++) {
+        for (let i = 0; i < sliderLength(); i++) {
             currentNotes.push(notes[(startIndex + i) % 12]);
         }
-
         all_guitar_notes_work[j] = currentNotes;
     }
-
     return all_guitar_notes_work.map(Object.freeze);
 }
 
@@ -148,9 +144,9 @@ function generateNoteCoordinates(guitarNotes) {
 
     for (let i = 0; i < 6; i++) {
         // Use sliderLength directly (already a multiple of 12 >= NO_FRETS + 2)
-        for (let j = 0; j < sliderLength; j++) {
+        for (let j = 0; j < sliderLength(); j++) {
             const noteObject = {
-                x: padding + noteScale(j),
+                x: j === 0 ? openNoteX() : padding + noteScale(j),
                 y: padding + stringScale(i),
                 string: i,
                 fret: j,
@@ -164,11 +160,12 @@ function generateNoteCoordinates(guitarNotes) {
 }
 
 // Create immutable guitar notes data structure FIRST
-export const all_guitar_notes = Object.freeze(generateGuitarNotes());
+export let all_guitar_notes = generateGuitarNotes();
 
 // Then generate coordinates based on the created notes structure (mutable for zoom)
 export let all_note_coordinates = generateNoteCoordinates(all_guitar_notes);
 export function recalcAllNoteCoordinates() {
+  all_guitar_notes = generateGuitarNotes();
   all_note_coordinates = generateNoteCoordinates(all_guitar_notes);
   return all_note_coordinates;
 }

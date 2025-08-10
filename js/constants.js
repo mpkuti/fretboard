@@ -4,7 +4,9 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 export { d3 };
 // Pure constants
-export const NO_FRETS = 12;
+export const MIN_FRETS = 2;
+export const MAX_FRETS = 24;
+export const DEFAULT_FRETS = 12; // used as initial unless user overrides
 export const SCALE_SEMITONES = 12;
 export const notes = ["A","A#","B","C","C#","D","D#","E","F","F#","G","G#"]; 
 export const intervals = ["1","p2","S2","p3","S3","4","-5","5","p6","S6","p7","S7"]; 

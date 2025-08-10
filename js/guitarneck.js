@@ -6,7 +6,7 @@
 
 // Import from the new modular structure
 import { d3, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE } from './constants.js';
-import { getZoomLevel, setZoomLevel, containerWidth, containerHeight, padding } from './layout.js';
+import { getZoomLevel, setZoomLevel, containerWidth, containerHeight, padding, setFretCount, getFretCount } from './layout.js';
 import { pentatonic, buildPentatonicLabel, getNoteFromInterval, recalcAllNoteCoordinates } from './utils.js';
 import { 
     getBaseNote, 
@@ -155,6 +155,13 @@ function bindUIEvents() {
       changeBaseNote(e.target.value); // event will trigger UI updates
     });
   }
+  const fretInput = document.getElementById('fretCountInput');
+  if (fretInput) {
+    fretInput.value = getFretCount();
+    fretInput.addEventListener('change', e => {
+      setFretCount(e.target.value);
+    });
+  }
   document.getElementById('noteNamesCheckbox')?.addEventListener('change', function() {
     handleCheckboxChange(this, 'noteNamesCheckbox');
   });
@@ -233,16 +240,8 @@ function rebuildAll(){
   drawSlider(svgLocal);
   drawNoteLabels(svgLocal);
   svgLocal.on('click', moveSlider);
-  // Re-apply highlight & outlines
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());
-  // Re-apply visibility states (they reset on redraw)
-  setNoteNamesVisibility();
-  if (getIntervalVisibility()) {
-    showIntervalsWithVisual();
-  } else {
-    hideIntervalsWithVisual();
-  }
 }
 function changeZoom(delta){
   const current = getZoomLevel();
@@ -260,6 +259,24 @@ function bindZoomButtons(){
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('fretCountChanged', () => {
+    recalcAllNoteCoordinates();
+    const container = d3.select('#fretboard_container');
+    container.select('svg').remove();
+    svg = d3.select('#fretboard_container').append('svg')
+      .attr('width', containerWidth)
+      .attr('height', containerHeight)
+      .classed('ready', true);
+    drawBackground(svg);
+    drawSlider(svg);
+    drawNoteLabels(svg);
+    svg.on('click', moveSlider);
+    applyHighlightColors();
+    outlineBaseNoteCircles(getBaseNote());
+    // Restore visibility states
+    if (getNoteNamesVisibility()) { showAllNotes(); } else { hideAllNotes(); }
+    if (getIntervalVisibility()) { showIntervalsWithVisual(); } else { hideIntervalsWithVisual(); }
+  });
   initializeView();
   bindUIEvents();
   bindZoomButtons();

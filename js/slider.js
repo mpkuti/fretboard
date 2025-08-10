@@ -6,9 +6,9 @@
 
 // Import from the new modular structure
 import { d3, UI } from './constants.js';
-import { DOT_SIZE, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale } from './layout.js';
+import { DOT_SIZE, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, openNoteX } from './layout.js';
 import { all_note_coordinates, recalcAllNoteCoordinates, raiseNote, lowerNote } from './utils.js';
-import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, hideIntervals, getBaseNote } from './state.js';
+import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, hideIntervals, getBaseNote, getIntervalVisibility } from './state.js';
 
 // Define slider_group in a common scope
 var slider_group;
@@ -41,7 +41,7 @@ export function drawSlider(svg) {
         .data(coords)
         .enter()
         .append('circle')
-        .attr('cx', d => d.x)
+        .attr('cx', d => d.fret === 0 ? openNoteX() : d.x)
         .attr('cy', d => d.y)
         .attr('r', DOT_SIZE/2)
         .attr('fill','red')
@@ -54,7 +54,7 @@ export function drawSlider(svg) {
         .enter()
         .append('text')
         .attr('class','interval-labels')
-        .attr('x', d => d.x)
+        .attr('x', d => d.fret === 0 ? openNoteX() : d.x)
         .attr('y', d => d.y)
         .attr('text-anchor','middle')
         .attr('dx','0.75em')
@@ -93,35 +93,35 @@ export function moveSlider(event) {
     const _clickX = event.pageX;
     const direction = _clickX < G_WIDTH/2 ? -1 : 1; // -1 = shift left, +1 = shift right
 
-    const futureFret = d => (d.fret + direction + sliderLength) % sliderLength;
+    const futureFret = d => (d.fret + direction + sliderLength()) % sliderLength();
 
     const stepWidthFirst = noteScale(1) - noteScale(0);
-    const offLeftX = padding + noteScale(0) - stepWidthFirst; // just off left
+    const offLeftX = openNoteX() - stepWidthFirst; // reference from constant open position
 
     // Pre-position for rightward move: recycle last column to left off-screen
     if (direction === 1) {
         slider_group.selectAll('circle').each(function(d) {
-            if (d.fret === sliderLength - 1) this.setAttribute('cx', offLeftX);
+            if (d.fret === sliderLength() - 1) this.setAttribute('cx', offLeftX);
         });
         slider_group.selectAll('text').each(function(d) {
-            if (d.fret === sliderLength - 1) this.setAttribute('x', offLeftX);
+            if (d.fret === sliderLength() - 1) this.setAttribute('x', offLeftX);
         });
-    }
+    } // removed early hide for leftward move so label stays visible while sliding off
 
     // Compute target during animation explicitly per direction to avoid long travel
     const targetXDuring = (d) => {
         if (direction === 1) {
-            if (d.fret === sliderLength - 1) {
+            if (d.fret === sliderLength() - 1) {
                 // recycled last -> slides into first position
-                return padding + noteScale(0);
+                return openNoteX();
             }
-            return padding + noteScale(d.fret + 1);
+            return (d.fret + 1) === 0 ? openNoteX() : padding + noteScale(d.fret + 1);
         } else { // direction === -1
             if (d.fret === 0) {
                 // first slides off to left
                 return offLeftX;
             }
-            return padding + noteScale(d.fret - 1);
+            return (d.fret - 1) === 0 ? openNoteX() : padding + noteScale(d.fret - 1);
         }
     };
 
@@ -142,21 +142,27 @@ export function moveSlider(event) {
             d.fret = futureFret(d);
             if (direction === -1 && oldFret === 0) {
                 // wrapped to last: ensure positioned at last fret coordinate
-                this.setAttribute('cx', padding + noteScale(sliderLength - 1));
-            } else if (direction === 1 && oldFret === sliderLength - 1) {
+                this.setAttribute('cx', padding + noteScale(sliderLength() - 1));
+            } else if (direction === 1 && oldFret === sliderLength() - 1) {
                 // already at first fret position from animation; ensure exact snap
-                this.setAttribute('cx', padding + noteScale(0));
+                this.setAttribute('cx', openNoteX());
             }
             d.note = direction < 0 ? lowerNote(d.note) : raiseNote(d.note);
             this.setAttribute('fret', d.fret);
             this.setAttribute('note', d.note);
         });
         slider_group.selectAll('text').each(function(d) {
-            const oldFret = (d.fret - direction + sliderLength) % sliderLength;
+            const oldFret = (d.fret - direction + sliderLength()) % sliderLength(); // fixed missing ()
             if (direction === -1 && oldFret === 0) {
-                this.setAttribute('x', padding + noteScale(sliderLength - 1));
-            } else if (direction === 1 && oldFret === sliderLength - 1) {
-                this.setAttribute('x', padding + noteScale(0));
+                // Temporarily hide only during the instantaneous wrap to avoid flash
+                const el = this;
+                el.style.opacity = 0;
+                el.setAttribute('x', padding + noteScale(sliderLength() - 1));
+                if (getIntervalVisibility()) {
+                    requestAnimationFrame(() => { el.style.opacity = 1; });
+                }
+            } else if (direction === 1 && oldFret === sliderLength() - 1) {
+                this.setAttribute('x', openNoteX());
             }
         });
         if (direction < 0) lowerBaseNote(); else raiseBaseNote();
