@@ -43,18 +43,19 @@ export function openNoteX(){
 export const stringScale = d3.scaleLinear().domain([0,5]).range([G_HEIGHT/12, G_HEIGHT - G_HEIGHT/12]);
 
 // Slider related
-let fretCount = DEFAULT_FRETS; // dynamic number of frets (excluding open string)
+let fretCount = DEFAULTS.FRET_COUNT; // dynamic number of frets (excluding open string)
 try {
-  const storedFrets = parseInt(localStorage.getItem('fretCount'),10);
+  const raw = localStorage.getItem(STORAGE_KEYS.FRET_COUNT);
+  const storedFrets = parseInt(raw, 10);
   if (!isNaN(storedFrets)) fretCount = Math.max(MIN_FRETS, Math.min(MAX_FRETS, storedFrets));
 } catch {}
 export function getFretCount(){ return fretCount; }
 export function setFretCount(n){
   const requested = Math.round(Number(n));
-  const v = Math.max(MIN_FRETS, Math.min(21, Math.min(MAX_FRETS, requested))); // hard cap at 21
+  const v = Math.max(MIN_FRETS, Math.min(MAX_FRETS, requested));
   if (!v || v === fretCount) return;
   fretCount = v;
-  try { localStorage.setItem('fretCount', String(fretCount)); } catch {}
+  try { localStorage.setItem(STORAGE_KEYS.FRET_COUNT, String(fretCount)); } catch {}
   recalc();
   document.dispatchEvent(new CustomEvent('fretCountChanged',{detail:{fretCount}}));
 }
