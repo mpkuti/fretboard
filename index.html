@@ -36,9 +36,9 @@
       .fret-numbers { fill:#111; }
       body.dark .fret-numbers { fill:#fafbfc; }
       body { font-family: system-ui, Arial, sans-serif; margin:18px; line-height:1.35; background:var(--bg); color:var(--text); transition: background .25s, color .25s; }
-      h2 { margin-top:0; color:var(--heading); }
-      /* Reserve space to avoid CLS when header text injected */
-      #fretboardHeader { min-height:1.6em; }
+      h2 { margin-top:0; margin-bottom:6px; color:var(--heading); }
+      /* Reserve space to avoid CLS when header text injected (reduced) */
+      #fretboardHeader { min-height:1.2em; }
       #fretboard_container { margin-bottom:16px; }
       #controlArea { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; align-items:start; margin-top:12px; }
       .panel { background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:8px; padding:12px 14px 14px; box-shadow:0 1px 2px rgba(0,0,0,0.08); transition: background .25s, border-color .25s; }
@@ -59,7 +59,7 @@
       button:hover { background:linear-gradient(var(--button-bg1),var(--button-bg-hover2)); }
       button:focus, input:focus, select:focus { outline:none; box-shadow:var(--focus-ring); }
       #themeToggleBtn { padding:6px 10px; font-size:.85rem; }
-      #pageFooter { margin:40px 0 12px; text-align:center; }
+      #pageFooter { margin:40px 0 12px; text-align:center; display:flex; justify-content:center; align-items:center; gap:12px; }
       @media (max-width:560px){ #controlArea { grid-template-columns:1fr; } }
     </style>
     <!-- Pre-size fretboard container (Option A CLS mitigation) -->
@@ -81,12 +81,12 @@
     </script>
 </head>
 <body>
-    <h2 id="fretboardHeader">&nbsp;</h2>
+    <h2 id="fretboardHeader"></h2>
     <div id="fretboard_container"></div>
 
     <div id="controlArea" aria-label="Fretboard controls">
       <div class="panel" aria-labelledby="panel-highlight">
-        <h4 id="panel-highlight">Highlight & Base</h4>
+        <h4 id="panel-highlight">Highlights</h4>
         <label for="baseNoteSelectDropdown" class="muted" style="font-size:.7rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600;">Base Note</label>
         <select id="baseNoteSelectDropdown" class="stretch" aria-label="Select base note" style="margin:4px 0 10px;">
           <option value="C">C</option>
@@ -124,26 +124,41 @@
         <div class="muted" style="font-size:.65rem;">Advanced adds extended / altered chords & scales.</div>
       </div>
 
-      <!-- Layout panel second -->
-      <div class="panel" aria-labelledby="panel-base">
-        <h4 id="panel-base">Layout</h4>
+      <!-- Combined Layout and Visibility into a single Settings panel -->
+      <div class="panel" aria-labelledby="panel-settings">
+        <h4 id="panel-settings">Settings</h4>
         <hr class="divider" />
-        <div id="zoomControls" aria-label="Zoom controls">
-          <button id="zoomOutBtn" title="Zoom out" aria-label="Zoom out">-</button>
-          <span id="zoomLevelDisplay" aria-live="polite"></span>
-          <button id="zoomInBtn" title="Zoom in" aria-label="Zoom in">+</button>
-        </div>
         <div class="number-input-row">
           <label for="fretCountInput">Frets:</label>
-          <input type="number" id="fretCountInput" min="2" max="21" value="12" />
+          <select id="fretCountInput" class="stretch" aria-label="Select fret count">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+          </select>
           <span class="muted">2–21</span>
         </div>
-      </div>
-
-      <div class="panel" aria-labelledby="panel-visibility">
-        <h4 id="panel-visibility">Visibility</h4>
-        <label><input type="checkbox" id="noteNamesCheckbox" checked /> Show Notes</label><br />
-        <label><input type="checkbox" id="intervalNamesCheckbox" checked /> Show Intervals</label>
+        <div style="margin-top:10px;"></div>
+        <div>
+          <label><input type="checkbox" id="noteNamesCheckbox" checked /> Show Notes</label><br />
+          <label><input type="checkbox" id="intervalNamesCheckbox" checked /> Show Intervals</label>
+        </div>
       </div>
 
       <div class="panel" aria-labelledby="panel-legend">
@@ -157,7 +172,12 @@
       </div>
     </div>
 
-    <footer id="pageFooter" aria-label="Theme toggle">
+    <footer id="pageFooter" aria-label="Zoom and theme controls">
+      <div id="zoomControls" aria-label="Zoom controls">
+        <button id="zoomOutBtn" title="Zoom out" aria-label="Zoom out">-</button>
+        <span id="zoomLevelDisplay" aria-live="polite"></span>
+        <button id="zoomInBtn" title="Zoom in" aria-label="Zoom in">+</button>
+      </div>
       <button id="themeToggleBtn" type="button" aria-pressed="false" title="Toggle dark / light theme">Dark Theme</button>
     </footer>
 

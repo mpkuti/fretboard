@@ -61,9 +61,9 @@ export function setFretCount(n){
 }
 // Fixed slider length (derived from constants)
 export const sliderLength = () => SLIDER_LENGTH;
-// Placeholder; will be set in initial recalc() so it reflects current fretCount spacing
-export let DOT_SIZE = 0;
-export let dot_radius = 0;
+
+// Neutral spacing unit (min distance between adjacent visible frets)
+export let MIN_FRET_SPACING = 0; // used by other modules to size their visuals independently
 
 // String thicknesses (base, then scaled with zoom)
 const BASE_STRING_THICKNESSES = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 5];
@@ -100,12 +100,11 @@ function recalc(){
       if (s < minSpacing) minSpacing = s;
     }
   }
-  DOT_SIZE = Math.min(G_HEIGHT/6, minSpacing);
-  dot_radius = DOT_SIZE/3;
+  MIN_FRET_SPACING = minSpacing;
   stringThicknesses = BASE_STRING_THICKNESSES.map(x => x * 3 * zoomLevel);
 }
 
-// Perform an initial recalc so DOT_SIZE / dot_radius are correct on first load
+// Perform an initial recalc so spacing is correct on first load
 recalc();
 
 // Convenience layout snapshot
@@ -116,7 +115,8 @@ export function getLayout(){
     G_WIDTH, G_HEIGHT, C_WIDTH, C_HEIGHT,
     neckWidth,
     padding, containerWidth, containerHeight,
-    fretScale, noteScale, stringScale, DOT_SIZE, dot_radius,
+    fretScale, noteScale, stringScale,
+    MIN_FRET_SPACING,
     sliderLength: sliderLength(),
     openNoteX: openNoteX()
   };

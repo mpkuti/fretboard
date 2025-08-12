@@ -6,9 +6,17 @@
 
 // Import from the new modular structure
 import { d3, FRETBOARD_COLOR, FRET_COLOR, STRING_COLOR, DOT_FRETS, DOUBLE_DOT_FRETS, UI, NUT_STROKE_WIDTH, FRET_STROKE_WIDTH } from './constants.js';
-import { G_WIDTH, G_HEIGHT, padding, dot_radius, stringThicknesses, fretScale, noteScale, stringScale, getFretCount, neckWidth } from './layout.js';
+import { G_WIDTH, G_HEIGHT, padding, stringThicknesses, fretScale, noteScale, stringScale, getFretCount, neckWidth, MIN_FRET_SPACING } from './layout.js';
 import { all_note_coordinates } from './utils.js';
 import { getNoteNamesVisibility, showNoteNames, hideNoteNames } from './state.js';
+
+// Local visual sizing for background dots (independent from slider)
+const BG_DOT_MIN_PX = 3;
+const BG_DOT_RATIO = 0.28; // of min fret spacing
+function backgroundDotR(){
+  const r = MIN_FRET_SPACING * BG_DOT_RATIO;
+  return Math.max(BG_DOT_MIN_PX, r);
+}
 
 // Hoisted Roman numeral lookup (avoids reallocation per call)
 const ROMAN_LOOKUP = { M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1 };
@@ -67,7 +75,7 @@ export function drawBackground(svg) {
         .enter()
         .append('circle')
         .attr('class','single-dots')
-        .attr('r', dot_radius)
+        .attr('r', backgroundDotR())
         .attr('cy', padding + G_HEIGHT/2)
         .attr('cx', d => padding + noteScale(d));
 
@@ -77,7 +85,7 @@ export function drawBackground(svg) {
         .enter()
         .append('circle')
         .attr('class','double-dots-1')
-        .attr('r', dot_radius)
+        .attr('r', backgroundDotR())
         .attr('cy', padding + G_HEIGHT/3)
         .attr('cx', d => padding + noteScale(d));
 
@@ -87,7 +95,7 @@ export function drawBackground(svg) {
         .enter()
         .append('circle')
         .attr('class','double-dots-2')
-        .attr('r', dot_radius)
+        .attr('r', backgroundDotR())
         .attr('cy', padding + 2 * G_HEIGHT/3)
         .attr('cx', d => padding + noteScale(d));
 

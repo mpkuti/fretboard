@@ -112,15 +112,15 @@ export const SLIDER_LENGTH = SCALE_SEMITONES * SLIDER_OCTAVES; // total logical 
 export const OPEN_NOTE_BASELINE = SLIDER_LENGTH; // reference span used to anchor open string X independent of current visible fretCount
 export const CIRCLE_OPACITY = 0.6; // uniform dot opacity
 // Added UI magic number extractions
-export const ZOOM_MIN = 0.4;
-export const ZOOM_MAX = 1.6;
+export const ZOOM_MIN = 0.6;
+export const ZOOM_MAX = 1.2;
 export const ZOOM_STEP = 0.1;
 export const NUT_STROKE_WIDTH = 5;
 export const FRET_STROKE_WIDTH = 3;
 // Replaced ratio-based stroke with fixed pixel width for base note outline
 export const BASE_NOTE_STROKE_WIDTH = 4; // fixed stroke width (px) for base note outline; circle radius shrinks so outer diameter remains constant
 export const UI = Object.freeze({
-  ANIMATION_MS: 1000,
+  ANIMATION_MS: 500,
   INTERVAL_LABEL_DX: '0.75em',
   INTERVAL_LABEL_DY: '-0.85em',
   NOTE_FONT_SIZE_PX: 12

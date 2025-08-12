@@ -5,10 +5,23 @@
  */
 
 // Import from the new modular structure
-import { d3, UI, CIRCLE_OPACITY, BASE_NOTE_STROKE_WIDTH } from './constants.js';
-import { DOT_SIZE, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, openNoteX } from './layout.js';
+import { d3, UI, CIRCLE_OPACITY } from './constants.js';
+import { MIN_FRET_SPACING, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, openNoteX, stringScale } from './layout.js';
 import { all_note_coordinates, recalcAllNoteCoordinates, raiseNote, lowerNote } from './utils.js';
 import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, hideIntervals, getBaseNote, getIntervalVisibility } from './state.js';
+
+// Local visual sizing for slider circles (independent from background)
+const NOTE_R_MIN_PX = 5;
+const NOTE_R_RATIO = 0.8; // radius as fraction of the computed maximum allowed radius
+// Thickness of base note ring as a fraction of the circle radius
+const BASE_NOTE_STROKE_RATIO = 0.28;
+function NOTE_CIRCLE_R(){
+  // First, calculate the minimum of stringSpacing and MIN_FRET_SPACING
+  // then apply the ratio to get the return value.
+  const stringSpacing = stringScale(1) - stringScale(0);
+  const noteCircleR = Math.min(stringSpacing, MIN_FRET_SPACING) / 2;
+  return NOTE_R_RATIO * noteCircleR;
+}
 
 // Define slider_group in a common scope
 var slider_group;
@@ -26,8 +39,8 @@ export function drawSlider(svg) {
     let defs = rootSvg.select('defs');
     if (defs.empty()) defs = rootSvg.append('defs');
     defs.select('#fretboard-clip').remove();
-    const LEFT_MARGIN = DOT_SIZE;
-    const RIGHT_MARGIN = DOT_SIZE;
+    const LEFT_MARGIN = NOTE_CIRCLE_R();
+    const RIGHT_MARGIN = NOTE_CIRCLE_R();
     defs.append('clipPath')
         .attr('id', 'fretboard-clip')
         .append('rect')
@@ -62,7 +75,7 @@ export function drawSlider(svg) {
         .append('circle')
         .attr('cx',0)
         .attr('cy', d=>d.y)
-        .attr('r', DOT_SIZE/2)
+        .attr('r', NOTE_CIRCLE_R())
         .attr('fill','red')
         .attr('fill-opacity', CIRCLE_OPACITY)
         .attr('string', d=>d.string)
@@ -223,16 +236,18 @@ function setIntervalTextOpacity(opacity) {
  */
 export function outlineBaseNoteCircles(baseNote) {
     if (!slider_group) return;
-    const baseR = DOT_SIZE / 2; // canonical outer radius
+    const baseR = NOTE_CIRCLE_R(); // canonical outer radius
     slider_group.selectAll('circle').each(function(d) {
         this.setAttribute('r', baseR);
         if (d.note === baseNote) {
-            const strokeW = BASE_NOTE_STROKE_WIDTH; // fixed px width
+            // Ring thickness proportional to circle size
+            const strokeW = Math.max(1, baseR * BASE_NOTE_STROKE_RATIO);
             const adjustedR = Math.max(1, baseR - strokeW / 2);
             this.setAttribute('r', adjustedR);
             this.setAttribute('stroke', 'black');
             this.setAttribute('stroke-width', strokeW);
-            this.setAttribute('vector-effect','non-scaling-stroke');
+            // Remove non-scaling stroke so thickness scales with zoom
+            this.removeAttribute('vector-effect');
             this.setAttribute('stroke-linejoin','round');
             this.setAttribute('stroke-linecap','round');
         } else {
