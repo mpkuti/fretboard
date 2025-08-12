@@ -5,7 +5,7 @@
  */
 
 // Import from the new modular structure
-import { d3, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE, ZOOM_MIN, ZOOM_MAX, ZOOM_STEP } from './constants.js';
+import { d3, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE, ZOOM_MIN, ZOOM_MAX, ZOOM_STEP, MIN_FRETS, MAX_FRETS } from './constants.js';
 import { getZoomLevel, setZoomLevel, containerWidth, containerHeight, padding, setFretCount, getFretCount } from './layout.js';
 import { pentatonic, buildPentatonicLabel, getNoteFromInterval, recalcAllNoteCoordinates } from './utils.js';
 import { 
@@ -160,9 +160,30 @@ function bindUIEvents() {
       changeBaseNote(e.target.value); // event will trigger UI updates
     });
   }
+  // Helper to ensure dropdown options reflect current MIN/MAX
+  function populateFretCountOptions(selectEl){
+    if (!selectEl) return;
+    const current = String(getFretCount());
+    // Rebuild only if options don't match constants
+    const needRebuild = selectEl.options.length !== (MAX_FRETS - MIN_FRETS + 1)
+      || (selectEl.options.length && (selectEl.options[0].value !== String(MIN_FRETS) || selectEl.options[selectEl.options.length-1].value !== String(MAX_FRETS)));
+    if (needRebuild) {
+      selectEl.innerHTML = '';
+      for (let i = MIN_FRETS; i <= MAX_FRETS; i++) {
+        const opt = document.createElement('option');
+        opt.value = String(i);
+        opt.textContent = String(i);
+        selectEl.appendChild(opt);
+      }
+    }
+    // Ensure value is valid and selected
+    const val = (Number(current) < MIN_FRETS || Number(current) > MAX_FRETS) ? String(DEFAULTS.FRET_COUNT) : current;
+    selectEl.value = String(val);
+  }
   const fretInput = document.getElementById('fretCountInput');
   if (fretInput) {
-    fretInput.value = getFretCount();
+    populateFretCountOptions(fretInput);
+    fretInput.value = String(getFretCount());
     fretInput.addEventListener('change', e => {
       setFretCount(e.target.value);
     });
