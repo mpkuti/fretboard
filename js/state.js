@@ -4,8 +4,8 @@
  * @author Mika Kutila
  */
 
-import { NOTES, DEFAULT_BASE_NOTE, DEFAULT_HIGHLIGHT_MODE, validHighlightModes, STORAGE_KEYS, DEFAULTS, PERSISTED_SETTINGS } from './constants.js';
-import { raiseNote, lowerNote, getIntervalFromNotes } from './utils.js';
+import { NOTES, DEFAULT_BASE_NOTE, DEFAULT_HIGHLIGHT_MODE, validHighlightModes, STORAGE_KEYS, DEFAULTS, PERSISTED_SETTINGS, MIN_STRINGS, MAX_STRINGS } from './constants.js';
+import { raiseNote, lowerNote, getIntervalFromNotes } from './noteops.js';
 import { EVENTS, emit } from './events.js';
 
 // Private state variables
@@ -35,6 +35,11 @@ let _highlight_mode = loadPref(STORAGE_KEYS.HIGHLIGHT_MODE, DEFAULTS.HIGHLIGHT_M
 let _showNoteNames = loadPref(STORAGE_KEYS.SHOW_NOTES, DEFAULTS.SHOW_NOTES);
 let _showIntervals = loadPref(STORAGE_KEYS.SHOW_INTERVALS, DEFAULTS.SHOW_INTERVALS);
 let _highlight_set = loadPref(STORAGE_KEYS.HIGHLIGHT_SET, DEFAULTS.HIGHLIGHT_SET);
+let _tuning = loadPref(STORAGE_KEYS.STRING_TUNING, DEFAULTS.STRING_TUNING);
+if (!Array.isArray(_tuning) || _tuning.length < MIN_STRINGS || _tuning.length > MAX_STRINGS || !_tuning.every(n=>NOTES.includes(n))) {
+  _tuning = DEFAULTS.STRING_TUNING;
+  savePref(STORAGE_KEYS.STRING_TUNING, _tuning);
+}
 
 /**
  * Set the base note and update localStorage
@@ -197,4 +202,18 @@ export function getAllSettings(){
     showNoteNames: _showNoteNames,
     showIntervals: _showIntervals
   };
+}
+export function getStringTuning(){ return [..._tuning]; }
+export function setStringTuning(arr){
+  if (!Array.isArray(arr)) return;
+  const cleaned = arr.map(n=>String(n).trim());
+  if (cleaned.length < MIN_STRINGS || cleaned.length > MAX_STRINGS) return;
+  if (!cleaned.every(n=>NOTES.includes(n))) return;
+  const same = _tuning.length === cleaned.length && _tuning.every((v,i)=>v===cleaned[i]);
+  if (same) return;
+  const oldValue = _tuning;
+  _tuning = cleaned;
+  savePref(STORAGE_KEYS.STRING_TUNING, _tuning);
+  emit(EVENTS.TUNING_CHANGED, { oldValue, newValue:[..._tuning] });
+  emit(EVENTS.STATE_CHANGED, { key:'stringTuning', oldValue, newValue:[..._tuning] });
 }

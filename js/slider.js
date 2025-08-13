@@ -16,9 +16,9 @@ const NOTE_R_RATIO = 0.8; // radius as fraction of the computed maximum allowed 
 // Thickness of base note ring as a fraction of the circle radius
 const BASE_NOTE_STROKE_RATIO = 0.28;
 function NOTE_CIRCLE_R(){
-  // First, calculate the minimum of stringSpacing and MIN_FRET_SPACING
-  // then apply the ratio to get the return value.
-  const stringSpacing = stringScale(1) - stringScale(0);
+  // Handle single string: rely purely on horizontal spacing
+  let stringSpacing = (typeof stringScale === 'function' && stringScale.domain().length>1) ? (stringScale(1) - stringScale(0)) : MIN_FRET_SPACING;
+  if (!isFinite(stringSpacing) || stringSpacing <= 0) stringSpacing = MIN_FRET_SPACING;
   const noteCircleR = Math.min(stringSpacing, MIN_FRET_SPACING) / 2;
   return NOTE_R_RATIO * noteCircleR;
 }

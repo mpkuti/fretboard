@@ -4,36 +4,10 @@
  * @author Mika Kutila
  */
 
-import { NOTES, INTERVALS, STRING_TUNING, SLIDER_LENGTH } from './constants.js';
+import { NOTES, INTERVALS, SLIDER_LENGTH } from './constants.js';
+import { getStringTuning } from './state.js';
 import { padding, noteScale, stringScale, sliderLength, getFretCount, openNoteX } from './layout.js';
-
-/**
- * Raises a note by one semitone
- * @param {string} note - The note to raise
- * @returns {string} The raised note
- */
-export function raiseNote(note) {
-    let index = NOTES.indexOf(note);
-    if (index === 11) {
-        return NOTES[0];
-    } else {
-        return NOTES[index + 1];
-    }
-}
-
-/**
- * Lowers a note by one semitone
- * @param {string} note - The note to lower
- * @returns {string} The lowered note
- */
-export function lowerNote(note) {
-    let index = NOTES.indexOf(note);
-    if (index === 0) {
-        return NOTES[11];
-    } else {
-        return NOTES[index - 1];
-    }
-}
+import { raiseNote, lowerNote, getIntervalFromNotes } from './noteops.js';
 
 /**
  * Get the note, given the base note and interval up from it
@@ -46,22 +20,6 @@ export function getNoteFromInterval(note, interval) {
         let index = NOTES.indexOf(note);
         let newIndex = (index + interval) % 12;
         return NOTES[newIndex];
-    } else {
-        throw new Error("Note not found in notes");
-    }
-}
-
-/**
- * Get the interval between two notes
- * @param {string} basenote - The base note
- * @param {string} note - The target note
- * @returns {string} The interval representation
- */
-export function getIntervalFromNotes(basenote, note) {
-    if (NOTES.includes(basenote) && NOTES.includes(note)) {
-        let baseIndex = NOTES.indexOf(basenote);
-        let noteIndex = NOTES.indexOf(note);
-        return INTERVALS[(noteIndex - baseIndex + 12) % 12];
     } else {
         throw new Error("Note not found in notes");
     }
@@ -121,13 +79,13 @@ export function buildPentatonicLabel(baseNote, highlightMode) {
  * @returns {string[][]} 2D array of notes for each string
  */
 function generateGuitarNotes() {
-    // use STRING_TUNING instead of stringNotes
+    const tuning = getStringTuning();
     const guitarNotes = [];
-    for (let i = 0; i < STRING_TUNING.length; i++) {
-        const startNote = STRING_TUNING[i];
+    for (let i = 0; i < tuning.length; i++) {
+        const startNote = tuning[i];
         const startIndex = NOTES.indexOf(startNote);
         const currentNotes = [];
-        for (let f = 0; f < SLIDER_LENGTH + 1; f++) { // +1 to safely cover wrap interval
+        for (let f = 0; f < SLIDER_LENGTH + 1; f++) {
             currentNotes.push(NOTES[(startIndex + f) % NOTES.length]);
         }
         guitarNotes.push(currentNotes);
@@ -142,9 +100,8 @@ function generateGuitarNotes() {
  */
 function generateNoteCoordinates(guitarNotes) {
     const all_note_coordinates = [];
-
-    for (let i = 0; i < 6; i++) {
-        // Use sliderLength directly (already a multiple of 12 >= NO_FRETS + 2)
+    const tuning = getStringTuning();
+    for (let i = 0; i < tuning.length; i++) {
         for (let j = 0; j < sliderLength(); j++) {
             const noteObject = {
                 x: j === 0 ? openNoteX() : padding + noteScale(j),
@@ -156,7 +113,6 @@ function generateNoteCoordinates(guitarNotes) {
             all_note_coordinates.push(noteObject);
         }
     }
-
     return all_note_coordinates;
 }
 
@@ -170,3 +126,5 @@ export function recalcAllNoteCoordinates() {
   all_note_coordinates = generateNoteCoordinates(all_guitar_notes);
   return all_note_coordinates;
 }
+
+export { raiseNote, lowerNote, getIntervalFromNotes };

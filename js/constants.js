@@ -13,7 +13,10 @@ export const DEFAULT_FRETS = 6; // used as initial unless user overrides
 export const SCALE_SEMITONES = 12;
 export const NOTES = ["A","A#","B","C","C#","D","D#","E","F","F#","G","G#"]; 
 export const INTERVALS = ["1","p2","S2","p3","S3","4","-5","5","p6","S6","p7","S7"]; 
-export const STRING_TUNING = ["E","B","G","D","A","E"];
+// Dynamic tuning support
+export const MIN_STRINGS = 2;
+export const MAX_STRINGS = 8; // supports 4..8 string instruments
+export const DEFAULT_TUNING = ["E","B","G","D","A","E"]; // high to low existing order
 export const DEFAULT_BASE_NOTE = "C";
 export const DEFAULT_HIGHLIGHT_MODE = "BASENOTE";
 
@@ -86,9 +89,9 @@ DOMINANT_SEVEN_SHARP_NINE_CHORD: '0,3,4,7,10'
 
 export const validHighlightModes = Object.keys(HIGHLIGHT_MODE_INTERVAL_MAP);
 export const STORAGE_KEYS = Object.freeze({
-  BASE_NOTE:'baseNote', HIGHLIGHT_MODE:'highlightMode', SHOW_NOTES:'showNoteNames', SHOW_INTERVALS:'showIntervals', HIGHLIGHT_SET:'highlightSet', ZOOM_LEVEL:'zoomLevel', FRET_COUNT:'fretCount', THEME:'theme'
+  BASE_NOTE:'baseNote', HIGHLIGHT_MODE:'highlightMode', SHOW_NOTES:'showNoteNames', SHOW_INTERVALS:'showIntervals', HIGHLIGHT_SET:'highlightSet', ZOOM_LEVEL:'zoomLevel', FRET_COUNT:'fretCount', THEME:'theme', STRING_TUNING:'stringTuning'
 });
-export const DEFAULTS = Object.freeze({ BASE_NOTE:DEFAULT_BASE_NOTE, HIGHLIGHT_MODE:DEFAULT_HIGHLIGHT_MODE, SHOW_NOTES:true, SHOW_INTERVALS:false, HIGHLIGHT_SET:'BASIC', ZOOM_LEVEL:1.0, FRET_COUNT:DEFAULT_FRETS, THEME:'light' });
+export const DEFAULTS = Object.freeze({ BASE_NOTE:DEFAULT_BASE_NOTE, HIGHLIGHT_MODE:DEFAULT_HIGHLIGHT_MODE, SHOW_NOTES:true, SHOW_INTERVALS:false, HIGHLIGHT_SET:'BASIC', ZOOM_LEVEL:1.0, FRET_COUNT:DEFAULT_FRETS, THEME:'light', STRING_TUNING:DEFAULT_TUNING });
 // Central schema listing persisted settings and their defaults
 export const PERSISTED_SETTINGS = Object.freeze({
   BASE_NOTE: { storageKey: STORAGE_KEYS.BASE_NOTE, def: DEFAULTS.BASE_NOTE },
@@ -98,7 +101,8 @@ export const PERSISTED_SETTINGS = Object.freeze({
   SHOW_INTERVALS: { storageKey: STORAGE_KEYS.SHOW_INTERVALS, def: DEFAULTS.SHOW_INTERVALS },
   ZOOM_LEVEL: { storageKey: STORAGE_KEYS.ZOOM_LEVEL, def: DEFAULTS.ZOOM_LEVEL },
   FRET_COUNT: { storageKey: STORAGE_KEYS.FRET_COUNT, def: DEFAULTS.FRET_COUNT },
-  THEME: { storageKey: STORAGE_KEYS.THEME, def: DEFAULTS.THEME }
+  THEME: { storageKey: STORAGE_KEYS.THEME, def: DEFAULTS.THEME },
+  STRING_TUNING: { storageKey: STORAGE_KEYS.STRING_TUNING, def: DEFAULTS.STRING_TUNING }
 });
 export const CHORD_PALETTE = ['#00A676', '#FF7F0E', '#1F77B4', '#D62728'];
 export const FRETBOARD_COLOR = '#E3CDB6';

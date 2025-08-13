@@ -19,7 +19,9 @@ import {
     getIntervalVisibility,
     getHighlightSet,
     setHighlightSet,
-    initializeAllSettings
+    initializeAllSettings,
+    setStringTuning,
+    getStringTuning
 } from './state.js';
 import { EVENTS, on } from './events.js';
 
@@ -187,6 +189,30 @@ function bindUIEvents() {
     fretInput.addEventListener('change', e => {
       setFretCount(e.target.value);
     });
+  }
+  const instrumentSelect = document.getElementById('instrumentTypeSelect');
+  if (instrumentSelect) {
+    instrumentSelect.addEventListener('change', e => {
+      const val = e.target.value;
+      // Preset tunings (high-to-low consistent ordering as existing app uses index 0 top string)
+      let tuning;
+      if (val === 'bass4') tuning = ['G','D','A','E'];
+      else if (val === 'ukulele4') tuning = ['A','E','C','G']; // standard re-entrant ordering top-to-bottom visual
+      else tuning = ['E','B','G','D','A','E']; // default 6-string guitar
+      setStringTuning(tuning);
+      recalcAllNoteCoordinates();
+      rebuildFretboard();
+    });
+    // Initialize selection to match current tuning length
+    try {
+      const cur = getStringTuning();
+      if (cur.length === 4) {
+        // Distinguish bass vs ukulele heuristically (bass lowest note E, uke highest A). Check presence of low E and A
+        if (cur.includes('F#') || cur.includes('C#')) instrumentSelect.value = 'guitar6';
+        else if (cur[3] === 'E') instrumentSelect.value = 'bass4';
+        else instrumentSelect.value = 'ukulele4';
+      } else instrumentSelect.value = 'guitar6';
+    } catch {}
   }
   document.getElementById('noteNamesCheckbox')?.addEventListener('change', function() {
     handleCheckboxChange(this, 'noteNamesCheckbox');

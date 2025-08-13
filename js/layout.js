@@ -3,6 +3,8 @@
  * Exports live bindings so other modules see updated values after setZoomLevel.
  */
 import { d3, SCALE_SEMITONES, DEFAULT_FRETS, MIN_FRETS, MAX_FRETS, OPEN_NOTE_BASELINE, DEFAULTS, STORAGE_KEYS, ZOOM_MIN, ZOOM_MAX, SLIDER_LENGTH } from './constants.js';
+import { getStringTuning } from './state.js';
+import { EVENTS, on } from './events.js';
 
 // Base logical dimensions (unscaled)
 const BASE = Object.freeze({
@@ -40,7 +42,9 @@ export const noteScale = (i) => G_WIDTH * rawFretPos(i - 0.5) / normDenom();
 export function openNoteX(){
   return padding + G_WIDTH * rawFretPos(-0.5) / rawFretPos(OPEN_NOTE_BASELINE);
 }
-export const stringScale = d3.scaleLinear().domain([0,5]).range([G_HEIGHT/12, G_HEIGHT - G_HEIGHT/12]);
+// Initialize string count from persisted tuning (honors saved custom tuning length on reload)
+export let stringCount = getStringTuning().length;
+export const stringScale = d3.scaleLinear().domain([0,stringCount-1]).range([G_HEIGHT/12, G_HEIGHT - G_HEIGHT/12]);
 
 // Slider related
 let fretCount = DEFAULTS.FRET_COUNT; // dynamic number of frets (excluding open string)
@@ -66,8 +70,16 @@ export const sliderLength = () => SLIDER_LENGTH;
 export let MIN_FRET_SPACING = 0; // used by other modules to size their visuals independently
 
 // String thicknesses (base, then scaled with zoom)
-const BASE_STRING_THICKNESSES = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 5];
-export let stringThicknesses = BASE_STRING_THICKNESSES.map(x => x * 3 * zoomLevel);
+export let stringThicknesses = [];
+function updateStringThicknesses() {
+  stringThicknesses = [];
+  const base = [0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2];
+  for (let i=0;i<stringCount;i++) {
+    const idx = Math.min(i, base.length-1);
+    stringThicknesses.push(base[idx] * 3 * zoomLevel);
+  }
+}
+updateStringThicknesses();
 
 export function getZoomLevel(){ return zoomLevel; }
 export function setZoomLevel(z){
@@ -85,10 +97,10 @@ function recalc(){
   C_WIDTH = BASE.C_WIDTH * zoomLevel;
   C_HEIGHT = BASE.C_HEIGHT * zoomLevel;
   padding = BASE.PADDING * zoomLevel;
-  neckWidth = G_WIDTH; // full width occupied by current span
+  neckWidth = G_WIDTH;
   containerWidth = neckWidth + padding;
   containerHeight = G_HEIGHT + 2 * padding;
-  stringScale.range([G_HEIGHT/12, G_HEIGHT - G_HEIGHT/12]);
+  stringScale.domain([0,stringCount-1]).range([G_HEIGHT/12, G_HEIGHT - G_HEIGHT/12]);
   // Compute minimum spacing between any two adjacent visible frets (0..fretCount)
   let minSpacing;
   if (fretCount <= 1) {
@@ -101,17 +113,21 @@ function recalc(){
     }
   }
   MIN_FRET_SPACING = minSpacing;
-  stringThicknesses = BASE_STRING_THICKNESSES.map(x => x * 3 * zoomLevel);
+  updateStringThicknesses();
 }
 
 // Perform an initial recalc so spacing is correct on first load
 recalc();
+
+// Listen for tuning changes to update string count and recalculate layout
+on(EVENTS.TUNING_CHANGED, ()=>{ stringCount = getStringTuning().length; recalc(); document.dispatchEvent(new CustomEvent('layoutChanged',{detail:{stringCount}})); });
 
 // Convenience layout snapshot
 export function getLayout(){
   return {
     zoom: zoomLevel,
     fretCount,
+    stringCount,
     G_WIDTH, G_HEIGHT, C_WIDTH, C_HEIGHT,
     neckWidth,
     padding, containerWidth, containerHeight,

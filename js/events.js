@@ -4,6 +4,7 @@
 export const EVENTS = Object.freeze({
   BASE_NOTE_CHANGED: 'baseNoteChanged',
   HIGHLIGHT_MODE_CHANGED: 'highlightModeChanged',
+  TUNING_CHANGED: 'tuningChanged',
   STATE_CHANGED: 'stateChanged' // generic (key, oldValue, newValue)
 });
 
