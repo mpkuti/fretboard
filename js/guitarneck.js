@@ -194,11 +194,11 @@ function bindUIEvents() {
   if (instrumentSelect) {
     instrumentSelect.addEventListener('change', e => {
       const val = e.target.value;
-      // Preset tunings (high-to-low consistent ordering as existing app uses index 0 top string)
       let tuning;
-      if (val === 'bass4') tuning = ['G','D','A','E'];
-      else if (val === 'ukulele4') tuning = ['A','E','C','G']; // standard re-entrant ordering top-to-bottom visual
-      else tuning = ['E','B','G','D','A','E']; // default 6-string guitar
+      if (val === 'bass5') tuning = ['G','D','A','E','B']; // 5-string bass high-to-low visual order
+      else if (val === 'bass4') tuning = ['G','D','A','E'];
+      else if (val === 'ukulele4') tuning = ['A','E','C','G'];
+      else tuning = ['E','B','G','D','A','E'];
       setStringTuning(tuning);
       recalcAllNoteCoordinates();
       rebuildFretboard();
@@ -211,6 +211,8 @@ function bindUIEvents() {
         if (cur.includes('F#') || cur.includes('C#')) instrumentSelect.value = 'guitar6';
         else if (cur[3] === 'E') instrumentSelect.value = 'bass4';
         else instrumentSelect.value = 'ukulele4';
+      } else if (cur.length === 5) {
+        instrumentSelect.value = 'bass5';
       } else instrumentSelect.value = 'guitar6';
     } catch {}
   }
