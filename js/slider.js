@@ -13,8 +13,6 @@ import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, h
 // Local visual sizing for slider circles (independent from background)
 const NOTE_R_MIN_PX = 5;
 const NOTE_R_RATIO = 0.8; // radius as fraction of the computed maximum allowed radius
-// Thickness of base note ring as a fraction of the circle radius
-const BASE_NOTE_STROKE_RATIO = 0.28;
 function NOTE_CIRCLE_R(){
   // Handle single string: rely purely on horizontal spacing
   let stringSpacing = (typeof stringScale === 'function' && stringScale.domain().length>1) ? (stringScale(1) - stringScale(0)) : MIN_FRET_SPACING;
@@ -231,19 +229,18 @@ function toggleAllIntervalLabels(show){
  * Outlines the circles of the base note with a black stroke
  * @param {string} baseNote - The note to be outlined
  */
+const BASE_NOTE_STROKE_RATIO = 0.28; // proportion of circle radius
 export function outlineBaseNoteCircles(baseNote) {
     if (!slider_group) return;
-    const baseR = NOTE_CIRCLE_R(); // canonical outer radius
+    const baseR = NOTE_CIRCLE_R();
     slider_group.selectAll('circle').each(function(d) {
         this.setAttribute('r', baseR);
         if (d.note === baseNote) {
-            // Ring thickness proportional to circle size
             const strokeW = Math.max(1, baseR * BASE_NOTE_STROKE_RATIO);
             const adjustedR = Math.max(1, baseR - strokeW / 2);
             this.setAttribute('r', adjustedR);
             this.setAttribute('stroke', 'black');
             this.setAttribute('stroke-width', strokeW);
-            // Remove non-scaling stroke so thickness scales with zoom
             this.removeAttribute('vector-effect');
             this.setAttribute('stroke-linejoin','round');
             this.setAttribute('stroke-linecap','round');

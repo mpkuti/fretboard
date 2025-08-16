@@ -544,6 +544,13 @@ function resetApplication(){
     const body = document.body;
     if (body) body.classList.toggle('dark', DEFAULTS.THEME === 'dark');
   } catch {}
+  // Update theme toggle button label & aria to match default theme
+  const themeBtn = document.getElementById('themeToggleBtn');
+  if (themeBtn){
+    const dark = document.body.classList.contains('dark');
+    themeBtn.textContent = dark ? 'Light Theme' : 'Dark Theme';
+    themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+  }
   // Update UI form controls
   const baseSelectEl = document.getElementById('baseNoteSelectDropdown'); if (baseSelectEl) baseSelectEl.value = DEFAULTS.BASE_NOTE;
   const noteCb = document.getElementById('noteNamesCheckbox'); if (noteCb) noteCb.checked = !!DEFAULTS.SHOW_NOTES;

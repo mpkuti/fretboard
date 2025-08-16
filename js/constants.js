@@ -122,7 +122,6 @@ export const ZOOM_STEP = 0.1;
 export const NUT_STROKE_WIDTH = 5;
 export const FRET_STROKE_WIDTH = 3;
 // Replaced ratio-based stroke with fixed pixel width for base note outline
-export const BASE_NOTE_STROKE_WIDTH = 4; // fixed stroke width (px) for base note outline; circle radius shrinks so outer diameter remains constant
 export const UI = Object.freeze({
   ANIMATION_MS: 500,
   INTERVAL_LABEL_DX: '0.75em',
