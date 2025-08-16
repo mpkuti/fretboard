@@ -112,29 +112,19 @@ export function updateIntervalText() {
 // Flag to indicate whether a transition is in progress
 let transitionInProgress = false;
 
-/**
- * Handles click events on the fretboard to move the slider (change base note)
- * Determines direction based on click position and animates the transition
- * @param {Event} event - The mouse click event
- */
-export function moveSlider(event) {
+// Internal movement logic extracted so keyboard handlers can reuse it
+function startSliderShift(direction){
     if (transitionInProgress) return;
     transitionInProgress = true;
-    const _clickX = event.pageX;
-    const direction = _clickX < G_WIDTH/2 ? -1 : 1; // -1 = shift left, +1 = shift right
-
     const stepWidth = xCenters[1] - xCenters[0];
     const offLeftX = xCenters[0] - stepWidth;
     const groups = slider_group.selectAll('g.fret-col');
-
     if (direction === 1) {
         groups.filter(function(){ return +this.getAttribute('data-fret') === sliderLength()-1; })
             .attr('transform',`translate(${offLeftX},0)`);
     }
-
     let active = 0;
     function finalize(){
-        // Snap and update logical frets / notes
         groups.each(function(){
             let fret = +this.getAttribute('data-fret');
             let newFret = (fret + direction + sliderLength()) % sliderLength();
@@ -156,7 +146,6 @@ export function moveSlider(event) {
         if (direction < 0) lowerBaseNote(); else raiseBaseNote();
         transitionInProgress = false;
     }
-
     groups.transition()
         .duration(UI.ANIMATION_MS)
         .on('start', function(){ active++; })
@@ -170,10 +159,23 @@ export function moveSlider(event) {
                 return `translate(${xCenters[fret-1]},0)`;
             }
         })
-        .on('end', function(){
-            active--;
-            if (active === 0) finalize();
-        });
+        .on('end', function(){ active--; if (active === 0) finalize(); });
+}
+
+/**
+ * Handles click events on the fretboard to move the slider (change base note)
+ * Determines direction based on click position and animates the transition
+ * @param {Event} event - The mouse click event
+ */
+export function moveSlider(event) {
+    const direction = event.pageX < G_WIDTH/2 ? -1 : 1; // -1 = shift left, +1 = shift right
+    startSliderShift(direction);
+}
+
+// Programmatic shift API for keyboard: direction -1 (left), +1 (right)
+export function shiftSlider(direction){
+    if (direction !== -1 && direction !== 1) return;
+    startSliderShift(direction);
 }
 
 /**

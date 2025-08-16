@@ -32,7 +32,7 @@ import { EVENTS, on } from './events.js';
 
 // Import the functions from the other files
 import { drawBackground, drawNoteLabels, showAllNotes, hideAllNotes, setNoteNamesVisibility } from './background.js';
-import { drawSlider, moveSlider, updateIntervalText, showIntervalsWithVisual, hideIntervalsWithVisual, highlightNotes, outlineBaseNoteCircles, highlightNotesMulti } from './slider.js';
+import { drawSlider, moveSlider, shiftSlider, updateIntervalText, showIntervalsWithVisual, hideIntervalsWithVisual, highlightNotes, outlineBaseNoteCircles, highlightNotesMulti } from './slider.js';
 
 // Set a default setting for the base note and highlight mode
 // var defaultBaseNote = "C";
@@ -588,6 +588,16 @@ function bindResetButton(){
   });
 }
 
+function bindKeyboardShortcuts(){
+  document.addEventListener('keydown', (e)=>{
+    // Ignore if focus is in an editable/input element
+    const tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable)) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); shiftSlider(-1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); shiftSlider(1); }
+  });
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   initializeAllSettings();
   document.addEventListener('fretCountChanged', () => {
@@ -599,6 +609,7 @@ window.addEventListener('DOMContentLoaded', () => {
   bindTuningPanel();
   bindZoomButtons();
   bindResetButton();
+  bindKeyboardShortcuts();
   renderPentatonicLabel();
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());
