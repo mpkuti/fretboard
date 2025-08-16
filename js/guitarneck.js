@@ -522,6 +522,9 @@ function resetApplication(){
   if (needsTuningReset) setStringTuning(DEFAULTS.STRING_TUNING);
   // Fret count & zoom
   if (getFretCount() !== DEFAULTS.FRET_COUNT) setFretCount(DEFAULTS.FRET_COUNT);
+  // Sync fret count select UI to default
+  const fretSelect = document.getElementById('fretCountInput');
+  if (fretSelect) fretSelect.value = String(DEFAULTS.FRET_COUNT);
   if (getZoomLevel() !== DEFAULTS.ZOOM_LEVEL) setZoomLevel(DEFAULTS.ZOOM_LEVEL);
   // Base note & highlight mode
   if (getBaseNote() !== DEFAULTS.BASE_NOTE) setBaseNote(DEFAULTS.BASE_NOTE);
