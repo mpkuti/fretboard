@@ -7,7 +7,7 @@
 // Import from the new modular structure
 import { d3, FRETBOARD_COLOR, FRET_COLOR, STRING_COLOR, DOT_FRETS, DOUBLE_DOT_FRETS, UI, NUT_STROKE_WIDTH, FRET_STROKE_WIDTH } from './constants.js';
 import { G_WIDTH, G_HEIGHT, padding, stringThicknesses, fretScale, noteScale, stringScale, getFretCount, neckWidth, MIN_FRET_SPACING, stringCount } from './layout.js';
-import { all_note_coordinates } from './utils.js';
+import { all_note_coordinates, romanize } from './utils.js';
 import { getNoteNamesVisibility, showNoteNames, hideNoteNames } from './state.js';
 
 // Local visual sizing for background dots (independent from slider)
@@ -18,22 +18,6 @@ function backgroundDotR(){
   return Math.max(BG_DOT_MIN_PX, r);
 }
 
-// Hoisted Roman numeral lookup (avoids reallocation per call)
-const ROMAN_LOOKUP = { M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1 };
-const ROMAN_KEYS = Object.keys(ROMAN_LOOKUP);
-/**
- * Converts numbers to roman numerals
- * @param {number} num - The number to convert (1-4000)
- * @returns {string} The roman numeral representation
- * @source https://stackoverflow.com/questions/9083037/convert-a-number-into-a-roman-numeral-in-javascript
- */
-function romanize(num) {
-  let roman = '';
-  for (const k of ROMAN_KEYS) {
-    while (num >= ROMAN_LOOKUP[k]) { roman += k; num -= ROMAN_LOOKUP[k]; }
-  }
-  return roman;
-}
 
 /**
  * Draws the guitar fretboard background including neck, frets, strings, and decorative dots

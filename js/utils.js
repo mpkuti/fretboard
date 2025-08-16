@@ -9,6 +9,23 @@ import { getStringTuning } from './state.js';
 import { padding, noteScale, stringScale, sliderLength, getFretCount, openNoteX } from './layout.js';
 import { raiseNote, lowerNote, getIntervalFromNotes } from './noteops.js';
 
+// Roman numeral conversion utility (moved from background.js)
+// Source reference: https://stackoverflow.com/questions/9083037/convert-a-number-into-a-roman-numeral-in-javascript
+const ROMAN_LOOKUP = { M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1 };
+const ROMAN_KEYS = Object.keys(ROMAN_LOOKUP);
+/**
+ * Convert an integer (1-4000) to a Roman numeral string.
+ * @param {number} num
+ * @returns {string}
+ */
+export function romanize(num){
+    let roman = '';
+    for (const k of ROMAN_KEYS) {
+        while (num >= ROMAN_LOOKUP[k]) { roman += k; num -= ROMAN_LOOKUP[k]; }
+    }
+    return roman;
+}
+
 /**
  * Get the note, given the base note and interval up from it
  * @param {string} note - The base note
