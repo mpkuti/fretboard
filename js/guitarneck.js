@@ -202,6 +202,8 @@ function bindUIEvents() {
       setStringTuning(tuning);
       recalcAllNoteCoordinates();
       rebuildFretboard();
+  buildTuningRows(); // rebuild tuning controls for new string count
+  detectAndSetPresetFromCurrent();
     });
     // Initialize selection to match current tuning length
     try {
@@ -275,6 +277,119 @@ function bindUIEvents() {
   const radio = document.querySelector(`input[name="highlightSet"][value="${storedSet}"]`);
   if (radio) radio.checked = true;
   rebuildSelect(storedSet || (document.querySelector('input[name="highlightSet"]:checked')?.value || 'BASIC'));
+}
+
+// ---------------- TUNING PANEL LOGIC ----------------
+const PRESET_MAP = {
+  STANDARD: ['E','B','G','D','A','E'],
+  DROP_D: ['E','B','G','D','A','D'],
+  DADGAD: ['D','A','G','D','A','D'],
+  OPEN_G: ['D','B','G','D','G','D'],
+  OPEN_D: ['D','A','F#','D','A','D']
+};
+
+function tuningEquals(a,b){ if(!a||!b||a.length!==b.length) return false; for(let i=0;i<a.length;i++){ if(a[i]!==b[i]) return false; } return true; }
+
+function currentPresetKey(cur){
+  for (const k of Object.keys(PRESET_MAP)) {
+    if (tuningEquals(cur, PRESET_MAP[k])) return k;
+  }
+  return 'CUSTOM';
+}
+
+function buildTuningRows(){
+  const container = document.getElementById('tuningRows');
+  if(!container) return;
+  container.innerHTML='';
+  const tuning = getStringTuning();
+  // Highest string visually at top (current order already highest->lowest in existing logic)
+  tuning.forEach((note, idx)=>{
+    const row = document.createElement('div'); row.className='tuning-row';
+    const label = document.createElement('label'); label.htmlFor = 'tuningString'+idx; label.textContent = (idx+1)+':';
+    const sel = document.createElement('select'); sel.id='tuningString'+idx; sel.setAttribute('data-index', String(idx));
+    ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'].forEach(n=>{
+      const opt=document.createElement('option'); opt.value=n; opt.textContent=n; if(n===note) opt.selected=true; sel.appendChild(opt);
+    });
+    sel.addEventListener('change', ()=>{
+      const newTuning = getStringTuning().slice();
+      newTuning[idx] = sel.value;
+      setStringTuning(newTuning);
+      recalcAllNoteCoordinates();
+      rebuildFretboard();
+      detectAndSetPresetFromCurrent();
+      updateTuningSummary();
+    });
+    row.appendChild(label);
+    row.appendChild(sel);
+    container.appendChild(row);
+  });
+  updateTuningSummary();
+}
+
+function applyPreset(presetKey){
+  const base = PRESET_MAP[presetKey];
+  if (!base) return;
+  const currentLen = getStringTuning().length;
+  // If string count different, slice or repeat nearest
+  let target = base.slice();
+  if (currentLen !== base.length) {
+    if (currentLen < base.length) target = base.slice(0,currentLen);
+    else {
+      // extend by repeating last (lowest) note
+      while (target.length < currentLen) target.push(base[base.length-1]);
+    }
+  }
+  setStringTuning(target);
+  recalcAllNoteCoordinates();
+  rebuildFretboard();
+  buildTuningRows();
+  detectAndSetPresetFromCurrent();
+  updateTuningSummary();
+}
+
+function detectAndSetPresetFromCurrent(){
+  const sel = document.getElementById('tuningPresetSelect'); if(!sel) return;
+  const cur = getStringTuning();
+  const key = currentPresetKey(cur);
+  // Enable or disable CUSTOM based on match
+  const customOpt = [...sel.options].find(o=>o.value==='CUSTOM');
+  if (customOpt) {
+    if (key === 'CUSTOM') {
+      customOpt.disabled = false;
+      customOpt.textContent = 'Custom (' + cur.slice().reverse().join(' ') + ')';
+    } else {
+      customOpt.disabled = true;
+      customOpt.textContent = 'Custom…';
+    }
+  }
+  sel.value = key;
+}
+
+function updateTuningSummary(){
+  const el = document.getElementById('tuningSummary'); if(!el) return;
+  el.textContent = 'Current: ' + getStringTuning().join(' ');
+  // Show lowest->highest for user clarity
+  const ordered = getStringTuning().slice().reverse().join(' ');
+  el.textContent = 'Current: ' + ordered;
+}
+
+function bindTuningPanel(){
+  const presetSelect = document.getElementById('tuningPresetSelect');
+  if (presetSelect){
+    presetSelect.addEventListener('change', e=>{
+      const val = e.target.value;
+  if (val === 'CUSTOM') return; // selection of CUSTOM is managed automatically
+  applyPreset(val);
+    });
+  }
+  const resetBtn = document.getElementById('resetTuningBtn');
+  if (resetBtn){
+    resetBtn.addEventListener('click', ()=>{
+      applyPreset('STANDARD');
+    });
+  }
+  buildTuningRows();
+  detectAndSetPresetFromCurrent();
 }
 
 function updateHeader() {
@@ -402,6 +517,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   initializeView();
   bindUIEvents();
+  bindTuningPanel();
   bindZoomButtons();
   renderPentatonicLabel();
   applyHighlightColors();

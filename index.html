@@ -50,6 +50,11 @@
       .panel { background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:8px; padding:12px 14px 14px; box-shadow:0 1px 2px rgba(0,0,0,0.08); transition: background .25s, border-color .25s; }
       .panel h4 { margin:0 0 8px; font-size:1rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600; color:var(--heading); }
       .panel label { cursor:pointer; }
+  /* Tuning panel helpers */
+  .tuning-rows { display:flex; flex-direction:column; gap:4px; margin-top:8px; }
+  .tuning-row { display:flex; align-items:center; gap:6px; }
+  .tuning-row label { width:38px; text-align:right; font-size:.75rem; color:var(--muted); }
+  #tuningSummary { font-size:.65rem; margin-top:6px; }
       fieldset { border:none; padding:0; margin:0; }
       fieldset legend { font-weight:600; margin-bottom:4px; }
       .inline-radio label { display:flex; align-items:center; gap:4px; margin:2px 0; }
@@ -154,6 +159,27 @@
           <label><input type="checkbox" id="noteNamesCheckbox" checked /> Show Notes</label><br />
           <label><input type="checkbox" id="intervalNamesCheckbox" checked /> Show Intervals</label>
         </div>
+      </div>
+
+      <!-- New dedicated Tuning panel -->
+      <div class="panel" aria-labelledby="panel-tuning">
+        <h4 id="panel-tuning">Tuning</h4>
+        <div class="number-input-row" style="margin-bottom:6px;">
+          <label for="tuningPresetSelect">Preset:</label>
+          <select id="tuningPresetSelect" class="stretch" aria-label="Select tuning preset">
+            <option value="STANDARD">Standard (E A D G B E)</option>
+            <option value="DROP_D">Drop D (D A D G B E)</option>
+            <option value="DADGAD">DADGAD (D A D G A D)</option>
+            <option value="OPEN_G">Open G (D G D G B D)</option>
+            <option value="OPEN_D">Open D (D A D F# A D)</option>
+            <option value="CUSTOM" disabled>Custom…</option>
+          </select>
+        </div>
+        <div id="tuningRows" class="tuning-rows" aria-label="Per-string tuning controls"></div>
+        <div class="actions-row" style="margin-top:10px;">
+          <button type="button" id="resetTuningBtn" title="Reset to Standard tuning">Reset</button>
+        </div>
+        <div id="tuningSummary" class="muted" aria-live="polite"></div>
       </div>
 
       <div class="panel" aria-labelledby="panel-legend">
