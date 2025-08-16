@@ -44,7 +44,10 @@ export function openNoteX(){
 }
 // Initialize string count from persisted tuning (honors saved custom tuning length on reload)
 export let stringCount = getStringTuning().length;
-export const stringScale = d3.scaleLinear().domain([0,stringCount-1]).range([G_HEIGHT/12, G_HEIGHT - G_HEIGHT/12]);
+// String center positions: first at G_HEIGHT/(2*stringCount), uniform spacing = G_HEIGHT/stringCount
+export const stringScale = d3.scaleLinear()
+  .domain([0,stringCount-1])
+  .range([G_HEIGHT/(2*stringCount), G_HEIGHT - G_HEIGHT/(2*stringCount)]);
 
 // Slider related
 let fretCount = DEFAULTS.FRET_COUNT; // dynamic number of frets (excluding open string)
@@ -100,7 +103,12 @@ function recalc(){
   neckWidth = G_WIDTH;
   containerWidth = neckWidth + padding;
   containerHeight = G_HEIGHT + 2 * padding;
-  stringScale.domain([0,stringCount-1]).range([G_HEIGHT/12, G_HEIGHT - G_HEIGHT/12]);
+  // Recompute string vertical positioning so:
+  // spacing between adjacent strings = G_HEIGHT / stringCount
+  // first string offset from top edge = G_HEIGHT / (2 * stringCount)
+  stringScale
+    .domain([0,stringCount-1])
+    .range([G_HEIGHT/(2*stringCount), G_HEIGHT - G_HEIGHT/(2*stringCount)]);
   // Compute minimum spacing between any two adjacent visible frets (0..fretCount)
   let minSpacing;
   if (fretCount <= 1) {
