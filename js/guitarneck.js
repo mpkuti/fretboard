@@ -6,22 +6,27 @@
 
 // Import from the new modular structure
 import { d3, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE, ZOOM_MIN, ZOOM_MAX, ZOOM_STEP, MIN_FRETS, MAX_FRETS } from './constants.js';
+import { STORAGE_KEYS, PERSISTED_SETTINGS } from './constants.js';
 import { getZoomLevel, setZoomLevel, containerWidth, containerHeight, padding, setFretCount, getFretCount } from './layout.js';
 import { pentatonic, buildPentatonicLabel, getNoteFromInterval, recalcAllNoteCoordinates } from './utils.js';
 import { 
-    getBaseNote, 
-    setBaseNote, 
-    getHighlightMode, 
-    setHighlightMode, 
-    initializeNoteNamesVisibility, 
-    getNoteNamesVisibility, 
-    initializeIntervalVisibility, 
-    getIntervalVisibility,
-    getHighlightSet,
-    setHighlightSet,
-    initializeAllSettings,
-    setStringTuning,
-    getStringTuning
+  getBaseNote, 
+  setBaseNote, 
+  getHighlightMode, 
+  setHighlightMode, 
+  initializeNoteNamesVisibility, 
+  getNoteNamesVisibility, 
+  initializeIntervalVisibility, 
+  getIntervalVisibility,
+  getHighlightSet,
+  setHighlightSet,
+  initializeAllSettings,
+  setStringTuning,
+  getStringTuning,
+  showNoteNames,
+  hideNoteNames,
+  showIntervals,
+  hideIntervals
 } from './state.js';
 import { EVENTS, on } from './events.js';
 
@@ -383,11 +388,7 @@ function bindTuningPanel(){
     });
   }
   const resetBtn = document.getElementById('resetTuningBtn');
-  if (resetBtn){
-    resetBtn.addEventListener('click', ()=>{
-      applyPreset('STANDARD');
-    });
-  }
+  if (resetBtn){ /* removed reset button */ }
   buildTuningRows();
   detectAndSetPresetFromCurrent();
 }
@@ -509,6 +510,74 @@ function bindZoomButtons(){
   updateZoomUI();
 }
 
+function resetApplication(){
+  // Overwrite each persisted key with its default value (soft reset, no reload)
+  try {
+    Object.values(PERSISTED_SETTINGS).forEach(({storageKey, def})=>{
+      localStorage.setItem(storageKey, JSON.stringify(def));
+    });
+  } catch {}
+  // Apply defaults to live state via existing setters (emits events and updates UI pieces where listeners exist)
+  const needsTuningReset = JSON.stringify(getStringTuning()) !== JSON.stringify(DEFAULTS.STRING_TUNING);
+  if (needsTuningReset) setStringTuning(DEFAULTS.STRING_TUNING);
+  // Fret count & zoom
+  if (getFretCount() !== DEFAULTS.FRET_COUNT) setFretCount(DEFAULTS.FRET_COUNT);
+  if (getZoomLevel() !== DEFAULTS.ZOOM_LEVEL) setZoomLevel(DEFAULTS.ZOOM_LEVEL);
+  // Base note & highlight mode
+  if (getBaseNote() !== DEFAULTS.BASE_NOTE) setBaseNote(DEFAULTS.BASE_NOTE);
+  if (getHighlightMode() !== DEFAULTS.HIGHLIGHT_MODE) setHighlightMode(DEFAULTS.HIGHLIGHT_MODE);
+  if (getHighlightSet() !== DEFAULTS.HIGHLIGHT_SET) {
+    // Trigger change event on highlightSet radio for proper select rebuild
+    const radio = document.querySelector(`input[name="highlightSet"][value="${DEFAULTS.HIGHLIGHT_SET}"]`);
+    if (radio){
+      radio.checked = true;
+      radio.dispatchEvent(new Event('change', { bubbles:true }));
+    } else {
+      setHighlightSet(DEFAULTS.HIGHLIGHT_SET);
+    }
+  }
+  // Note / interval visibility
+  if (DEFAULTS.SHOW_NOTES) { showNoteNames(); } else { hideNoteNames(); }
+  if (DEFAULTS.SHOW_INTERVALS) { showIntervals(); } else { hideIntervals(); }
+  // Theme (light/dark)
+  try {
+    const body = document.body;
+    if (body) body.classList.toggle('dark', DEFAULTS.THEME === 'dark');
+  } catch {}
+  // Update UI form controls
+  const baseSelectEl = document.getElementById('baseNoteSelectDropdown'); if (baseSelectEl) baseSelectEl.value = DEFAULTS.BASE_NOTE;
+  const noteCb = document.getElementById('noteNamesCheckbox'); if (noteCb) noteCb.checked = !!DEFAULTS.SHOW_NOTES;
+  const intCb = document.getElementById('intervalNamesCheckbox'); if (intCb) intCb.checked = !!DEFAULTS.SHOW_INTERVALS;
+  const instrumentSelect = document.getElementById('instrumentTypeSelect'); if (instrumentSelect) instrumentSelect.value = 'guitar6';
+  const highlightModeSelect = document.getElementById('highlightModeSelect');
+  if (highlightModeSelect){
+    highlightModeSelect.value = DEFAULTS.HIGHLIGHT_MODE;
+    highlightModeSelect.dispatchEvent(new Event('change', { bubbles:true }));
+  }
+  // Rebuild tuning panel rows & preset detection
+  buildTuningRows();
+  detectAndSetPresetFromCurrent();
+  updateTuningSummary();
+  // Recalculate note coordinates after potential tuning / fret / zoom changes
+  recalcAllNoteCoordinates();
+  // Rebuild the SVG visuals
+  rebuildFretboard();
+  // Apply coloring / labels / header
+  applyHighlightColors();
+  outlineBaseNoteCircles(getBaseNote());
+  renderPentatonicLabel();
+  updateHeader();
+  updateZoomUI();
+}
+
+function bindResetButton(){
+  const btn = document.getElementById('resetAppBtn');
+  if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    if (confirm('Reset all fretboard settings to defaults?')) resetApplication();
+  });
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   initializeAllSettings();
   document.addEventListener('fretCountChanged', () => {
@@ -519,6 +588,7 @@ window.addEventListener('DOMContentLoaded', () => {
   bindUIEvents();
   bindTuningPanel();
   bindZoomButtons();
+  bindResetButton();
   renderPentatonicLabel();
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());
