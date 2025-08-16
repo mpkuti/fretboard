@@ -56,6 +56,18 @@ drawNoteLabels(zoomRoot);
 // Attach the click event handler to the scalable root
 zoomRoot.on("click", moveSlider);
 
+// Helper: keep outer container sized to current layout so subsequent boxes shift naturally
+function updateContainerDimensions(){
+  try {
+    const el = document.getElementById('fretboardContainer');
+    if (el) {
+      el.style.width = containerWidth + 'px';
+      el.style.height = containerHeight + 'px';
+    }
+  } catch {}
+}
+updateContainerDimensions();
+
 
 // ******************** START FUNCTIONS ********************
 
@@ -485,6 +497,7 @@ function rebuildFretboard() {
   drawSlider(zoomRoot);
   drawNoteLabels(zoomRoot);
   zoomRoot.on('click', moveSlider);
+  updateContainerDimensions();
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());
   if (getNoteNamesVisibility()) { showAllNotes(); } else { hideAllNotes(); }
@@ -502,6 +515,7 @@ function changeZoom(delta){
   recalcAllNoteCoordinates();
   updateZoomUI();
   rebuildFretboard();
+  updateContainerDimensions();
 }
 
 function bindZoomButtons(){
@@ -578,6 +592,7 @@ function resetApplication(){
   renderPentatonicLabel();
   updateHeader();
   updateZoomUI();
+  updateContainerDimensions();
 }
 
 function bindResetButton(){
@@ -603,6 +618,7 @@ window.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('fretCountChanged', () => {
     recalcAllNoteCoordinates();
     rebuildFretboard();
+  updateContainerDimensions();
   });
   initializeView();
   bindUIEvents();
@@ -614,5 +630,6 @@ window.addEventListener('DOMContentLoaded', () => {
   applyHighlightColors();
   outlineBaseNoteCircles(getBaseNote());
   updateHeader();
+  updateContainerDimensions();
   svg.classed('ready', true).classed('init-fade', false);
 });
