@@ -130,6 +130,9 @@ export function drawNoteLabels(svg) {
         .enter()
         .append("text")
         .attr("class", "note-labels")
+        .attr('data-note', d=>d.note)
+        .attr('data-string', d=>d.string)
+        .attr('data-fret', d=>d.fret)
         .attr("x", (d) => d.x)
         .attr("y", (d) => d.y)
         .attr("dy", "0.35em") // vertical alignment
@@ -142,11 +145,8 @@ export function drawNoteLabels(svg) {
  * Sets the opacity of note text labels
  * @param {number} opacity - The opacity value (0-1)
  */
-function setNoteTextOpacity(opacity) {
-    d3.selectAll("text.note-labels")
-        .transition()
-        .duration(0)
-        .style("opacity", opacity);
+function toggleAllNoteLabels(show){
+    d3.selectAll('text.note-labels').classed('hidden-note', !show);
 }
 
 /**
@@ -154,7 +154,7 @@ function setNoteTextOpacity(opacity) {
  */
 export function showAllNotes() {
     showNoteNames();
-    setNoteTextOpacity(1);
+    toggleAllNoteLabels(true);
 }
 
 /**
@@ -162,7 +162,7 @@ export function showAllNotes() {
  */
 export function hideAllNotes() {
     hideNoteNames();
-    setNoteTextOpacity(0);
+    toggleAllNoteLabels(false);
 }
 
 /**

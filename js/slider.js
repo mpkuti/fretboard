@@ -152,7 +152,7 @@ export function moveSlider(event) {
             d3.select(this).selectAll('text').each(function(cd){
                 cd.fret = newFret;
                 this.textContent = getIntervalFromBasenote(cd.note);
-                if (!getIntervalVisibility()) this.style.opacity = 0; else this.style.opacity = 1;
+                d3.select(this).classed('hidden-interval', !getIntervalVisibility());
             });
         });
         if (direction < 0) lowerBaseNote(); else raiseBaseNote();
@@ -211,7 +211,7 @@ export function highlightNotesMulti(noteColorMap, defaultColor = 'white') {
  */
 export function showIntervalsWithVisual() {
     showIntervals();
-    setIntervalTextOpacity(1);
+    toggleAllIntervalLabels(true);
 }
 
 /**
@@ -219,15 +219,12 @@ export function showIntervalsWithVisual() {
  */
 export function hideIntervalsWithVisual() {
     hideIntervals();
-    setIntervalTextOpacity(0);
+    toggleAllIntervalLabels(false);
 }
 
 // Private helper to set interval label opacity (restored after cleanup)
-function setIntervalTextOpacity(opacity) {
-    d3.selectAll('text.interval-labels')
-      .transition()
-      .duration(0)
-      .style('opacity', opacity);
+function toggleAllIntervalLabels(show){
+    d3.selectAll('text.interval-labels').classed('hidden-interval', !show);
 }
 
 /**

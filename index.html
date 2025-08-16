@@ -37,6 +37,12 @@
       body.dark .fret-numbers { fill:#fafbfc; }
       body { font-family: system-ui, Arial, sans-serif; margin:18px; line-height:1.35; background:var(--bg); color:var(--text); transition: background .25s, color .25s; }
       h2 { margin-top:0; margin-bottom:6px; color:var(--heading); }
+  /* Note label visibility & transition */
+  text.note-labels { transition: opacity .15s ease; }
+  text.note-labels.hidden-note { opacity:0; pointer-events:none; }
+  /* Interval label visibility & transition */
+  text.interval-labels { transition: opacity .15s ease; }
+  text.interval-labels.hidden-interval { opacity:0; pointer-events:none; }
       /* Reserve space to avoid CLS when header text injected (reduced) */
       #fretboardHeader { min-height:1.2em; }
       #fretboard_container { margin-bottom:16px; }
