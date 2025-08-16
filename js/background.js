@@ -7,7 +7,7 @@
 // Import from the new modular structure
 import { d3, FRETBOARD_COLOR, FRET_COLOR, STRING_COLOR, DOT_FRETS, DOUBLE_DOT_FRETS, UI, NUT_STROKE_WIDTH, FRET_STROKE_WIDTH } from './constants.js';
 import { G_WIDTH, G_HEIGHT, padding, stringThicknesses, fretScale, noteScale, stringScale, getFretCount, neckWidth, MIN_FRET_SPACING, stringCount } from './layout.js';
-import { all_note_coordinates, romanize } from './utils.js';
+import { allNoteCoordinates, romanize } from './utils.js';
 import { getNoteNamesVisibility, showNoteNames, hideNoteNames } from './state.js';
 
 // Local visual sizing for background dots (independent from slider)
@@ -121,12 +121,10 @@ export function redrawBackground(svg) { drawBackground(svg); }
  * @param {d3.Selection} svg - The D3 SVG selection to draw on
  */
 export function drawNoteLabels(svg) {
-    // Add text labels for each note using all_note_coordinates
-    // x: all_note_coordinates[i][j].x
-    // y: all_note_coordinates[i][j].y
-    // note: all_note_coordinates[i][j].note
+    // Add text labels for each note using allNoteCoordinates
+    // x / y / note from objects
     svg.selectAll(".note-labels")
-        .data(all_note_coordinates)
+        .data(allNoteCoordinates)
         .enter()
         .append("text")
         .attr("class", "note-labels")

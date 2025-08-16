@@ -40,7 +40,7 @@ import { drawSlider, moveSlider, updateIntervalText, showIntervalsWithVisual, hi
 
 
 // Select the SVG container
-var svg = d3.select("#fretboard_container")
+var svg = d3.select("#fretboardContainer")
             .append("svg")
             .attr("width", containerWidth)
             .attr("height", containerHeight)
@@ -474,7 +474,7 @@ function updateZoomUI(){
 
 // Consolidated rebuild routine (used for fret count & zoom changes)
 function rebuildFretboard() {
-  const container = d3.select('#fretboard_container');
+  const container = d3.select('#fretboardContainer');
   container.select('svg').remove();
   svg = container.append('svg')
     .attr('width', containerWidth)

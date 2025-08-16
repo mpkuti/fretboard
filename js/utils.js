@@ -53,19 +53,21 @@ export function pentatonic(baseNote) {
 }
 
 /**
- * Get the note on the guitar neck at specific string and fret
- * @param {number} stringNumber - The string number (0-5)
- * @param {number} fretNumber - The fret number
+ * Get the note on the neck at a specific string & fret.
+ * String index range is dynamic (0 .. currentStringCount-1).
+ * @param {number} stringNumber - Zero-based string index (0 = highest/first displayed string)
+ * @param {number} fretNumber - Fret index (0 = open). Valid 0..sliderLength() inclusive for underlying notes array.
  * @returns {string} The note at that position
  */
 export function getNote(stringNumber, fretNumber) {
-    if (stringNumber < 0 || stringNumber > 5) {
-        throw new Error("Invalid string number " + stringNumber);
+    const stringTotal = allGuitarNotes.length;
+    if (stringNumber < 0 || stringNumber >= stringTotal) {
+        throw new Error("Invalid string number " + stringNumber + " (expected 0.." + (stringTotal-1) + ")");
     }
     if (fretNumber < 0 || fretNumber > sliderLength()) {
-        throw new Error("Invalid fret number " + fretNumber);
+        throw new Error("Invalid fret number " + fretNumber + " (expected 0.." + sliderLength() + ")");
     }
-    return all_guitar_notes[stringNumber][fretNumber];
+    return allGuitarNotes[stringNumber][fretNumber];
 }
 
 /**
@@ -116,7 +118,7 @@ function generateGuitarNotes() {
  * @returns {Object[]} Array of note coordinate objects
  */
 function generateNoteCoordinates(guitarNotes) {
-    const all_note_coordinates = [];
+    const allNoteCoordinates = [];
     const tuning = getStringTuning();
     for (let i = 0; i < tuning.length; i++) {
         for (let j = 0; j < sliderLength(); j++) {
@@ -127,21 +129,21 @@ function generateNoteCoordinates(guitarNotes) {
                 fret: j,
                 note: guitarNotes[i][j]
             };
-            all_note_coordinates.push(noteObject);
+        allNoteCoordinates.push(noteObject);
         }
     }
-    return all_note_coordinates;
+    return allNoteCoordinates;
 }
 
 // Create immutable guitar notes data structure FIRST
-export let all_guitar_notes = generateGuitarNotes();
+export let allGuitarNotes = generateGuitarNotes();
 
 // Then generate coordinates based on the created notes structure (mutable for zoom)
-export let all_note_coordinates = generateNoteCoordinates(all_guitar_notes);
+export let allNoteCoordinates = generateNoteCoordinates(allGuitarNotes);
 export function recalcAllNoteCoordinates() {
-  all_guitar_notes = generateGuitarNotes();
-  all_note_coordinates = generateNoteCoordinates(all_guitar_notes);
-  return all_note_coordinates;
+    allGuitarNotes = generateGuitarNotes();
+    allNoteCoordinates = generateNoteCoordinates(allGuitarNotes);
+    return allNoteCoordinates;
 }
 
 export { raiseNote, lowerNote, getIntervalFromNotes };

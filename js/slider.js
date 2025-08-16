@@ -7,7 +7,7 @@
 // Import from the new modular structure
 import { d3, UI, CIRCLE_OPACITY } from './constants.js';
 import { MIN_FRET_SPACING, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, openNoteX, stringScale } from './layout.js';
-import { all_note_coordinates, recalcAllNoteCoordinates, raiseNote, lowerNote } from './utils.js';
+import { allNoteCoordinates, recalcAllNoteCoordinates, raiseNote, lowerNote } from './utils.js';
 import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, hideIntervals, getBaseNote, getIntervalVisibility } from './state.js';
 
 // Local visual sizing for slider circles (independent from background)
@@ -33,7 +33,7 @@ let xCenters = [];
  */
 export function drawSlider(svg) {
     svg.select('#sliderLayer').remove();
-    let coords = all_note_coordinates;
+    let coords = allNoteCoordinates;
     // Ensure we operate with the root SVG for defs/clipPath (zoomRoot passes a <g>)
     const rootSvg = svg.node().ownerSVGElement ? d3.select(svg.node().ownerSVGElement) : svg;
     let defs = rootSvg.select('defs');
@@ -90,8 +90,8 @@ export function drawSlider(svg) {
         .attr('x',0)
         .attr('y', d=>d.y)
         .attr('text-anchor','middle')
-        .attr('dx','0.75em')
-        .attr('dy','-0.85em')
+    .attr('dx', UI.INTERVAL_LABEL_DX)
+    .attr('dy', UI.INTERVAL_LABEL_DY)
         .text(d=>getIntervalFromBasenote(d.note))
         .attr('font-family','sans-serif')
         .attr('font-size', UI.NOTE_FONT_SIZE_PX + 'px')
