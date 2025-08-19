@@ -40,10 +40,13 @@ export function drawSlider(svg) {
     // Clip region: from just left of the open string circle to the end of the neck (exclude overshoot to right).
     const openX = openNoteX();
     const r = NOTE_CIRCLE_R();
-    const LEFT_EXTENT = r * 1.2; // extra breathing room so stroke isn't clipped
-    const leftClipX = openX - LEFT_EXTENT; // ensure full open string circle
-    const rightEdge = padding + G_WIDTH; // end of visible neck
-    const clipWidth = rightEdge - leftClipX;
+    // Estimate one shift step (distance between open string column and next fret column)
+    const predictedStepWidth = (padding + noteScale(1)) - openX; // analogous to xCenters[1]-xCenters[0]
+    // Extend clip left far enough so animated leftward travel isn't prematurely cut mid-air
+    const extraTravel = Math.max(0, predictedStepWidth - r); // ensure full circle visible through most of travel
+    const leftClipX = Math.max(0, openX - extraTravel - r * 1.4); // add a bit more for stroke
+    const rightEdge = padding + G_WIDTH; // neck end
+    const clipWidth = Math.max(0, rightEdge - leftClipX);
     defs.append('clipPath')
         .attr('id', 'fretboard-clip')
         .append('rect')
