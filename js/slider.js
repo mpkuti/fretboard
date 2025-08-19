@@ -37,14 +37,19 @@ export function drawSlider(svg) {
     let defs = rootSvg.select('defs');
     if (defs.empty()) defs = rootSvg.append('defs');
     defs.select('#fretboard-clip').remove();
-    const LEFT_MARGIN = NOTE_CIRCLE_R();
-    const RIGHT_MARGIN = NOTE_CIRCLE_R();
+    // Clip region: from just left of the open string circle to the end of the neck (exclude overshoot to right).
+    const openX = openNoteX();
+    const r = NOTE_CIRCLE_R();
+    const LEFT_EXTENT = r * 1.2; // extra breathing room so stroke isn't clipped
+    const leftClipX = openX - LEFT_EXTENT; // ensure full open string circle
+    const rightEdge = padding + G_WIDTH; // end of visible neck
+    const clipWidth = rightEdge - leftClipX;
     defs.append('clipPath')
         .attr('id', 'fretboard-clip')
         .append('rect')
-        .attr('x', 0)
+        .attr('x', leftClipX)
         .attr('y', padding)
-        .attr('width', padding + G_WIDTH + RIGHT_MARGIN)
+        .attr('width', clipWidth)
         .attr('height', G_HEIGHT);
 
     slider_group = svg.append('g').attr('id','sliderLayer').attr('clip-path','url(#fretboard-clip)');

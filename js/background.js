@@ -6,7 +6,7 @@
 
 // Import from the new modular structure
 import { d3, FRETBOARD_COLOR, FRET_COLOR, STRING_COLOR, DOT_FRETS, DOUBLE_DOT_FRETS, UI, NUT_STROKE_WIDTH, FRET_STROKE_WIDTH } from './constants.js';
-import { G_WIDTH, G_HEIGHT, padding, stringThicknesses, fretScale, noteScale, stringScale, getFretCount, neckWidth, MIN_FRET_SPACING, stringCount } from './layout.js';
+import { G_WIDTH, G_HEIGHT, padding, stringThicknesses, fretScale, noteScale, stringScale, getFretCount, neckWidth, MIN_FRET_SPACING, stringCount, openNoteX } from './layout.js';
 import { allNoteCoordinates, romanize } from './utils.js';
 import { getNoteNamesVisibility, showNoteNames, hideNoteNames } from './state.js';
 
@@ -122,9 +122,11 @@ export function redrawBackground(svg) { drawBackground(svg); }
  */
 export function drawNoteLabels(svg) {
         // Only render labels within the horizontal neck (including padding bounds)
-        const leftBound = padding; // nut (x of fret 0)
-        const rightBound = padding + neckWidth; // end of last visible fret
-        const visibleNotes = allNoteCoordinates.filter(n => n.x >= leftBound - 0.1 && n.x <= rightBound + 0.1);
+    // Extend left bound to include open string position (which lies slightly left of nut)
+    const openX = openNoteX();
+    const leftBound = Math.min(openX - 0.1, padding - 0.1); // allow open note label fully
+    const rightBound = padding + neckWidth; // end of last visible fret
+    const visibleNotes = allNoteCoordinates.filter(n => n.x >= leftBound && n.x <= rightBound + 0.1);
         svg.selectAll('.note-labels')
             .data(visibleNotes, d=> d.string + ':' + d.fret)
             .enter()
