@@ -246,18 +246,28 @@ function bindUIEvents() {
     select.value = getHighlightMode();
     select.addEventListener('change', e => selectHighlightMode(e.target.value));
   }
-  const basicModes = [
-    'NONE','BASENOTE','PENTATONIC_SCALE','MAJOR_SCALE','NATURAL_MINOR_SCALE',
-    'MAJOR_CHORD','MINOR_CHORD','DOMINANT_SEVEN_CHORD','MAJOR_SEVEN_CHORD','MINOR_SEVEN_CHORD','POWER_CHORD'
+  // Grouping support (Basic vs Advanced). Basic shows a curated minimal list; Advanced shows full grouped lists.
+  const ALL_MODES = Object.keys(HIGHLIGHT_MODE_INTERVAL_MAP);
+  const BASIC_ONLY_LIST = [
+    'NONE','BASENOTE',
+    'MAJOR_CHORD','MINOR_CHORD','POWER_CHORD','DOMINANT_SEVEN_CHORD','MAJOR_SEVEN_CHORD','MINOR_SEVEN_CHORD',
+    'PENTATONIC_SCALE','MAJOR_SCALE','NATURAL_MINOR_SCALE','BLUES_SCALE'
   ];
-  const advancedGroups = [
-    {label:'Basic', modes:basicModes},
-    {label:'Triads / Power / Sus', modes:['DIMINISHED_CHORD','AUGMENTED_CHORD','SUSPENDED_2_CHORD','SUSPENDED_4_CHORD']},
-    {label:'6 / Add / 7', modes:['SIX_CHORD','MINOR_SIX_CHORD','ADD9_CHORD','MINOR_ADD9_CHORD','SIX_NINE_CHORD','HALF_DIMINISHED_SEVEN_CHORD','DIMINISHED_SEVEN_CHORD','MINOR_MAJOR_SEVEN_CHORD']},
-    {label:'Extended (9/11/13)', modes:['MAJOR_NINE_CHORD','DOMINANT_NINE_CHORD','MINOR_NINE_CHORD','MINOR_MAJOR_NINE_CHORD','DOMINANT_ELEVEN_CHORD','MAJOR_ELEVEN_CHORD','MINOR_ELEVEN_CHORD','DOMINANT_THIRTEEN_CHORD','MAJOR_THIRTEEN_CHORD','MINOR_THIRTEEN_CHORD']},
-    {label:'Altered / Susp', modes:['DOMINANT_SEVEN_SUS4_CHORD','DOMINANT_FLAT_NINE_CHORD','DOMINANT_SHARP_NINE_CHORD','DOMINANT_FLAT_THIRTEEN_CHORD','DOMINANT_SHARP_ELEVEN_CHORD','ALTERED_DOMINANT_CHORD','DOMINANT_SEVEN_SHARP_NINE_CHORD']},
-    {label:'Scales', modes:['HARMONIC_MINOR_SCALE','MELODIC_MINOR_SCALE','BLUES_SCALE','WHOLE_TONE_SCALE','DIMINISHED_HALF_WHOLE_SCALE','DIMINISHED_WHOLE_HALF_SCALE']}
+  const BASIC_GROUP = ['NONE','BASENOTE'];
+  const CHORD_ORDER = [
+    'POWER_CHORD','MAJOR_CHORD','MINOR_CHORD','SUSPENDED_2_CHORD','SUSPENDED_4_CHORD','DIMINISHED_CHORD','AUGMENTED_CHORD',
+    'SIX_CHORD','MINOR_SIX_CHORD','ADD9_CHORD','MINOR_ADD9_CHORD','SIX_NINE_CHORD',
+    'MAJOR_SEVEN_CHORD','DOMINANT_SEVEN_CHORD','MINOR_SEVEN_CHORD','MINOR_MAJOR_SEVEN_CHORD','HALF_DIMINISHED_SEVEN_CHORD','DIMINISHED_SEVEN_CHORD',
+    'MAJOR_NINE_CHORD','DOMINANT_NINE_CHORD','MINOR_NINE_CHORD','MINOR_MAJOR_NINE_CHORD',
+    'DOMINANT_ELEVEN_CHORD','MAJOR_ELEVEN_CHORD','MINOR_ELEVEN_CHORD',
+    'DOMINANT_THIRTEEN_CHORD','MAJOR_THIRTEEN_CHORD','MINOR_THIRTEEN_CHORD',
+    'DOMINANT_SEVEN_SUS4_CHORD','DOMINANT_FLAT_NINE_CHORD','DOMINANT_SHARP_NINE_CHORD','DOMINANT_FLAT_THIRTEEN_CHORD','DOMINANT_SHARP_ELEVEN_CHORD','ALTERED_DOMINANT_CHORD','DOMINANT_SEVEN_SHARP_NINE_CHORD'
   ];
+  const CHORD_GROUP = ALL_MODES.filter(m=>m.endsWith('_CHORD')).sort((a,b)=> CHORD_ORDER.indexOf(a) - CHORD_ORDER.indexOf(b));
+  const SCALE_ORDER = [
+    'PENTATONIC_SCALE','MAJOR_SCALE','NATURAL_MINOR_SCALE','HARMONIC_MINOR_SCALE','MELODIC_MINOR_SCALE','BLUES_SCALE','WHOLE_TONE_SCALE','DIMINISHED_HALF_WHOLE_SCALE','DIMINISHED_WHOLE_HALF_SCALE'
+  ];
+  const SCALE_GROUP = ALL_MODES.filter(m=>m.endsWith('_SCALE')).sort((a,b)=> SCALE_ORDER.indexOf(a) - SCALE_ORDER.indexOf(b));
   function labelFor(mode){
     const map = {
       NONE:'None', BASENOTE:'Basenote', PENTATONIC_SCALE:'Pentatonic Scale', MAJOR_SCALE:'Major Scale', NATURAL_MINOR_SCALE:'Natural Minor Scale', HARMONIC_MINOR_SCALE:'Harmonic Minor Scale', MELODIC_MINOR_SCALE:'Melodic Minor Scale', BLUES_SCALE:'Blues Scale', WHOLE_TONE_SCALE:'Whole Tone Scale', DIMINISHED_HALF_WHOLE_SCALE:'Half-Whole Diminished', DIMINISHED_WHOLE_HALF_SCALE:'Whole-Half Diminished',
@@ -269,31 +279,45 @@ function bindUIEvents() {
     };
     return map[mode] || mode;
   }
-  function rebuildSelect(modeSet){
+  function rebuildSelect(){
     if (!select) return;
     const current = getHighlightMode();
+    const modeSet = getHighlightSet() || 'ADVANCED';
     select.innerHTML='';
     if (modeSet === 'BASIC') {
-      basicModes.forEach(m=>{
-        const opt=document.createElement('option'); opt.value=m; opt.textContent=labelFor(m); select.appendChild(opt);
+      // Partition curated list into Basics, Chords, Scales with headers
+      const basics = BASIC_ONLY_LIST.filter(m=> m==='NONE' || m==='BASENOTE');
+      const chords = BASIC_ONLY_LIST.filter(m=> m.endsWith('_CHORD'));
+      const scales = BASIC_ONLY_LIST.filter(m=> m.endsWith('_SCALE'));
+      const groups = [
+        { label:'Basics', modes: basics },
+        { label:'Chords', modes: chords },
+        { label:'Scales', modes: scales }
+      ];
+      groups.forEach(g=>{
+        if (!g.modes.length) return;
+        const og = document.createElement('optgroup'); og.label = g.label; select.appendChild(og);
+        g.modes.forEach(m=>{ const opt=document.createElement('option'); opt.value=m; opt.textContent=labelFor(m); og.appendChild(opt); });
       });
     } else {
-      advancedGroups.forEach(group=>{
-        const og = document.createElement('optgroup'); og.label = group.label; select.appendChild(og);
-        group.modes.forEach(m=>{ const opt=document.createElement('option'); opt.value=m; opt.textContent=labelFor(m); og.appendChild(opt); });
-      });
+      const groups = [
+        {label:'Basics', modes:BASIC_GROUP},
+        {label:'Chords', modes:CHORD_GROUP},
+        {label:'Scales', modes:SCALE_GROUP}
+      ];
+      groups.forEach(g=>{ const og=document.createElement('optgroup'); og.label=g.label; select.appendChild(og); g.modes.forEach(m=>{ const opt=document.createElement('option'); opt.value=m; opt.textContent=labelFor(m); og.appendChild(opt); }); });
     }
-    // Restore selection if present else fallback
     if ([...select.options].some(o=>o.value === current)) select.value = current; else select.value = 'BASENOTE';
     selectHighlightMode(select.value);
   }
+  // Bind highlight set radios if present (BASIC / ADVANCED)
   document.querySelectorAll('input[name="highlightSet"]').forEach(r=>{
-    r.addEventListener('change', e=>{ setHighlightSet(e.target.value); rebuildSelect(e.target.value); });
+    r.addEventListener('change', e=>{ setHighlightSet(e.target.value); rebuildSelect(); });
   });
   const storedSet = getHighlightSet();
   const radio = document.querySelector(`input[name="highlightSet"][value="${storedSet}"]`);
   if (radio) radio.checked = true;
-  rebuildSelect(storedSet || (document.querySelector('input[name="highlightSet"]:checked')?.value || 'BASIC'));
+  rebuildSelect();
 }
 
 // ---------------- TUNING PANEL LOGIC ----------------
