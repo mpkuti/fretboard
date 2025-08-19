@@ -117,7 +117,7 @@ export const OPEN_NOTE_BASELINE = SLIDER_LENGTH; // reference span used to ancho
 export const CIRCLE_OPACITY = 0.6; // uniform dot opacity
 // Added UI magic number extractions
 export const ZOOM_MIN = 0.6;
-export const ZOOM_MAX = 1.2;
+export const ZOOM_MAX = 1.8; // allow expansion to ~1000px container width
 export const ZOOM_STEP = 0.1;
 export const NUT_STROKE_WIDTH = 5;
 export const FRET_STROKE_WIDTH = 3;
@@ -128,3 +128,9 @@ export const UI = Object.freeze({
   INTERVAL_LABEL_DY: '-0.85em',
   NOTE_FONT_SIZE_PX: 12
 });
+// Responsive layout reference widths
+export const FRETBOARD_MAX_DISPLAY_WIDTH = 1000; // maximum responsive display width
+export const RESPONSIVE_MARGIN_PX = 20; // horizontal breathing room when fitting
+export const FRETBOARD_MIN_DISPLAY_WIDTH = 360; // minimum responsive display width (px)
+// Debug / developer tooling flags
+export const DEBUG_OVERLAY_ENABLED = false; // set true to show runtime sizing/zoom metrics overlay

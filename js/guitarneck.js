@@ -5,9 +5,9 @@
  */
 
 // Import from the new modular structure
-import { d3, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE, ZOOM_MIN, ZOOM_MAX, ZOOM_STEP, MIN_FRETS, MAX_FRETS } from './constants.js';
+import { d3, DEFAULTS, HIGHLIGHT_MODE_INTERVAL_MAP, CHORD_PALETTE, ZOOM_MIN, ZOOM_MAX, ZOOM_STEP, MIN_FRETS, MAX_FRETS, DEBUG_OVERLAY_ENABLED } from './constants.js';
 import { STORAGE_KEYS, PERSISTED_SETTINGS } from './constants.js';
-import { getZoomLevel, setZoomLevel, containerWidth, containerHeight, padding, setFretCount, getFretCount } from './layout.js';
+import { getZoomLevel, getDisplayZoom, setZoomLevel, containerWidth, containerHeight, padding, setFretCount, getFretCount, autoAdjustZoomToViewport, isAutoZoomActive, fitZoomToViewport, stretchScale } from './layout.js';
 import { pentatonic, buildPentatonicLabel, getNoteFromInterval, recalcAllNoteCoordinates } from './utils.js';
 import { 
   getBaseNote, 
@@ -481,7 +481,47 @@ function onHighlightModeChanged() {
 
 function updateZoomUI(){
   const el = document.getElementById('zoomLevelDisplay');
-  if (el) el.textContent = `Zoom: ${getZoomLevel().toFixed(1)}`;
+  if (el) el.textContent = `Zoom: ${getDisplayZoom().toFixed(1)}`;
+}
+
+// ---------------- DEBUG OVERLAY ----------------
+function ensureDebugOverlay(){
+  if (!DEBUG_OVERLAY_ENABLED) return null;
+  let box = document.getElementById('debugMetrics');
+  if (!box){
+    box = document.createElement('div');
+    box.id = 'debugMetrics';
+    box.style.position = 'fixed';
+    box.style.bottom = '4px';
+    box.style.right = '6px';
+    box.style.background = 'rgba(0,0,0,0.55)';
+    box.style.color = '#fff';
+    box.style.font = '11px/1.2 monospace';
+    box.style.padding = '4px 6px';
+    box.style.borderRadius = '4px';
+    box.style.zIndex = '9999';
+    box.style.pointerEvents = 'none';
+    box.style.whiteSpace = 'pre';
+    document.body.appendChild(box);
+  }
+  return box;
+}
+function removeDebugOverlay(){
+  if (DEBUG_OVERLAY_ENABLED) return; // only remove when disabled
+  const box = document.getElementById('debugMetrics');
+  if (box && box.parentNode) box.parentNode.removeChild(box);
+}
+function updateDebugOverlay(){
+  if (!DEBUG_OVERLAY_ENABLED){ removeDebugOverlay(); return; }
+  const box = ensureDebugOverlay();
+  if (!box) return;
+  const vpW = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+  const svgEl = document.querySelector('#fretboardContainer svg');
+  const svgAttrW = svgEl ? Number(svgEl.getAttribute('width')) : 0;
+  const svgClientW = svgEl ? svgEl.clientWidth : 0;
+  const dispZoom = getDisplayZoom().toFixed(2);
+  const logicalZoom = getZoomLevel().toFixed(3);
+  box.textContent = `vp:${vpW}px\nsvgAttr:${svgAttrW}px\nsvgClient:${svgClientW}px\ncontainer:${Math.round(containerWidth)}px\nzoom(disp):${dispZoom}\nzoom(raw):${logicalZoom}`;
 }
 
 // Consolidated rebuild routine (used for fret count & zoom changes)
@@ -491,7 +531,9 @@ function rebuildFretboard() {
   svg = container.append('svg')
     .attr('width', containerWidth)
     .attr('height', containerHeight)
-    .classed('ready', true);
+    .attr('viewBox', `0 0 ${containerWidth / stretchScale} ${containerHeight / stretchScale}`)
+    .classed('ready', true)
+    .style('max-width','100%');
   zoomRoot = svg.append('g').attr('id','zoomRoot');
   drawBackground(zoomRoot);
   drawSlider(zoomRoot);
@@ -503,6 +545,7 @@ function rebuildFretboard() {
   if (getNoteNamesVisibility()) { showAllNotes(); } else { hideAllNotes(); }
   if (getIntervalVisibility()) { showIntervalsWithVisual(); } else { hideIntervalsWithVisual(); }
   updateHeader();
+  updateDebugOverlay();
 }
 // Backward compatibility alias
 function rebuildAll(){ rebuildFretboard(); }
@@ -516,6 +559,7 @@ function changeZoom(delta){
   updateZoomUI();
   rebuildFretboard();
   updateContainerDimensions();
+  updateDebugOverlay();
 }
 
 function bindZoomButtons(){
@@ -619,6 +663,11 @@ window.addEventListener('DOMContentLoaded', () => {
     recalcAllNoteCoordinates();
     rebuildFretboard();
   updateContainerDimensions();
+  updateDebugOverlay();
+  });
+  // When layout internals change (e.g., tuning change triggers string count, stretch scale recalc), refresh overlay.
+  document.addEventListener('layoutChanged', () => {
+  updateDebugOverlay();
   });
   initializeView();
   bindUIEvents();
@@ -631,5 +680,20 @@ window.addEventListener('DOMContentLoaded', () => {
   outlineBaseNoteCircles(getBaseNote());
   updateHeader();
   updateContainerDimensions();
+  // Perform an initial auto zoom adjustment if active (viewport may have changed between script eval & DOMContentLoaded)
+  try { autoAdjustZoomToViewport(); recalcAllNoteCoordinates(); rebuildFretboard(); updateZoomUI(); } catch {}
+  // Always keep fretboard width responsive to viewport changes (debounced)
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(()=>{
+      autoAdjustZoomToViewport();
+      recalcAllNoteCoordinates();
+      rebuildFretboard();
+      updateZoomUI();
+    updateDebugOverlay();
+    }, 100);
+  });
   svg.classed('ready', true).classed('init-fade', false);
+  updateDebugOverlay();
 });

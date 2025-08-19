@@ -53,9 +53,9 @@ export function drawBackground(svg) {
     // Decoration dots container
     const dots_group = layer.append('g').attr('class','fret-dots');
 
-    // Single dots
+    // Single dots (only within visible fret range)
     dots_group.selectAll('.single-dots')
-        .data(DOT_FRETS)
+        .data(DOT_FRETS.filter(f => f <= getFretCount()))
         .enter()
         .append('circle')
         .attr('class','single-dots')
@@ -63,9 +63,9 @@ export function drawBackground(svg) {
         .attr('cy', padding + G_HEIGHT/2)
         .attr('cx', d => padding + noteScale(d));
 
-    // Double dots (top)
+    // Double dots (top) within visible range
     dots_group.selectAll('.double-dots-1')
-        .data(DOUBLE_DOT_FRETS)
+        .data(DOUBLE_DOT_FRETS.filter(f => f <= getFretCount()))
         .enter()
         .append('circle')
         .attr('class','double-dots-1')
@@ -73,9 +73,9 @@ export function drawBackground(svg) {
         .attr('cy', padding + G_HEIGHT/3)
         .attr('cx', d => padding + noteScale(d));
 
-    // Double dots (bottom)
+    // Double dots (bottom) within visible range
     dots_group.selectAll('.double-dots-2')
-        .data(DOUBLE_DOT_FRETS)
+        .data(DOUBLE_DOT_FRETS.filter(f => f <= getFretCount()))
         .enter()
         .append('circle')
         .attr('class','double-dots-2')
@@ -121,22 +121,24 @@ export function redrawBackground(svg) { drawBackground(svg); }
  * @param {d3.Selection} svg - The D3 SVG selection to draw on
  */
 export function drawNoteLabels(svg) {
-    // Add text labels for each note using allNoteCoordinates
-    // x / y / note from objects
-    svg.selectAll(".note-labels")
-        .data(allNoteCoordinates)
-        .enter()
-        .append("text")
-        .attr("class", "note-labels")
-        .attr('data-note', d=>d.note)
-        .attr('data-string', d=>d.string)
-        .attr('data-fret', d=>d.fret)
-        .attr("x", (d) => d.x)
-        .attr("y", (d) => d.y)
-        .attr("dy", "0.35em") // vertical alignment
-        .text((d) => d.note)
-        .attr("text-anchor", "middle")
-        .attr('font-size', UI.NOTE_FONT_SIZE_PX + 'px');
+        // Only render labels within the horizontal neck (including padding bounds)
+        const leftBound = padding; // nut (x of fret 0)
+        const rightBound = padding + neckWidth; // end of last visible fret
+        const visibleNotes = allNoteCoordinates.filter(n => n.x >= leftBound - 0.1 && n.x <= rightBound + 0.1);
+        svg.selectAll('.note-labels')
+            .data(visibleNotes, d=> d.string + ':' + d.fret)
+            .enter()
+            .append('text')
+            .attr('class','note-labels')
+            .attr('data-note', d=>d.note)
+            .attr('data-string', d=>d.string)
+            .attr('data-fret', d=>d.fret)
+            .attr('x', d=>d.x)
+            .attr('y', d=>d.y)
+            .attr('dy','0.35em')
+            .text(d=>d.note)
+            .attr('text-anchor','middle')
+            .attr('font-size', UI.NOTE_FONT_SIZE_PX + 'px');
 }
 
 /**
