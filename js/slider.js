@@ -6,7 +6,7 @@
 
 // Import from the new modular structure
 import { d3, UI, CIRCLE_OPACITY } from './constants.js';
-import { MIN_FRET_SPACING, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, openNoteX, stringScale } from './layout.js';
+import { MIN_FRET_SPACING, G_WIDTH, G_HEIGHT, padding, sliderLength, noteScale, openNoteX, stringScale, neckWidth } from './layout.js';
 import { allNoteCoordinates, recalcAllNoteCoordinates, raiseNote, lowerNote } from './utils.js';
 import { getIntervalFromBasenote, lowerBaseNote, raiseBaseNote, showIntervals, hideIntervals, getBaseNote, getIntervalVisibility } from './state.js';
 
@@ -176,7 +176,15 @@ function startSliderShift(direction){
  * @param {Event} event - The mouse click event
  */
 export function moveSlider(event) {
-    const direction = event.pageX < G_WIDTH/2 ? -1 : 1; // -1 = shift left, +1 = shift right
+    const [x, y] = d3.pointer(event, event.currentTarget);
+    const left = 0;
+    const right = padding + neckWidth;
+    const top = padding;
+    const bottom = padding + G_HEIGHT;
+
+    if (x < left || x > right || y < top || y > bottom) return;
+
+    const direction = x < (left + right) / 2 ? -1 : 1; // -1 = shift left, +1 = shift right
     startSliderShift(direction);
 }
 

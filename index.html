@@ -9,87 +9,9 @@
     <meta name="author" content="Mika Kutila">
     <title>Fretboard</title>
     <link rel="icon" href="img/favicon.ico" type="image/x-icon">
-    <style>
-      :root {
-        --bg:#ffffff;
-        --text:#222;
-        --heading:#333;
-        --panel-bg:#f8f8f8;
-        --panel-border:#ccc;
-        --muted:#666;
-        --divider1:#ddd; --divider2:#eee;
-        --button-bg1:#ffffff; --button-bg2:#f0f0f0; --button-bg-hover2:#e8e8e8;
-        --focus-ring: 0 0 0 3px rgba(0,123,255,0.35);
-      }
-      body.dark {
-        --bg:#101418;
-        --text:#e2e6ea;
-        --heading:#fafbfc;
-        --panel-bg:#1d2329;
-        --panel-border:#3a444e;
-        --muted:#8a96a3;
-        --divider1:#2c343c; --divider2:#1f262c;
-        --button-bg1:#262f37; --button-bg2:#1f272e; --button-bg-hover2:#273039;
-        --focus-ring: 0 0 0 3px rgba(120,180,255,0.4);
-      }
-      /* Fret number theming */
-      .fret-numbers { fill:#111; }
-      body.dark .fret-numbers { fill:#fafbfc; }
-      body { font-family: system-ui, Arial, sans-serif; margin:18px; line-height:1.35; background:var(--bg); color:var(--text); transition: background .25s, color .25s; }
-      h2 { margin-top:0; margin-bottom:6px; color:var(--heading); }
-  /* Note label visibility & transition */
-  text.note-labels { transition: opacity .15s ease; }
-  text.note-labels.hidden-note { opacity:0; pointer-events:none; }
-  /* Interval label visibility & transition */
-  text.interval-labels { transition: opacity .15s ease; }
-  text.interval-labels.hidden-interval { opacity:0; pointer-events:none; }
-      /* Reserve space to avoid CLS when header text injected (reduced) */
-      #fretboardHeader { min-height:1.2em; }
-  #fretboardContainer { margin-bottom:16px; margin-top:-18px; }
-      #controlArea { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; align-items:start; margin-top:12px; }
-      .panel { background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:8px; padding:12px 14px 14px; box-shadow:0 1px 2px rgba(0,0,0,0.08); transition: background .25s, border-color .25s; }
-      .panel h4 { margin:0 0 8px; font-size:1rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600; color:var(--heading); }
-      .panel label { cursor:pointer; }
-  /* Tuning panel helpers */
-  .tuning-rows { display:flex; flex-direction:column; gap:4px; margin-top:8px; }
-  .tuning-row { display:flex; align-items:center; gap:6px; }
-  .tuning-row label { width:38px; text-align:right; font-size:.75rem; color:var(--muted); }
-  #tuningSummary { font-size:.65rem; margin-top:6px; }
-      fieldset { border:none; padding:0; margin:0; }
-      fieldset legend { font-weight:600; margin-bottom:4px; }
-      .inline-radio label { display:flex; align-items:center; gap:4px; margin:2px 0; }
-      #zoomControls { display:flex; align-items:center; gap:6px; margin:4px 0 0; }
-      #zoomControls button { width:2.2em; height:2.2em; font-size:1rem; }
-      #zoomLevelDisplay { font-variant-numeric:tabular-nums; }
-      .number-input-row { display:flex; align-items:center; gap:6px; margin-top:6px; }
-      .muted { color:var(--muted); font-size:.75rem; }
-      .divider { height:1px; background:linear-gradient(90deg,var(--divider1),var(--divider2),var(--divider1)); margin:8px 0 10px; border:none; }
-      .stretch { width:100%; }
-      .actions-row { display:flex; gap:8px; margin-top:6px; }
-      button, input[type=number], select { border:1px solid var(--panel-border); border-radius:4px; padding:4px 6px; background:linear-gradient(var(--button-bg1),var(--button-bg2)); color:var(--text); transition: background .2s, color .2s, border-color .2s; }
-      button:hover { background:linear-gradient(var(--button-bg1),var(--button-bg-hover2)); }
-      button:focus, input:focus, select:focus { outline:none; box-shadow:var(--focus-ring); }
-  #themeToggleBtn, #resetAppBtn { padding:6px 10px; font-size:.85rem; }
-      #pageFooter { margin:40px 0 12px; text-align:center; display:flex; justify-content:center; align-items:center; gap:12px; }
-      @media (max-width:560px){ #controlArea { grid-template-columns:1fr; } }
-    </style>
-    <!-- Pre-size fretboard container (Option A CLS mitigation) -->
-    <script>
-      (function(){
-        var zMin=0.4, zMax=1.6, z=1.0;
-        try {
-          var raw = localStorage.getItem('zoomLevel');
-            if(raw!==null){ var p=parseFloat(raw); if(!isNaN(p)) z = Math.min(zMax, Math.max(zMin, p)); }
-        } catch {}
-        var BASE_G_WIDTH=500, BASE_G_HEIGHT=200, BASE_PADDING=60;
-        var cw = Math.round(z * (BASE_G_WIDTH + BASE_PADDING));
-        var ch = Math.round(z * (BASE_G_HEIGHT + 2*BASE_PADDING));
-        var styleEl = document.createElement('style');
-        // Reserve exact space; width unaffected by dynamic fret count in current layout logic
-  styleEl.textContent = '#fretboardContainer{width:'+cw+'px;height:'+ch+'px;display:block;}';
-        document.head.appendChild(styleEl);
-      })();
-    </script>
+    <script src="js/boot_theme.js"></script>
+    <script src="js/boot_presize.js"></script>
+    <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
     <h2 id="fretboardHeader"></h2>
@@ -98,8 +20,8 @@
     <div id="controlArea" aria-label="Fretboard controls">
       <div class="panel" aria-labelledby="panel-highlight">
         <h4 id="panel-highlight">Highlights</h4>
-        <label for="baseNoteSelectDropdown" class="muted" style="font-size:.7rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600;">Base Note</label>
-        <select id="baseNoteSelectDropdown" class="stretch" aria-label="Select base note" style="margin:4px 0 10px;">
+        <label for="baseNoteSelectDropdown" class="muted control-label">Base Note</label>
+        <select id="baseNoteSelectDropdown" class="stretch select-spacing-wide" aria-label="Select base note">
           <option value="C">C</option>
           <option value="C#">C#</option>
           <option value="D">D</option>
@@ -113,8 +35,8 @@
           <option value="A#">A#</option>
           <option value="B">B</option>
         </select>
-        <label for="highlightModeSelect" class="muted" style="font-size:.7rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600;">Highlight Mode</label>
-        <select id="highlightModeSelect" class="stretch" aria-label="Select highlight mode" style="margin:4px 0 6px;">
+        <label for="highlightModeSelect" class="muted control-label">Highlight Mode</label>
+        <select id="highlightModeSelect" class="stretch select-spacing-tight" aria-label="Select highlight mode">
           <option value="NONE">None</option>
           <option value="BASENOTE" selected>Basenote</option>
           <option value="PENTATONIC_SCALE">Pentatonic Scale</option>
@@ -127,19 +49,19 @@
           <option value="MINOR_SEVEN_CHORD">m7 Chord</option>
           <option value="POWER_CHORD">Power Chord</option>
         </select>
-        <div class="muted" style="font-size:.7rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600; margin-top:6px;">Highlight List</div>
-        <div style="margin:4px 0 8px; font-size:.85rem;">
+        <div class="muted control-label highlight-list-title">Highlight List</div>
+        <div class="highlight-set-row">
           <label><input type="radio" name="highlightSet" value="BASIC" checked> Basic</label>
-          <label style="margin-left:10px;"><input type="radio" name="highlightSet" value="ADVANCED"> Advanced</label>
+          <label class="offset-label"><input type="radio" name="highlightSet" value="ADVANCED"> Advanced</label>
         </div>
-        <div class="muted" style="font-size:.65rem;">Advanced adds extended / altered chords & scales.</div>
+        <div class="muted muted-fine">Advanced adds extended / altered chords & scales.</div>
       </div>
 
       <!-- Combined Layout and Visibility into a single Settings panel -->
       <div class="panel" aria-labelledby="panel-settings">
         <h4 id="panel-settings">Settings</h4>
         <hr class="divider" />
-        <div class="number-input-row" style="margin-bottom:6px;">
+        <div class="number-input-row row-bottom-gap">
           <label for="instrumentTypeSelect">Instrument:</label>
           <select id="instrumentTypeSelect" class="stretch" aria-label="Select instrument / string count">
             <option value="guitar6">Guitar (6-string)</option>
@@ -154,7 +76,7 @@
             <!-- options populated at runtime from MIN_FRETS..MAX_FRETS -->
           </select>
         </div>
-        <div style="margin-top:10px;"></div>
+        <div class="section-spacer"></div>
         <div>
           <label><input type="checkbox" id="noteNamesCheckbox" checked /> Show Notes</label><br />
           <label><input type="checkbox" id="intervalNamesCheckbox" /> Show Intervals</label>
@@ -164,7 +86,7 @@
       <!-- New dedicated Tuning panel -->
       <div class="panel" aria-labelledby="panel-tuning">
         <h4 id="panel-tuning">Tuning</h4>
-        <div class="number-input-row" style="margin-bottom:6px;">
+        <div class="number-input-row row-bottom-gap">
           <label for="tuningPresetSelect">Preset:</label>
           <select id="tuningPresetSelect" class="stretch" aria-label="Select tuning preset">
             <option value="STANDARD">Standard (E A D G B E)</option>
@@ -181,8 +103,8 @@
 
       <div class="panel" aria-labelledby="panel-instructions">
         <h4 id="panel-instructions">Instructions</h4>
-        <p class="muted" style="margin:0 0 6px;">Colors / intervals update with base note and highlight mode.</p>
-        <ul class="muted" style="padding-left:16px; margin:0; list-style:disc;">
+        <p class="muted instructions-copy">Colors / intervals update with base note and highlight mode.</p>
+        <ul class="muted instructions-list">
           <li>Click fretboard to shift base note (direction depends on click side).</li>
           <li>Use Left / Right Arrow keys to shift base note & slider.</li>
           <li>Change Frets to resize neck.</li>
@@ -197,36 +119,9 @@
         <span id="zoomLevelDisplay" aria-live="polite"></span>
         <button id="zoomInBtn" title="Zoom in" aria-label="Zoom in">+</button>
       </div>
-  <button id="resetAppBtn" type="button" title="Reset all settings to defaults" aria-label="Reset application to defaults">Reset</button>
+      <button id="resetAppBtn" type="button" title="Reset all settings to defaults" aria-label="Reset application to defaults">Reset</button>
       <button id="themeToggleBtn" type="button" aria-pressed="false" title="Toggle dark / light theme">Dark Theme</button>
     </footer>
-
-    <script>
-      (function(){
-        const KEY='theme';
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        let storedRaw = localStorage.getItem(KEY);
-        let stored;
-        try { stored = storedRaw === null ? null : JSON.parse(storedRaw); } catch { stored = storedRaw; }
-        if (stored === 'dark' || (!stored && prefersDark)) {
-          document.body.classList.add('dark');
-        }
-        function persist(val){ try { localStorage.setItem(KEY, JSON.stringify(val)); } catch {} }
-        function updateLabel(){
-          const btn=document.getElementById('themeToggleBtn'); if(!btn) return;
-          const dark = document.body.classList.contains('dark');
-          btn.textContent = dark ? 'Light Theme' : 'Dark Theme';
-          btn.setAttribute('aria-pressed', dark?'true':'false');
-        }
-        document.getElementById('themeToggleBtn').addEventListener('click',()=>{
-          const willBeDark = !document.body.classList.contains('dark');
-            document.body.classList.toggle('dark');
-            persist(willBeDark ? 'dark' : 'light');
-            updateLabel();
-        });
-        updateLabel();
-      })();
-    </script>
     <script type="module" src="js/guitarneck.js"></script>
 </body>
 </html>

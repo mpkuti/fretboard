@@ -51,10 +51,7 @@ var zoomRoot = svg.append('g').attr('id','zoomRoot');
 drawBackground(zoomRoot);
 drawSlider(zoomRoot);
 drawNoteLabels(zoomRoot);
-
-
-// Attach the click event handler to the scalable root
-zoomRoot.on("click", moveSlider);
+zoomRoot.on('click', moveSlider);
 
 // Helper: keep outer container sized to current layout so subsequent boxes shift naturally
 function updateContainerDimensions(){
@@ -626,13 +623,13 @@ function resetApplication(){
   if (DEFAULTS.SHOW_INTERVALS) { showIntervals(); } else { hideIntervals(); }
   // Theme (light/dark)
   try {
-    const body = document.body;
-    if (body) body.classList.toggle('dark', DEFAULTS.THEME === 'dark');
+    const root = document.documentElement;
+    if (root) root.classList.toggle('dark', DEFAULTS.THEME === 'dark');
   } catch {}
   // Update theme toggle button label & aria to match default theme
   const themeBtn = document.getElementById('themeToggleBtn');
   if (themeBtn){
-    const dark = document.body.classList.contains('dark');
+    const dark = document.documentElement.classList.contains('dark');
     themeBtn.textContent = dark ? 'Light Theme' : 'Dark Theme';
     themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
   }
