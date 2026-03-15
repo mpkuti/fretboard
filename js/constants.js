@@ -4,7 +4,8 @@
  *  - UPPER_SNAKE_CASE for immutable exported constants / maps.
  *  - camelCase for functions & runtime / derived values in other modules.
  */
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+const d3 = globalThis.d3 || await import('https://cdn.jsdelivr.net/npm/d3@7/+esm');
+
 export { d3 };
 // Pure constants
 export const MIN_FRETS = 2;
